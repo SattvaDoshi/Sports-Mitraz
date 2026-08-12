@@ -2,296 +2,243 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { Product } from "@/lib/types";
 import { useCart } from "@/lib/cart-context";
 
+type Product = {
+  id: string | number;
+  name: string;
+  image: string;
+  price: number;
+  originalPrice?: number;
+  discountPercent?: number;
+  rating?: number;
+  stock?: number;
+};
+
 export default function ProductCard({ product }: { product: Product }) {
-  const [liked, setLiked] = useState(false);
+  const {
+    id,
+    name,
+    image,
+    price,
+    originalPrice,
+    discountPercent,
+    rating,
+    stock,
+  } = product;
+
   const [added, setAdded] = useState(false);
   const router = useRouter();
   const { addToCart } = useCart();
 
-  const discount = Math.round(((product.mrp - product.price) / product.mrp) * 100);
-
   const goToDetail = () => {
-    router.push(`/product/${product.id}`);
+    router.push(`/product/${id}`);
   };
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (product.stock === 0) return;
+    if (stock === 0) return;
     addToCart(product, 1);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   };
 
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (stock === 0) return;
+    addToCart(product, 1);
+    router.push("/checkout");
+  };
+
   return (
-    <article className="pc" onClick={goToDetail} role="button" tabIndex={0}>
-      <div className="pc__media">
-        {discount > 0 && <span className="pc__badge">{discount}% Off</span>}
+    <div className="pc-card" onClick={goToDetail} role="button" tabIndex={0}>
+      <div className="pc-card__imageWrap">
+        <img src={image} alt={name} className="pc-card__image" loading="lazy" />
+        {discountPercent ? (
+          <span className="pc-card__badge">-{discountPercent}%</span>
+        ) : null}
+      </div>
 
-        <div className="pc__iconstack">
+      <div className="pc-card__body">
+        <p className="pc-card__name">{name}</p>
+
+        {rating ? (
+          <div className="pc-card__rating">
+            <span className="pc-card__star">★</span>
+            <span>{rating.toFixed(1)}</span>
+          </div>
+        ) : null}
+
+        <div className="pc-card__priceRow">
+          <span className="pc-card__price">₹{price.toLocaleString("en-IN")}</span>
+          {originalPrice ? (
+            <span className="pc-card__originalPrice">
+              ₹{originalPrice.toLocaleString("en-IN")}
+            </span>
+          ) : null}
+        </div>
+
+        <div className="pc-card__ctaRow">
           <button
             type="button"
-            className="pc__icon"
-            aria-label="Quick view"
-            onClick={(e) => e.stopPropagation()}
+            className="pc-card__cta"
+            onClick={handleAddToCart}
+            disabled={stock === 0}
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"
-                stroke="currentColor"
-                strokeWidth="1.6"
-              />
-              <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.6" />
-            </svg>
+            {stock === 0 ? "Out of stock" : added ? "Added ✓" : "Add to Cart"}
           </button>
 
           <button
             type="button"
-            className={`pc__icon ${liked ? "pc__icon--on" : ""}`}
-            aria-label={liked ? "Remove from wishlist" : "Add to wishlist"}
-            onClick={(e) => {
-              e.stopPropagation();
-              setLiked((v) => !v);
-            }}
+            className="pc-card__buyNow"
+            onClick={handleBuyNow}
+            disabled={stock === 0}
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"}>
-              <path
-                d="M12 20.5s-7.5-4.6-10-9.2C.5 8 2 4.5 5.5 4c2.2-.3 4 .9 6.5 3.5C14.5 4.9 16.3 3.7 18.5 4c3.5.5 5 4 3.5 7.3-2.5 4.6-10 9.2-10 9.2Z"
-                stroke="currentColor"
-                strokeWidth="1.6"
-              />
-            </svg>
+            Buy Now
           </button>
         </div>
-
-        <div className="pc__img">
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            style={{ objectFit: "contain" }}
-          />
-        </div>
-
-        <button
-          type="button"
-          className="pc__cart-cta"
-          onClick={handleAddToCart}
-          disabled={product.stock === 0}
-        >
-          {product.stock === 0 ? "Out of stock" : added ? "Added ✓" : "Add to Cart"}
-        </button>
       </div>
 
-      <div className="pc__body">
-        {product.badge && <p className="pc__tag">{product.badge}</p>}
-        <h3 className="pc__name">{product.name}</h3>
-
-        <div className="pc__colors" aria-hidden>
-          {product.colors.map((c, i) => (
-            <span key={i} className="pc__swatch" style={{ background: c }} />
-          ))}
-        </div>
-
-        <div className="pc__price-row">
-          <span className="pc__mrp">₹{product.mrp.toLocaleString("en-IN")}</span>
-          <span className="pc__price">₹{product.price.toLocaleString("en-IN")}</span>
-        </div>
-
-        <div className="pc__emi-row">
-          <span className="pc__emi">or ₹{product.emiFrom.toLocaleString("en-IN")}/Month</span>
-          <span className="pc__emi-pill">Buy on EMI ›</span>
-        </div>
-      </div>
-
-      <style jsx>{`
-        .pc {
-          background: var(--sm-white, #fff);
-          border-radius: var(--sm-radius-md, 6px);
-          border: none;
-          overflow: hidden;
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
+      <style>{`
+        .pc-card {
           display: flex;
           flex-direction: column;
+          background: #fff;
+          border: 1px solid #e5f5ea;
+          border-radius: 14px;
+          overflow: hidden;
           cursor: pointer;
+          transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
         }
-        .pc:hover {
-          transform: translateY(-4px);
-          box-shadow: var(--sm-shadow-md, 0 12px 24px rgba(0, 0, 0, 0.08));
+        .pc-card:hover {
+          box-shadow: 0 10px 24px rgba(22, 101, 52, 0.12);
+          transform: translateY(-2px);
+          border-color: #bbf0cc;
         }
-        .pc:focus-visible {
-          outline: 2px solid var(--sm-ink, #1a1a1a);
+        .pc-card:focus-visible {
+          outline: 2px solid #166534;
           outline-offset: 2px;
         }
 
-        .pc__media {
+        .pc-card__imageWrap {
           position: relative;
+          display: block;
+          width: 100%;
           aspect-ratio: 1 / 1;
-          background: #fbfbf9;
+          background: #f4faf6;
         }
-        .pc__img {
+        .pc-card__image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+        .pc-card__badge {
           position: absolute;
-          inset: 0;
-          padding: 8%;
-        }
-
-        .pc__badge {
-          position: absolute;
-          top: 14px;
-          left: 14px;
-          background: #dfe2f5;
-          color: #2b2b2b;
-          font-size: clamp(11px, 1.2vw, 12px);
-          font-weight: 600;
-          padding: 5px 12px;
-          border-radius: 999px;
-          z-index: 2;
-        }
-
-        .pc__iconstack {
-          position: absolute;
-          top: 14px;
-          right: 14px;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          z-index: 2;
-        }
-        .pc__icon {
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          border: none;
-          background: transparent;
-          color: #333;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: color 0.2s ease, transform 0.2s ease;
-        }
-        .pc__icon:hover {
-          transform: scale(1.08);
-        }
-        .pc__icon--on {
-          color: var(--sm-pink, #e21c63);
-        }
-
-        .pc__cart-cta {
-          position: absolute;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          border: none;
-          background: var(--sm-ink, #1a1a1a);
+          top: 10px;
+          left: 10px;
+          background: #db2777;
           color: #fff;
-          font-size: 13px;
-          font-weight: 600;
-          padding: 10px 0;
-          transform: translateY(100%);
-          transition: transform 0.25s ease;
-          z-index: 2;
-        }
-        .pc__cart-cta:disabled {
-          background: #999;
-          cursor: not-allowed;
-        }
-        @media (hover: hover) {
-          .pc__media:hover .pc__cart-cta {
-            transform: translateY(0);
-          }
-        }
-        @media (hover: none) {
-          .pc__cart-cta {
-            transform: translateY(0);
-            opacity: 0.92;
-          }
-        }
-
-        .pc__body {
-          padding: 16px 16px 18px;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-        }
-        .pc__tag {
-          margin: 0 0 4px;
           font-size: 11px;
           font-weight: 700;
+          padding: 4px 8px;
+          border-radius: 6px;
           letter-spacing: 0.02em;
-          color: #2f6fed;
         }
-        .pc__name {
-          margin: 0 0 10px;
-          font-size: clamp(13px, 1.4vw, 15px);
-          font-weight: 600;
-          line-height: 1.35;
-          color: var(--sm-ink, #1a1a1a);
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .pc__colors {
+
+        .pc-card__body {
           display: flex;
+          flex-direction: column;
           gap: 6px;
-          margin-bottom: 12px;
+          padding: 12px;
         }
-        .pc__swatch {
-          width: 13px;
-          height: 13px;
-          border-radius: 50%;
-          border: 1px solid rgba(0, 0, 0, 0.15);
+
+        .pc-card__name {
+          font-size: 13.5px;
+          font-weight: 600;
+          color: #14532d;
+          line-height: 1.35;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          margin: 0;
         }
-        .pc__price-row {
+
+        .pc-card__rating {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 12px;
+          font-weight: 600;
+          color: #166534;
+        }
+        .pc-card__star {
+          color: #ec4899;
+          font-size: 13px;
+        }
+
+        .pc-card__priceRow {
           display: flex;
           align-items: baseline;
           gap: 8px;
-          margin-top: auto;
         }
-        .pc__mrp {
+        .pc-card__price {
+          font-size: 15px;
+          font-weight: 800;
+          color: #111827;
+        }
+        .pc-card__originalPrice {
           font-size: 12px;
-          color: #b3b3b3;
+          color: #9ca3af;
           text-decoration: line-through;
         }
-        .pc__price {
-          font-size: clamp(14px, 1.6vw, 17px);
-          font-weight: 700;
-          color: var(--sm-ink, #1a1a1a);
-        }
-        .pc__emi-row {
-          margin-top: 8px;
+
+        .pc-card__ctaRow {
+          margin-top: 6px;
           display: flex;
-          align-items: center;
           gap: 8px;
-          flex-wrap: wrap;
         }
-        .pc__emi {
-          font-size: 11px;
-          color: var(--sm-gray, #777);
+        .pc-card__cta,
+        .pc-card__buyNow {
+          flex: 1;
+          padding: 9px 0;
+          font-size: 12.5px;
+          font-weight: 700;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: opacity 0.15s ease, transform 0.1s ease;
         }
-        .pc__emi-pill {
-          background: #111;
+        .pc-card__cta {
           color: #fff;
-          font-size: 10px;
-          font-weight: 600;
-          padding: 3px 8px;
-          border-radius: 999px;
-          white-space: nowrap;
+          background: linear-gradient(90deg, #16a34a, #db2777);
+        }
+        .pc-card__buyNow {
+          color: #14532d;
+          background: #fff;
+          border: 1.5px solid #16a34a;
+        }
+        .pc-card__cta:disabled,
+        .pc-card__buyNow:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        .pc-card__cta:hover:not(:disabled),
+        .pc-card__buyNow:hover:not(:disabled) {
+          opacity: 0.9;
+        }
+        .pc-card__cta:active:not(:disabled),
+        .pc-card__buyNow:active:not(:disabled) {
+          transform: scale(0.98);
         }
 
-        @media (max-width: 640px) {
-          .pc__body {
-            padding: 10px 10px 12px;
-          }
-          .pc__icon {
-            width: 26px;
-            height: 26px;
-          }
+        @media (max-width: 480px) {
+          .pc-card__body { padding: 10px; gap: 5px; }
+          .pc-card__name { font-size: 13px; }
+          .pc-card__ctaRow { flex-direction: column; }
         }
       `}</style>
-    </article>
+    </div>
   );
 }

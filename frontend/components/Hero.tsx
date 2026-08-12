@@ -1,223 +1,7 @@
-// "use client";
-
-// import Link from "next/link";
-// import { useEffect, useState } from "react";
-// import { heroSlides } from "@/lib/data";
-
-// export default function Hero() {
-//   const [active, setActive] = useState(0);
-
-//   useEffect(() => {
-//     const id = setInterval(() => {
-//       setActive((v) => (v + 1) % heroSlides.length);
-//     }, 5000);
-//     return () => clearInterval(id);
-//   }, []);
-
-//   const slide = heroSlides[active];
-
-//   return (
-//     <section className="sm-hero" style={{ background: slide.bg }}>
-//       <div className="sm-hero__noise" aria-hidden />
-//       <div className="sm-container sm-hero__row">
-//         <div className="sm-hero__copy">
-//           <p className="sm-eyebrow sm-hero__eyebrow">Because every sport matters</p>
-//           <h1 className="sm-heading sm-hero__title">{slide.title}</h1>
-//           <p className="sm-hero__subtitle">{slide.subtitle}</p>
-//           <div className="sm-hero__actions">
-//             <a href="#products" className="sm-btn sm-btn--green">
-//               Shop The Range
-//             </a>
-//             <a href="#contact" className="sm-btn sm-btn--outline sm-hero__outline">
-//               Find A Store
-//             </a>
-//           </div>
-
-//           <div className="sm-hero__dots">
-//             {heroSlides.map((s, i) => (
-//               <button
-//                 key={s.id}
-//                 type="button"
-//                 aria-label={`Show slide ${i + 1}`}
-//                 className={`sm-hero__dot ${i === active ? "sm-hero__dot--active" : ""}`}
-//                 onClick={() => setActive(i)}
-//               />
-//             ))}
-//           </div>
-//         </div>
-
-//         <div className="sm-hero__art">
-//           <div className="sm-hero__card">
-//             {heroSlides.map((s, i) => (
-//               <div
-//                 key={s.id}
-//                 className={`sm-hero__slide ${i === active ? "sm-hero__slide--active" : ""}`}
-//               >
-//                 <div className="sm-hero__slide-glow" />
-//                 <span className="sm-hero__slide-tag">0{i + 1}</span>
-//                 <p className="sm-hero__slide-caption">{s.title}</p>
-//               </div>
-//             ))}
-//           </div>
-//         </div>
-//       </div>
-
-//       <style jsx>{`
-//         .sm-hero {
-//           position: relative;
-//           overflow: hidden;
-//           color: var(--sm-white);
-//           padding: 56px 0 64px;
-//           transition: background 0.8s ease;
-//         }
-//         .sm-hero__noise {
-//           position: absolute;
-//           inset: 0;
-//           background-image: radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.08), transparent 45%),
-//             radial-gradient(circle at 85% 80%, rgba(255, 255, 255, 0.08), transparent 45%);
-//           pointer-events: none;
-//         }
-//         .sm-hero__row {
-//           position: relative;
-//           display: grid;
-//           gap: 40px;
-//           align-items: center;
-//         }
-//         .sm-hero__eyebrow {
-//           color: rgba(255, 255, 255, 0.85);
-//         }
-//         .sm-hero__title {
-//           font-size: clamp(40px, 7vw, 68px);
-//           margin: 14px 0 18px;
-//           color: var(--sm-white);
-//         }
-//         .sm-hero__subtitle {
-//           font-size: 17px;
-//           line-height: 1.6;
-//           max-width: 46ch;
-//           color: rgba(255, 255, 255, 0.85);
-//           margin: 0 0 28px;
-//         }
-//         .sm-hero__actions {
-//           display: flex;
-//           flex-wrap: wrap;
-//           gap: 14px;
-//         }
-//         .sm-hero__outline {
-//           border-color: rgba(255, 255, 255, 0.7);
-//           color: var(--sm-white);
-//         }
-//         .sm-hero__outline:hover {
-//           background: var(--sm-white);
-//           color: var(--sm-ink);
-//         }
-//         .sm-hero__dots {
-//           display: flex;
-//           gap: 8px;
-//           margin-top: 34px;
-//         }
-//         .sm-hero__dot {
-//           width: 28px;
-//           height: 4px;
-//           border-radius: 4px;
-//           background: rgba(255, 255, 255, 0.35);
-//           border: none;
-//           transition: background 0.2s ease, width 0.2s ease;
-//         }
-//         .sm-hero__dot--active {
-//           background: var(--sm-white);
-//           width: 44px;
-//         }
-//         .sm-hero__art {
-//           display: flex;
-//           justify-content: center;
-//         }
-//         .sm-hero__card {
-//           position: relative;
-//           width: 100%;
-//           max-width: 420px;
-//           aspect-ratio: 4 / 5;
-//           border-radius: var(--sm-radius-lg);
-//           background: rgba(255, 255, 255, 0.08);
-//           border: 1px solid rgba(255, 255, 255, 0.25);
-//           backdrop-filter: blur(6px);
-//           overflow: hidden;
-//         }
-//         .sm-hero__slide {
-//           position: absolute;
-//           inset: 0;
-//           display: flex;
-//           flex-direction: column;
-//           justify-content: flex-end;
-//           padding: 28px;
-//           opacity: 0;
-//           transform: scale(1.04);
-//           transition: opacity 0.7s ease, transform 0.9s ease;
-//         }
-//         .sm-hero__slide--active {
-//           opacity: 1;
-//           transform: scale(1);
-//         }
-//         .sm-hero__slide-glow {
-//           position: absolute;
-//           inset: 0;
-//           background: radial-gradient(circle at 70% 20%, rgba(255, 255, 255, 0.25), transparent 55%);
-//         }
-//         .sm-hero__slide-tag {
-//           font-family: var(--font-display);
-//           font-size: 64px;
-//           color: rgba(255, 255, 255, 0.35);
-//           line-height: 1;
-//         }
-//         .sm-hero__slide-caption {
-//           font-weight: 600;
-//           font-size: 18px;
-//           margin: 10px 0 0;
-//         }
-
-//         @media (min-width: 900px) {
-//           .sm-hero {
-//             padding: 80px 0 96px;
-//           }
-//           .sm-hero__row {
-//             grid-template-columns: 1.1fr 0.9fr;
-//           }
-//           .sm-hero__copy {
-//             padding-right: 20px;
-//           }
-//         }
-//       `}</style>
-//     </section>
-//   );
-// }
-
-
-
 "use client";
 
 import { useEffect, useState } from "react";
 
-/**
- * heroSlides now needs an `image` field (used for BOTH the blurred
- * full-bleed background AND the right-hand carousel card).
- *
- * Move this into "@/lib/data" and import it as before — it's inlined
- * here only so the component is drop-in runnable. Swap the Unsplash
- * URLs for your real photography whenever you have it.
- *
- * Shape:
- * {
- *   id: string,
- *   eyebrow: string,
- *   title: string,
- *   subtitle: string,
- *   tag: string,          // e.g. "We cover Judo"
- *   image: string,        // photo URL
- *   date: string,         // small date label on the card, e.g. "31 Jul 2026"
- *   caption: string,      // headline shown on the card
- *   events: [{ name: string, date: string }] // the two chips under the CTAs
- * }
- */
 const heroSlides = [
   {
     id: "judo",
@@ -271,19 +55,33 @@ const heroSlides = [
 
 export default function Hero() {
   const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
+    if (paused) return;
     const id = setInterval(() => {
       setActive((v) => (v + 1) % heroSlides.length);
     }, 5000);
     return () => clearInterval(id);
-  }, []);
+  }, [paused]);
 
   const slide = heroSlides[active];
 
+  const handlePrev = () => {
+    setActive((v) => (v - 1 + heroSlides.length) % heroSlides.length);
+  };
+
+  const handleNext = () => {
+    setActive((v) => (v + 1) % heroSlides.length);
+  };
+
   return (
-    <section className="sm-hero">
-      {/* Crossfading full-bleed background photos */}
+    <section
+      className="sm-hero"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      {/* Background Images Crossfade — always mirrors the active carousel image */}
       <div className="sm-hero__bgs" aria-hidden>
         {heroSlides.map((s, i) => (
           <div
@@ -295,14 +93,16 @@ export default function Hero() {
         <div className="sm-hero__scrim" />
       </div>
 
-      <div className="sm-container sm-hero__row">
+      {/* Main Grid Content Layout */}
+      <div className="sm-container sm-hero__layout">
         <div className="sm-hero__copy">
-          <p className="sm-eyebrow sm-hero__eyebrow">{slide.eyebrow}</p>
-          <h1 className="sm-heading sm-hero__title">{slide.title}</h1>
+          <p className="sm-hero__eyebrow">{slide.eyebrow}</p>
+          <h1 className="sm-hero__title">{slide.title}</h1>
           <p className="sm-hero__subtitle-italic">Because Every Sport Matters.</p>
           <p className="sm-hero__subtitle">{slide.subtitle}</p>
           <p className="sm-hero__cover">
             <strong>{slide.tag}</strong>
+            <span className="sm-hero__cursor">|</span>
           </p>
 
           <div className="sm-hero__events">
@@ -313,56 +113,87 @@ export default function Hero() {
               </div>
             ))}
           </div>
-
-          <div className="sm-hero__dots">
-            {heroSlides.map((s, i) => (
-              <button
-                key={s.id}
-                type="button"
-                aria-label={`Show slide ${i + 1}`}
-                className={`sm-hero__dot ${i === active ? "sm-hero__dot--active" : ""}`}
-                onClick={() => setActive(i)}
-              />
-            ))}
-          </div>
         </div>
 
-        <div className="sm-hero__art">
-          <div className="sm-hero__card">
-            {heroSlides.map((s, i) => (
-              <div
-                key={s.id}
-                className={`sm-hero__slide ${i === active ? "sm-hero__slide--active" : ""}`}
-                style={{ backgroundImage: `url(${s.image})` }}
-              >
-                <div className="sm-hero__slide-glow" />
-                <div className="sm-hero__slide-info">
-                  <span className="sm-hero__slide-date">{s.date}</span>
-                  <p className="sm-hero__slide-caption">{s.caption}</p>
+        <div className="sm-hero__art-wrapper">
+          <div className="sm-hero__art">
+            <div className="sm-hero__card">
+              {heroSlides.map((s, i) => (
+                <div
+                  key={s.id}
+                  className={`sm-hero__slide ${i === active ? "sm-hero__slide--active" : ""}`}
+                  style={{ backgroundImage: `url(${s.image})` }}
+                >
+                  <div className="sm-hero__slide-glow" />
+                  <div className="sm-hero__slide-info">
+                    <span className="sm-hero__slide-date">{s.date}</span>
+                    <p className="sm-hero__slide-caption">{s.caption}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
 
-            <div className="sm-hero__card-nav">
+            {/* Mobile / tablet controls sit under the card, horizontal */}
+            <div className="sm-hero__controls sm-hero__controls--inline">
               <button
                 type="button"
                 aria-label="Previous slide"
-                className="sm-hero__nav-btn"
-                onClick={() =>
-                  setActive((v) => (v - 1 + heroSlides.length) % heroSlides.length)
-                }
+                className="sm-hero__nav-arrow"
+                onClick={handlePrev}
               >
                 ‹
               </button>
+              <div className="sm-hero__dots-horizontal">
+                {heroSlides.map((s, i) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    aria-label={`Show slide ${i + 1}`}
+                    className={`sm-hero__dot-h ${i === active ? "sm-hero__dot-h--active" : ""}`}
+                    onClick={() => setActive(i)}
+                  />
+                ))}
+              </div>
               <button
                 type="button"
                 aria-label="Next slide"
-                className="sm-hero__nav-btn"
-                onClick={() => setActive((v) => (v + 1) % heroSlides.length)}
+                className="sm-hero__nav-arrow"
+                onClick={handleNext}
               >
                 ›
               </button>
             </div>
+          </div>
+
+          {/* Desktop vertical control sidebar, matching reference layout */}
+          <div className="sm-hero__controls sm-hero__controls--vertical">
+            <button
+              type="button"
+              aria-label="Previous slide"
+              className="sm-hero__nav-arrow"
+              onClick={handlePrev}
+            >
+              ⌃
+            </button>
+            <div className="sm-hero__dots-vertical">
+              {heroSlides.map((s, i) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  aria-label={`Show slide ${i + 1}`}
+                  className={`sm-hero__dot-v ${i === active ? "sm-hero__dot-v--active" : ""}`}
+                  onClick={() => setActive(i)}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              aria-label="Next slide"
+              className="sm-hero__nav-arrow"
+              onClick={handleNext}
+            >
+              ⌄
+            </button>
           </div>
         </div>
       </div>
@@ -371,11 +202,20 @@ export default function Hero() {
         .sm-hero {
           position: relative;
           overflow: hidden;
-          color: var(--sm-white, #fff);
-          padding: 40px 0 48px;
+          color: #fff;
+          padding: 48px 16px;
+          min-height: 100svh;
+          display: flex;
+          align-items: center;
         }
 
-        /* ---------- Crossfading background ---------- */
+        .sm-container {
+          width: 100%;
+          max-width: 1280px;
+          margin: 0 auto;
+        }
+
+        /* Background crossfade, always the same image as the active card */
         .sm-hero__bgs {
           position: absolute;
           inset: 0;
@@ -386,10 +226,10 @@ export default function Hero() {
           inset: 0;
           background-size: cover;
           background-position: center;
-          filter: blur(6px) brightness(0.55);
-          transform: scale(1.08);
+          filter: blur(32px) brightness(0.38) saturate(1.1);
+          transform: scale(1.15);
           opacity: 0;
-          transition: opacity 1.2s ease;
+          transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .sm-hero__bg--active {
           opacity: 1;
@@ -397,111 +237,136 @@ export default function Hero() {
         .sm-hero__scrim {
           position: absolute;
           inset: 0;
-          background: linear-gradient(
-            120deg,
-            rgba(10, 10, 20, 0.85) 0%,
-            rgba(10, 10, 20, 0.55) 45%,
-            rgba(10, 10, 20, 0.25) 100%
+          background: radial-gradient(
+            circle at 82% 18%,
+            rgba(20, 12, 36, 0.4) 0%,
+            rgba(5, 5, 10, 0.94) 72%
           );
         }
 
-        .sm-hero__row {
+        /* Layout Grid */
+        .sm-hero__layout {
           position: relative;
           z-index: 1;
           display: grid;
-          gap: 32px;
+          grid-template-columns: 1fr;
+          gap: 40px;
           align-items: center;
         }
 
+        /* Left copy column */
         .sm-hero__eyebrow {
-          color: rgba(255, 255, 255, 0.85);
-          font-size: 12px;
-          letter-spacing: 0.08em;
+          color: rgba(255, 255, 255, 0.78);
+          font-size: 11px;
+          letter-spacing: 0.16em;
           text-transform: uppercase;
           font-weight: 700;
+          margin: 0 0 16px 0;
         }
         .sm-hero__title {
-          font-size: clamp(30px, 8vw, 64px);
-          line-height: 1.05;
-          margin: 12px 0 16px;
-          color: #fff;
+          font-size: clamp(28px, 6vw, 52px);
+          line-height: 1.14;
+          font-weight: 800;
+          letter-spacing: -0.02em;
+          margin: 0 0 20px 0;
+          color: #ffffff;
+          max-width: 22ch;
         }
         .sm-hero__subtitle-italic {
           font-style: italic;
-          font-weight: 600;
-          margin: 0 0 10px;
-          font-size: clamp(15px, 2.5vw, 18px);
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: clamp(16px, 2.2vw, 20px);
+          color: rgba(255, 255, 255, 0.92);
+          margin: 0 0 18px 0;
         }
         .sm-hero__subtitle {
-          font-size: clamp(14px, 2.2vw, 17px);
-          line-height: 1.6;
-          max-width: 46ch;
-          color: rgba(255, 255, 255, 0.85);
-          margin: 0 0 18px;
+          font-size: clamp(14px, 1.8vw, 16px);
+          line-height: 1.65;
+          max-width: 52ch;
+          color: rgba(255, 255, 255, 0.68);
+          margin: 0 0 22px 0;
         }
         .sm-hero__cover {
           font-size: 15px;
-          margin: 0 0 20px;
+          font-weight: 600;
+          color: #ffffff;
+          margin: 0 0 32px 0;
+          display: flex;
+          align-items: center;
+          gap: 3px;
+        }
+        .sm-hero__cursor {
+          animation: blink 1s step-end infinite;
+          font-weight: 300;
+          color: rgba(255, 255, 255, 0.7);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .sm-hero__cursor {
+            animation: none;
+          }
         }
 
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+
+        /* Event cards row (no countdown blocks) */
         .sm-hero__events {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 14px;
-          margin-bottom: 24px;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+          max-width: 480px;
         }
         .sm-hero__event-card {
-          background: rgba(255, 255, 255, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.18);
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.12);
           border-radius: 14px;
-          padding: 14px 18px;
-          backdrop-filter: blur(6px);
-          min-width: 200px;
+          padding: 16px 18px;
+          backdrop-filter: blur(12px);
+          transition: background 0.25s ease, border-color 0.25s ease;
+        }
+        .sm-hero__event-card:hover {
+          background: rgba(255, 255, 255, 0.09);
+          border-color: rgba(255, 255, 255, 0.2);
         }
         .sm-hero__event-name {
           font-weight: 700;
-          margin: 0 0 4px;
+          margin: 0 0 6px 0;
           font-size: 14px;
+          color: #ffffff;
         }
         .sm-hero__event-date {
           margin: 0;
-          font-size: 13px;
-          color: rgba(255, 255, 255, 0.75);
+          font-size: 12.5px;
+          color: rgba(255, 255, 255, 0.58);
         }
 
-        .sm-hero__dots {
+        /* Right side: horizontally-rectangular carousel + controls */
+        .sm-hero__art-wrapper {
           display: flex;
-          gap: 8px;
-        }
-        .sm-hero__dot {
-          width: 24px;
-          height: 4px;
-          border-radius: 4px;
-          background: rgba(255, 255, 255, 0.35);
-          border: none;
-          cursor: pointer;
-          transition: background 0.2s ease, width 0.2s ease;
-        }
-        .sm-hero__dot--active {
-          background: #fff;
-          width: 40px;
-        }
-
-        /* ---------- Right-hand carousel card ---------- */
-        .sm-hero__art {
-          display: flex;
+          align-items: center;
           justify-content: center;
+          gap: 18px;
+          width: 100%;
+        }
+        .sm-hero__art {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 16px;
+          width: 100%;
+          max-width: 520px;
         }
         .sm-hero__card {
           position: relative;
           width: 100%;
-          max-width: 420px;
-          aspect-ratio: 4 / 5;
+          aspect-ratio: 3 / 2;
           border-radius: 20px;
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.25);
           overflow: hidden;
-          box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+          box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+          border: 1px solid rgba(255, 255, 255, 0.12);
         }
         .sm-hero__slide {
           position: absolute;
@@ -513,8 +378,8 @@ export default function Hero() {
           opacity: 0;
           background-size: cover;
           background-position: center;
-          transform: scale(1.04);
-          transition: opacity 0.9s ease, transform 1.1s ease;
+          transform: scale(1.02);
+          transition: opacity 0.8s ease, transform 0.8s ease;
         }
         .sm-hero__slide--active {
           opacity: 1;
@@ -525,81 +390,141 @@ export default function Hero() {
           inset: 0;
           background: linear-gradient(
             to top,
-            rgba(0, 0, 0, 0.85) 0%,
-            rgba(0, 0, 0, 0.15) 55%,
+            rgba(0, 0, 0, 0.88) 0%,
+            rgba(0, 0, 0, 0.28) 52%,
             rgba(0, 0, 0, 0) 100%
           );
         }
         .sm-hero__slide-info {
           position: relative;
+          z-index: 1;
+          max-width: 92%;
         }
         .sm-hero__slide-date {
-          font-size: 13px;
-          color: rgba(255, 255, 255, 0.8);
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.65);
           display: block;
           margin-bottom: 6px;
+          letter-spacing: 0.02em;
         }
         .sm-hero__slide-caption {
           font-weight: 700;
-          font-size: 17px;
-          line-height: 1.35;
+          font-size: clamp(14px, 2vw, 17px);
+          line-height: 1.4;
           margin: 0;
+          color: #ffffff;
         }
 
-        .sm-hero__card-nav {
-          position: absolute;
-          top: 50%;
-          left: 0;
-          right: 0;
-          display: flex;
-          justify-content: space-between;
-          transform: translateY(-50%);
-          padding: 0 10px;
-          z-index: 2;
-        }
-        .sm-hero__nav-btn {
-          width: 34px;
-          height: 34px;
-          border-radius: 50%;
-          border: 1px solid rgba(255, 255, 255, 0.4);
-          background: rgba(0, 0, 0, 0.35);
-          color: #fff;
-          font-size: 18px;
-          line-height: 1;
+        /* Controls: shared arrow styling */
+        .sm-hero__nav-arrow {
+          background: transparent;
+          border: none;
+          color: rgba(255, 255, 255, 0.45);
+          font-size: 22px;
           cursor: pointer;
+          transition: color 0.2s;
+          line-height: 1;
+          padding: 6px;
+        }
+        .sm-hero__nav-arrow:hover,
+        .sm-hero__nav-arrow:focus-visible {
+          color: #ffffff;
+        }
+        .sm-hero__nav-arrow:focus-visible {
+          outline: 2px solid #3b82f6;
+          outline-offset: 2px;
+          border-radius: 6px;
+        }
+
+        /* Inline (mobile/tablet) controls — horizontal row under the card */
+        .sm-hero__controls--inline {
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: background 0.2s ease;
+          gap: 14px;
         }
-        .sm-hero__nav-btn:hover {
-          background: rgba(0, 0, 0, 0.6);
+        .sm-hero__dots-horizontal {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .sm-hero__dot-h {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.3);
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          transition: background 0.3s, width 0.3s;
+        }
+        .sm-hero__dot-h--active {
+          background: #3b82f6;
+          width: 18px;
+          border-radius: 4px;
         }
 
-        /* ---------- Responsive breakpoints ---------- */
-        /* Mobile default: single column, card below copy, smaller paddings */
+        /* Vertical (desktop) sidebar controls — hidden until desktop breakpoint */
+        .sm-hero__controls--vertical {
+          display: none;
+          flex-direction: column;
+          align-items: center;
+          gap: 14px;
+          flex-shrink: 0;
+        }
+        .sm-hero__dots-vertical {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .sm-hero__dot-v {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.3);
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          transition: background 0.3s, height 0.3s, transform 0.3s;
+        }
+        .sm-hero__dot-v--active {
+          background: #3b82f6;
+          height: 18px;
+          border-radius: 4px;
+          transform: scale(1.1);
+        }
 
-        /* Tablet */
+        /* Tablet breakpoint */
         @media (min-width: 640px) {
           .sm-hero {
-            padding: 56px 0 64px;
-          }
-          .sm-hero__events {
-            gap: 16px;
+            padding: 64px 32px;
           }
         }
 
-        /* Laptop / desktop */
-        @media (min-width: 900px) {
+        /* Laptop / Desktop breakpoint */
+        @media (min-width: 960px) {
           .sm-hero {
-            padding: 80px 0 96px;
+            padding: 40px 32px;
+            min-height: auto;
           }
-          .sm-hero__row {
+          .sm-hero__layout {
             grid-template-columns: 1.1fr 0.9fr;
-            gap: 40px;
+            gap: 32px;
           }
           .sm-hero__copy {
-            padding-right: 20px;
+            padding-right: 0;
+          }
+          .sm-hero__art-wrapper {
+            justify-content: flex-end;
+          }
+          .sm-hero__art {
+            max-width: 100%;
+          }
+          .sm-hero__controls--inline {
+            display: none;
+          }
+          .sm-hero__controls--vertical {
+            display: flex;
           }
         }
       `}</style>
