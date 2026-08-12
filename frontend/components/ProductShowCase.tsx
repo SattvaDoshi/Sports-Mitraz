@@ -58,7 +58,7 @@ export default function ProductsShowcase() {
                       />
                     ) : (
                       <span className="ps__emoji" aria-hidden>
-                        {cat.emoji}
+                        {cat.name}
                       </span>
                     )}
                     <div className="ps__mediaOverlay" />

@@ -3,17 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
+import type { Product } from "@/lib/types";
 
-type Product = {
-  id: string | number;
-  name: string;
-  image: string;
-  price: number;
-  originalPrice?: number;
-  discountPercent?: number;
-  rating?: number;
-  stock?: number;
-};
 
 export default function ProductCard({ product }: { product: Product }) {
   const {

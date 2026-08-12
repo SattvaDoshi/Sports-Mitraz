@@ -16,7 +16,7 @@ export interface Product {
   highlights?: string[];
 }
 */
-
+import type { Category, Product, CarouselSlide } from "./types";
 export const categories = [
   {
     slug: "football",
@@ -227,14 +227,14 @@ export const products = [
 ];
 
 // Helper Functions
-export function getProductById(id) {
+export function getProductById(id: string) {
   return products.find((p) => p.id === id) || null;
 }
 
-export function getCategory(slug) {
+export function getCategory(slug: string) {
   return categories.find((c) => c.slug === slug) || null;
 }
 
-export function getProductsByCategory(slug) {
+export function getProductsByCategory(slug: string) {
   return products.filter((p) => p.categorySlug === slug);
 }

@@ -77,9 +77,9 @@ export default function Navbar() {
                   href={`/products/${c.slug}`}
                   className="sm-nav__dropdown-item"
                 >
-                  <span className="sm-nav__emoji" aria-hidden="true">
+                  {/* <span className="sm-nav__emoji" aria-hidden="true">
                     {c.emoji}
-                  </span>
+                  </span> */}
                   <span>{c.name}</span>
                 </Link>
               ))}
@@ -152,7 +152,7 @@ export default function Navbar() {
                   className="sm-nav__mobile-chip"
                   onClick={() => setOpen(false)}
                 >
-                  <span aria-hidden="true">{c.emoji}</span>
+                  {/* <span aria-hidden="true">{c.emoji}</span> */}
                   <span>{c.name}</span>
                 </Link>
               ))}
