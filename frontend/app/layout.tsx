@@ -1,13 +1,18 @@
-// app/layout.tsx
-import CartToast from "@/components/CartToast";
-import { CartProvider } from "@/lib/cart-context";
+import "./globals.css";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export const metadata = {
+  title: "Sports Store",
+  description: "Custom sports apparel, trophies, and accessories",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body>
-        <CartProvider>{children} <CartToast /></CartProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
