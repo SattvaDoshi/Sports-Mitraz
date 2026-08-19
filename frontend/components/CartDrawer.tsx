@@ -33,7 +33,7 @@ export const CartDrawer: React.FC = () => {
       <div
         style={{
           display: "flex",
-          justify: "space-between",
+          justifyContent: "space-between",
           alignItems: "center",
           borderBottom: "1px solid #eee",
           paddingBottom: "15px",
