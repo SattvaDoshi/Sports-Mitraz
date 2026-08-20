@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import { Header } from "../../components/Header";
@@ -73,15 +75,15 @@ export default function ProductsPage() {
           </div>
         </section>
 
-        <section>
+        <section style={{ padding: "40px 0" }}>
           <div className="container">
             <div className="catalog">
               {categories.map((cat, idx) => (
-                <article className="pcard" key={idx}>
+                <article className="pcard category-card" key={idx}>
                   <img src={cat.img} alt={cat.title} />
                   <div className="body">
                     <h3>{cat.title}</h3>
-                    <p>{cat.desc}</p>
+                    <p className="cat-desc">{cat.desc}</p>
                     <div className="tags">
                       {cat.tags.map((tag, tIdx) => (
                         <span className="tag" key={tIdx}>
@@ -89,9 +91,11 @@ export default function ProductsPage() {
                         </span>
                       ))}
                     </div>
-                    <Link className={`btn ${cat.btnClass}`} href={cat.link}>
-                      VIEW CATEGORY →
-                    </Link>
+                    <div className="card-actions">
+                      <Link className={`btn ${cat.btnClass}`} href={cat.link}>
+                        VIEW CATEGORY →
+                      </Link>
+                    </div>
                   </div>
                 </article>
               ))}

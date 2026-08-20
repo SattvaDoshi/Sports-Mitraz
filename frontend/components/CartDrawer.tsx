@@ -1,166 +1,336 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 
 export const CartDrawer: React.FC = () => {
   const { cart, removeFromCart, isCartOpen, setIsCartOpen } = useCart();
+  const [mounted, setMounted] = useState(false);
 
-  if (!isCartOpen) return null;
+  // Ensure portal only renders on the client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Prevent background page scrolling (horizontal & vertical) when cart is open
+  useEffect(() => {
+    if (isCartOpen) {
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+    };
+  }, [isCartOpen]);
+
+  if (!isCartOpen || !mounted) return null;
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        right: 0,
-        bottom: 0,
-        width: "380px",
-        maxWidth: "100%",
-        backgroundColor: "#fff",
-        boxShadow: "-4px 0 15px rgba(0, 0, 0, 0.15)",
-        zIndex: 1000,
-        display: "flex",
-        flexDirection: "column",
-        padding: "20px",
-        overflowY: "auto",
-      }}
-    >
-      {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          borderBottom: "1px solid #eee",
-          paddingBottom: "15px",
-        }}
-      >
-        <h2 style={{ margin: 0, fontSize: "1.25rem" }}>Your Cart ({cart.length})</h2>
-        <button
-          onClick={() => setIsCartOpen(false)}
-          style={{
-            background: "none",
-            border: "none",
-            fontSize: "1.5rem",
-            cursor: "pointer",
-          }}
-        >
-          ✕
-        </button>
-      </div>
+  const drawerContent = (
+    <div className="cd-root">
+      {/* Backdrop */}
+      <div className="cd-backdrop" onClick={() => setIsCartOpen(false)} />
 
-      {/* Cart Items List */}
-      <div style={{ flex: 1, padding: "20px 0", overflowY: "auto" }}>
-        {cart.length === 0 ? (
-          <p style={{ textAlign: "center", color: "#888", marginTop: "40px" }}>
-            Your cart is empty.
-          </p>
-        ) : (
-          cart.map((item) => (
-            <div
-              key={item.id}
-              style={{
-                display: "flex",
-                gap: "12px",
-                marginBottom: "15px",
-                paddingBottom: "15px",
-                borderBottom: "1px solid #f0f0f0",
-              }}
-            >
-              <img
-                src={item.img}
-                alt={item.title}
-                style={{
-                  width: "60px",
-                  height: "60px",
-                  objectFit: "cover",
-                  borderRadius: "6px",
-                }}
-              />
-              <div style={{ flex: 1 }}>
-                <h4 style={{ margin: "0 0 5px 0", fontSize: "0.95rem" }}>
-                  {item.title}
-                </h4>
-                <p style={{ margin: 0, color: "#e91e63", fontWeight: "bold" }}>
-                  ₹{item.price}
-                </p>
-              </div>
-              <button
-                onClick={() => removeFromCart(item.id)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "#999",
-                  cursor: "pointer",
-                  height: "fit-content",
-                }}
-              >
-                🗑️
-              </button>
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* Footer Controls */}
-      <div
-        style={{
-          borderTop: "1px solid #eee",
-          paddingTop: "15px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontWeight: "bold",
-            fontSize: "1.1rem",
-            marginBottom: "5px",
-          }}
-        >
-          <span>Total:</span>
-          <span style={{ color: "#e91e63" }}>₹{total}</span>
+      {/* Drawer */}
+      <aside className="cd-drawer" role="dialog" aria-modal="true">
+        {/* Header */}
+        <div className="cd-header">
+          <h2 className="cd-heading">Your Cart ({cart.length})</h2>
+          <button
+            onClick={() => setIsCartOpen(false)}
+            className="cd-close-btn"
+            aria-label="Close cart"
+          >
+            ✕
+          </button>
         </div>
 
-        {/* Shop More Products Button */}
-        <Link
-          href="/products"
-          onClick={() => setIsCartOpen(false)}
-          className="btn btn-lime"
-          style={{
-            display: "block",
-            textAlign: "center",
-            textDecoration: "none",
-            width: "100%",
-            padding: "10px 0",
-          }}
-        >
-          🛍️ SHOP MORE PRODUCTS
-        </Link>
+        {/* Scrollable Items Container */}
+        <div className="cd-items">
+          {cart.length === 0 ? (
+            <p className="cd-empty">Your cart is empty.</p>
+          ) : (
+            cart.map((item) => (
+              <div key={item.id} className="cd-item">
+                <img src={item.img} alt={item.title} className="cd-item-img" />
+                <div className="cd-item-info">
+                  <h4 className="cd-item-title">{item.title}</h4>
+                  <p className="cd-item-price">₹{item.price}</p>
+                </div>
+                <button
+                  onClick={() => removeFromCart(item.id)}
+                  className="cd-remove-btn"
+                >
+                  🗑️
+                </button>
+              </div>
+            ))
+          )}
+        </div>
 
-        {/* Proceed to Checkout Button */}
-        <Link
-          href="/checkout"
-          onClick={() => setIsCartOpen(false)}
-          className="btn btn-pink"
-          style={{
-            display: "block",
-            textAlign: "center",
-            textDecoration: "none",
-            width: "100%",
-            padding: "10px 0",
-          }}
-        >
-          PROCEED TO CHECKOUT →
-        </Link>
-      </div>
+        {/* Fixed Footer */}
+        <div className="cd-footer">
+          <div className="cd-total-row">
+            <span>Total:</span>
+            <span className="cd-total-amount">₹{total}</span>
+          </div>
+
+          <Link
+            href="/products"
+            onClick={() => setIsCartOpen(false)}
+            className="btn btn-lime cd-footer-btn"
+          >
+            🛍️ SHOP MORE PRODUCTS
+          </Link>
+
+          <Link
+            href="/checkout"
+            onClick={() => setIsCartOpen(false)}
+            className="btn btn-pink cd-footer-btn"
+          >
+            PROCEED TO CHECKOUT →
+          </Link>
+        </div>
+      </aside>
+
+      <style jsx global>{`
+        /* Prevent layout shift globally while open */
+        html, body {
+          max-width: 100vw;
+          overflow-x: hidden !important;
+        }
+      `}</style>
+
+      <style jsx>{`
+        /* Reset box model strictly inside the portal root */
+        .cd-root,
+        .cd-root * {
+          box-sizing: border-box !important;
+          margin: 0;
+        }
+
+        /* ---------- Backdrop ---------- */
+        .cd-backdrop {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          width: 100vw;
+          height: 100vh;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 99998;
+          animation: cd-fade-in 0.25s ease-out;
+        }
+
+        @keyframes cd-fade-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        /* ---------- Drawer Container ---------- */
+        .cd-drawer {
+          position: fixed;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          width: 85vw;
+          max-width: 320px;
+          height: 100vh;
+          height: 100dvh; /* Dynamic viewport units for mobile address bar */
+          background-color: #fff;
+          box-shadow: -4px 0 20px rgba(0, 0, 0, 0.25);
+          z-index: 99999;
+          display: flex;
+          flex-direction: column;
+          padding: 16px;
+          padding-top: max(16px, env(safe-area-inset-top));
+          padding-bottom: max(16px, env(safe-area-inset-bottom));
+          overflow: hidden;
+          animation: cd-slide-in 0.25s ease-out;
+        }
+
+        @keyframes cd-slide-in {
+          from {
+            transform: translateX(100%);
+          }
+          to {
+            transform: translateX(0);
+          }
+        }
+
+        /* ---------- Header (Fixed Top) ---------- */
+        .cd-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 10px;
+          border-bottom: 1px solid #eee;
+          padding-bottom: 12px;
+          background-color: #fff;
+          flex-shrink: 0;
+        }
+
+        .cd-heading {
+          font-size: 1.05rem;
+          font-weight: 600;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          color: #111;
+        }
+
+        .cd-close-btn {
+          background-color: #f5f5f5;
+          border: none;
+          border-radius: 50%;
+          width: 34px;
+          height: 34px;
+          min-width: 34px;
+          font-size: 1rem;
+          line-height: 1;
+          cursor: pointer;
+          color: #333;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .cd-close-btn:hover {
+          background-color: #e91e63;
+          color: #fff;
+        }
+
+        /* ---------- Scrollable Items Area ---------- */
+        .cd-items {
+          flex: 1;
+          padding: 12px 0;
+          overflow-y: auto;
+          overflow-x: hidden;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .cd-empty {
+          text-align: center;
+          color: #888;
+          margin-top: 40px;
+          font-size: 0.9rem;
+        }
+
+        .cd-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 12px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid #f0f0f0;
+        }
+
+        .cd-item-img {
+          width: 48px;
+          height: 48px;
+          object-fit: cover;
+          border-radius: 6px;
+          flex-shrink: 0;
+        }
+
+        .cd-item-info {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .cd-item-title {
+          font-size: 0.85rem;
+          margin-bottom: 4px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          color: #222;
+        }
+
+        .cd-item-price {
+          color: #e91e63;
+          font-weight: bold;
+          font-size: 0.9rem;
+        }
+
+        .cd-remove-btn {
+          background: none;
+          border: none;
+          color: #999;
+          cursor: pointer;
+          flex-shrink: 0;
+          padding: 4px;
+          font-size: 1rem;
+        }
+
+        /* ---------- Footer (Fixed Bottom) ---------- */
+        .cd-footer {
+          border-top: 1px solid #eee;
+          padding-top: 12px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          background-color: #fff;
+          flex-shrink: 0;
+        }
+
+        .cd-total-row {
+          display: flex;
+          justify-content: space-between;
+          font-weight: bold;
+          font-size: 0.95rem;
+          color: #111;
+        }
+
+        .cd-total-amount {
+          color: #e91e63;
+        }
+
+        .cd-footer-btn {
+          display: block;
+          text-align: center;
+          text-decoration: none;
+          width: 100%;
+          padding: 10px 0;
+          font-size: 0.85rem;
+          border-radius: 6px;
+          font-weight: 600;
+        }
+
+        /* Tablet Breakpoint */
+        @media (min-width: 640px) {
+          .cd-drawer {
+            width: 360px;
+            max-width: 360px;
+            padding: 18px;
+          }
+
+          .cd-heading {
+            font-size: 1.2rem;
+          }
+
+          .cd-footer-btn {
+            font-size: 0.95rem;
+          }
+        }
+      `}</style>
     </div>
   );
+
+  // Render outside of normal DOM tree using createPortal
+  return createPortal(drawerContent, document.body);
 };
