@@ -409,11 +409,12 @@ export const Header: React.FC = () => {
 
         .hamburger-btn {
           display: none;
-          background: none;
+          background: var(--white);
           border: none;
           font-size: 22px;
           cursor: pointer;
-          padding: 6px;
+          padding: 6px 10px;
+          border-radius: 6px;
           color: var(--ink);
         }
 
