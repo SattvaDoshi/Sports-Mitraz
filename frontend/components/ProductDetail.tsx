@@ -70,74 +70,52 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   };
 
   return (
-    <div className="container" style={{ padding: "40px 20px" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px" }}>
+    <div className="pd-container container">
+      <div className="pd-grid">
         {/* Gallery */}
-        <div>
-          <img
-            src={activeImage}
-            alt={product.title}
-            style={{ width: "100%", borderRadius: "8px", height: "400px", objectFit: "cover" }}
-          />
-          <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
+        <div className="pd-gallery">
+          <img src={activeImage} alt={product.title} className="pd-main-image" />
+          <div className="pd-thumb-row">
             {product.gallery.map((imgUrl, idx) => (
               <img
                 key={idx}
                 src={imgUrl}
                 alt="thumb"
                 onClick={() => setActiveImage(imgUrl)}
-                style={{
-                  width: "80px",
-                  height: "80px",
-                  objectFit: "cover",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  border: activeImage === imgUrl ? "2px solid #e91e63" : "1px solid #ccc",
-                }}
+                className={`pd-thumb ${activeImage === imgUrl ? "pd-thumb-active" : ""}`}
               />
             ))}
           </div>
         </div>
 
         {/* Info */}
-        <div>
-          <h1>{product.title}</h1>
-          <p style={{ fontSize: "1.2rem", margin: "15px 0", color: "#666" }}>
-            {product.description}
-          </p>
-          <h2 style={{ color: "#e91e63", marginBottom: "20px" }}>
-            Starting from ₹{product.startingPrice}
-          </h2>
+        <div className="pd-info">
+          <h1 className="pd-title">{product.title}</h1>
+          <p className="pd-description">{product.description}</p>
+          <h2 className="pd-price">Starting from ₹{product.startingPrice}</h2>
 
           {/* Catalog PDF Link Button */}
-          <div style={{ marginBottom: "20px" }}>
+          <div className="pd-catalog-row">
             <a
               href={product.catalogPdfUrl || "#"}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-pink"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                textDecoration: "none",
-                fontSize: "0.9rem",
-              }}
+              className="btn btn-pink pd-catalog-btn"
             >
               📄 VIEW CATALOG (PDF)
             </a>
           </div>
 
-          <div style={{ display: "flex", gap: "15px", marginBottom: "20px" }}>
+          <div className="pd-action-row">
             <button
-              className="btn btn-pink"
+              className="btn btn-pink pd-action-btn"
               onClick={() => setShowQuoteForm(!showQuoteForm)}
             >
               {showQuoteForm ? "Hide Quote Form" : "REQUEST QUOTE"}
             </button>
 
             <button
-              className="btn btn-lime"
+              className="btn btn-lime pd-action-btn"
               disabled={!isQuoteSubmitted}
               onClick={handleAddToCart}
               style={{
@@ -150,7 +128,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           </div>
 
           {!isQuoteSubmitted && (
-            <p style={{ fontSize: "0.85rem", color: "#888" }}>
+            <p className="pd-hint">
               * Please fill and submit the Request Quote form below to enable Add to Cart.
             </p>
           )}
@@ -159,29 +137,22 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
 
       {/* Quote Form */}
       {showQuoteForm && (
-        <section className="contact-wrap" style={{ marginTop: "40px" }}>
+        <section className="contact-wrap pd-quote-section">
           <div className="info-box">
             <h3>Request Custom Quotation</h3>
             <p>Fill out the details below to unlock adding this customized item to your cart.</p>
-            
+
             {/* Design Code Instructions Section */}
-            <div
-              style={{
-                marginTop: "15px",
-                padding: "12px",
-                backgroundColor: "#fff3f8",
-                borderRadius: "6px",
-                borderLeft: "4px solid #e91e63",
-              }}
-            >
+            <div className="pd-instructions">
               <strong>💡 Ordering Instructions:</strong>
-              <p style={{ margin: "5px 0 0 0", fontSize: "0.9rem" }}>
-                Browse our catalog using the button above and put the code of the design that you want in the quote form to get all the details.
+              <p className="pd-instructions-text">
+                Browse our catalog using the button above and put the code of the design that you
+                want in the quote form to get all the details.
               </p>
             </div>
           </div>
 
-          <form className="contact-form" onSubmit={handleQuoteSubmit}>
+          <form className="contact-form pd-form" onSubmit={handleQuoteSubmit}>
             <div className="field">
               <label>Name</label>
               <input
@@ -231,13 +202,211 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
               />
             </div>
             <div className="field full">
-              <button className="btn btn-pink" type="submit">
+              <button className="btn btn-pink pd-submit-btn" type="submit">
                 SAVE QUOTE DETAILS →
               </button>
             </div>
           </form>
         </section>
       )}
+
+      <style jsx>{`
+        /* ---------- Base (mobile-first) ---------- */
+        .pd-container {
+          padding: 24px 16px;
+        }
+
+        .pd-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 24px;
+        }
+
+        .pd-gallery {
+          width: 100%;
+        }
+
+        .pd-main-image {
+          width: 100%;
+          border-radius: 8px;
+          height: 260px;
+          object-fit: cover;
+          display: block;
+        }
+
+        .pd-thumb-row {
+          display: flex;
+          gap: 10px;
+          margin-top: 12px;
+          overflow-x: auto;
+          padding-bottom: 4px;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: thin;
+        }
+
+        .pd-thumb {
+          flex: 0 0 auto;
+          width: 64px;
+          height: 64px;
+          object-fit: cover;
+          border-radius: 6px;
+          cursor: pointer;
+          border: 1px solid #ccc;
+        }
+
+        .pd-thumb-active {
+          border: 2px solid #e91e63;
+        }
+
+        .pd-info {
+          width: 100%;
+        }
+
+        .pd-title {
+          font-size: 1.5rem;
+          line-height: 1.25;
+          margin: 0 0 10px 0;
+        }
+
+        .pd-description {
+          font-size: 1rem;
+          margin: 10px 0;
+          color: #666;
+        }
+
+        .pd-price {
+          color: #e91e63;
+          font-size: 1.25rem;
+          margin-bottom: 16px;
+        }
+
+        .pd-catalog-row {
+          margin-bottom: 16px;
+        }
+
+        .pd-catalog-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          text-decoration: none;
+          font-size: 0.85rem;
+          width: 100%;
+          justify-content: center;
+        }
+
+        .pd-action-row {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-bottom: 16px;
+        }
+
+        .pd-action-btn {
+          width: 100%;
+          text-align: center;
+        }
+
+        .pd-hint {
+          font-size: 0.8rem;
+          color: #888;
+        }
+
+        .pd-quote-section {
+          margin-top: 32px;
+        }
+
+        .pd-instructions {
+          margin-top: 15px;
+          padding: 12px;
+          background-color: #fff3f8;
+          border-radius: 6px;
+          border-left: 4px solid #e91e63;
+        }
+
+        .pd-instructions-text {
+          margin: 5px 0 0 0;
+          font-size: 0.85rem;
+        }
+
+        .pd-form :global(.field.full) {
+          grid-column: 1 / -1;
+        }
+
+        .pd-submit-btn {
+          width: 100%;
+        }
+
+        /* ---------- Tablet (≥640px) ---------- */
+        @media (min-width: 640px) {
+          .pd-container {
+            padding: 32px 24px;
+          }
+
+          .pd-main-image {
+            height: 340px;
+          }
+
+          .pd-thumb {
+            width: 72px;
+            height: 72px;
+          }
+
+          .pd-title {
+            font-size: 1.75rem;
+          }
+
+          .pd-catalog-btn {
+            width: auto;
+            justify-content: flex-start;
+          }
+
+          .pd-action-row {
+            flex-direction: row;
+            gap: 15px;
+          }
+
+          .pd-action-btn {
+            width: auto;
+            flex: 1;
+          }
+
+          .pd-submit-btn {
+            width: auto;
+          }
+        }
+
+        /* ---------- Desktop / Laptop (≥1024px) ---------- */
+        @media (min-width: 1024px) {
+          .pd-container {
+            padding: 40px 20px;
+          }
+
+          .pd-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+          }
+
+          .pd-main-image {
+            height: 400px;
+          }
+
+          .pd-thumb-row {
+            overflow-x: visible;
+          }
+
+          .pd-title {
+            font-size: 2rem;
+          }
+
+          .pd-description {
+            font-size: 1.2rem;
+          }
+
+          .pd-price {
+            font-size: 1.5rem;
+          }
+        }
+      `}</style>
     </div>
   );
 };

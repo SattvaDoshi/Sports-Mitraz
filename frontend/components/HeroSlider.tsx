@@ -99,6 +99,7 @@ export const HeroSlider: React.FC = () => {
             </Link>
           </div>
         </div>
+
         <div 
           className="slider"
           onMouseEnter={() => setIsPaused(true)}
@@ -106,7 +107,7 @@ export const HeroSlider: React.FC = () => {
         >
           {slideData.map((slide, idx) => (
             <div className={`slide ${idx === current ? "active" : ""}`} key={idx}>
-              <img src={slide.img} alt="Hero Slide" />
+              <img src={slide.img} alt={`Slide ${idx + 1}`} />
               <div className="slide-copy">
                 <h2>{slide.title}</h2>
                 <p>{slide.desc}</p>
@@ -124,8 +125,8 @@ export const HeroSlider: React.FC = () => {
               </div>
             </div>
           ))}
-          <button className="slider-arrow prev" onClick={prevSlide}>‹</button>
-          <button className="slider-arrow next" onClick={nextSlide}>›</button>
+          <button className="slider-arrow prev" onClick={prevSlide} aria-label="Previous Slide">‹</button>
+          <button className="slider-arrow next" onClick={nextSlide} aria-label="Next Slide">›</button>
           <div className="dots">
             {slideData.map((_, idx) => (
               <span 

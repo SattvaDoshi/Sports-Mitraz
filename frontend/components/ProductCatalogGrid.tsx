@@ -43,15 +43,8 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
                   <h3>{item.title}</h3>
                   <p>{item.desc}</p>
                   
-                  {/* Dynamic or fallback price starting tag */}
-                  <p
-                    style={{
-                      color: "#e91e63",
-                      fontWeight: "bold",
-                      margin: "8px 0",
-                      fontSize: "1rem",
-                    }}
-                  >
+                  {/* Class added & inline margins removed */}
+                  <p className="price-tag">
                     Starting from ₹{price}
                   </p>
 
@@ -62,18 +55,18 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
                       </span>
                     ))}
                   </div>
-                  <div className="card-actions" style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
+
+                  {/* Inline marginTop removed */}
+                  <div className="card-actions">
                     <Link
                       href={`/products/details?item=${productSlug}`}
                       className="btn btn-lime"
-                      style={{ flex: 1, textAlign: "center" }}
                     >
                       VIEW DETAILS
                     </Link>
                     <Link
                       href="/contact"
                       className="btn btn-pink"
-                      style={{ flex: 1, textAlign: "center" }}
                     >
                       REQUEST QUOTE →
                     </Link>
