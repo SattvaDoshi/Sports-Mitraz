@@ -322,7 +322,7 @@ export const Header: React.FC = () => {
       <style jsx>{`
         .header-root {
           background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(12px);
+          backdrop-filter: none;
           border-bottom: 1px solid var(--line);
           position: sticky;
           top: 0;
