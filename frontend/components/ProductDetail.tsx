@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useCart, CustomQuoteDetails } from "@/context/CartContext";
 
 interface ProductDetailProps {
@@ -19,23 +19,34 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   product = {
     id: "prod-1200",
     title: "Premium Custom Sports Item",
-    mainImage: "/assets/hero-slide-1.jpg",
+    mainImage: "/hero-slide-1.jpg",
     gallery: [
-      "/assets/hero-slide-1.jpg",
-      "/assets/hero-slide-2.jpg",
-      "/assets/hero-slide-3.jpg",
-      "/assets/hero-slide-4.jpg",
+      "/hero-slide-1.jpg",
+      "/hero-slide-2.jpg",
+      "/hero-slide-3.jpg",
+      "/hero-slide-4.jpg",
+      "/hero-slide-1.jpg",
+      "/hero-slide-2.jpg",
+      "/hero-slide-3.jpg",
+      "/hero-slide-4.jpg",
     ],
     description:
       "Fully customizable high-grade sports gear and event apparel designed for durability, vibrant colors, and premium finish.",
     startingPrice: 1200,
-    catalogPdfUrl: "/assets/sample-catalog.pdf",
+    catalogPdfUrl: "/sample-catalog.pdf",
   },
 }) => {
   const { addToCart } = useCart();
-  const [activeImage, setActiveImage] = useState(product.mainImage);
+
+  const [activeImage, setActiveImage] = useState<string>(product.mainImage);
   const [showQuoteForm, setShowQuoteForm] = useState(false);
   const [isQuoteSubmitted, setIsQuoteSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (product?.mainImage) {
+      setActiveImage(product.mainImage);
+    }
+  }, [product?.mainImage]);
 
   const [formData, setFormData] = useState<CustomQuoteDetails>({
     name: "",
@@ -74,13 +85,19 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
       <div className="pd-grid">
         {/* Gallery */}
         <div className="pd-gallery">
-          <img src={activeImage} alt={product.title} className="pd-main-image" />
+          <div className="pd-main-image-wrap">
+            <img
+              src={activeImage}
+              alt={product.title}
+              className="pd-main-image"
+            />
+          </div>
           <div className="pd-thumb-row">
             {product.gallery.map((imgUrl, idx) => (
               <img
                 key={idx}
                 src={imgUrl}
-                alt="thumb"
+                alt={`Thumbnail ${idx + 1}`}
                 onClick={() => setActiveImage(imgUrl)}
                 className={`pd-thumb ${activeImage === imgUrl ? "pd-thumb-active" : ""}`}
               />
@@ -92,9 +109,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
         <div className="pd-info">
           <h1 className="pd-title">{product.title}</h1>
           <p className="pd-description">{product.description}</p>
-          <h2 className="pd-price">Starting from ₹{product.startingPrice}</h2>
+          <h2 className="pd-price">Starting from Rs.{product.startingPrice}</h2>
 
-          {/* Catalog PDF Link Button */}
           <div className="pd-catalog-row">
             <a
               href={product.catalogPdfUrl || "#"}
@@ -102,7 +118,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
               rel="noopener noreferrer"
               className="btn btn-pink pd-catalog-btn"
             >
-              📄 VIEW CATALOG (PDF)
+              VIEW CATALOG (PDF)
             </a>
           </div>
 
@@ -123,7 +139,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                 cursor: isQuoteSubmitted ? "pointer" : "not-allowed",
               }}
             >
-              ADD TO CART 🛒
+              ADD TO CART
             </button>
           </div>
 
@@ -142,9 +158,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             <h3>Request Custom Quotation</h3>
             <p>Fill out the details below to unlock adding this customized item to your cart.</p>
 
-            {/* Design Code Instructions Section */}
             <div className="pd-instructions">
-              <strong>💡 Ordering Instructions:</strong>
+              <strong>Ordering Instructions:</strong>
               <p className="pd-instructions-text">
                 Browse our catalog using the button above and put the code of the design that you
                 want in the quote form to get all the details.
@@ -203,7 +218,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             </div>
             <div className="field full">
               <button className="btn btn-pink pd-submit-btn" type="submit">
-                SAVE QUOTE DETAILS →
+                SAVE QUOTE DETAILS
               </button>
             </div>
           </form>
@@ -211,27 +226,35 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
       )}
 
       <style jsx>{`
-        /* ---------- Base (mobile-first) ---------- */
         .pd-container {
-          padding: 24px 16px;
+          padding: clamp(16px, 4vw, 24px) clamp(12px, 4vw, 16px);
         }
 
         .pd-grid {
           display: grid;
           grid-template-columns: 1fr;
-          gap: 24px;
+          gap: clamp(20px, 5vw, 24px);
         }
 
         .pd-gallery {
           width: 100%;
+          min-width: 0;
+        }
+
+        .pd-main-image-wrap {
+          width: 100%;
+          aspect-ratio: 4 / 3;
+          border-radius: 8px;
+          overflow: hidden;
+          background: #f1f1f1;
         }
 
         .pd-main-image {
           width: 100%;
-          border-radius: 8px;
-          height: 260px;
+          height: 100%;
           object-fit: cover;
           display: block;
+          transition: opacity 0.2s ease-in-out;
         }
 
         .pd-thumb-row {
@@ -239,44 +262,55 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           gap: 10px;
           margin-top: 12px;
           overflow-x: auto;
-          padding-bottom: 4px;
+          padding-bottom: 6px;
           -webkit-overflow-scrolling: touch;
           scrollbar-width: thin;
         }
 
         .pd-thumb {
           flex: 0 0 auto;
-          width: 64px;
-          height: 64px;
+          width: clamp(56px, 16vw, 72px);
+          height: clamp(56px, 16vw, 72px);
           object-fit: cover;
           border-radius: 6px;
           cursor: pointer;
-          border: 1px solid #ccc;
+          border: 2px solid transparent;
+          opacity: 0.7;
+          transition: opacity 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .pd-thumb:hover {
+          opacity: 1;
+          transform: scale(1.03);
         }
 
         .pd-thumb-active {
-          border: 2px solid #e91e63;
+          border-color: #e91e63;
+          opacity: 1;
+          box-shadow: 0 0 0 1px #e91e63;
         }
 
         .pd-info {
           width: 100%;
+          min-width: 0;
         }
 
         .pd-title {
-          font-size: 1.5rem;
+          font-size: clamp(1.35rem, 4vw, 2rem);
           line-height: 1.25;
           margin: 0 0 10px 0;
         }
 
         .pd-description {
-          font-size: 1rem;
+          font-size: clamp(0.92rem, 2.2vw, 1.2rem);
           margin: 10px 0;
           color: #666;
+          line-height: 1.6;
         }
 
         .pd-price {
           color: #e91e63;
-          font-size: 1.25rem;
+          font-size: clamp(1.1rem, 3vw, 1.5rem);
           margin-bottom: 16px;
         }
 
@@ -336,25 +370,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           width: 100%;
         }
 
-        /* ---------- Tablet (≥640px) ---------- */
-        @media (min-width: 640px) {
-          .pd-container {
-            padding: 32px 24px;
-          }
-
-          .pd-main-image {
-            height: 340px;
-          }
-
-          .pd-thumb {
-            width: 72px;
-            height: 72px;
-          }
-
-          .pd-title {
-            font-size: 1.75rem;
-          }
-
+        @media (min-width: 560px) {
           .pd-catalog-btn {
             width: auto;
             justify-content: flex-start;
@@ -375,7 +391,27 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           }
         }
 
-        /* ---------- Desktop / Laptop (≥1024px) ---------- */
+        @media (min-width: 768px) {
+          .pd-container {
+            padding: 32px 24px;
+          }
+
+          .pd-grid {
+            grid-template-columns: 0.9fr 1.1fr;
+            gap: 32px;
+            align-items: start;
+          }
+
+          .pd-main-image-wrap {
+            aspect-ratio: 1 / 1;
+          }
+
+          .pd-thumb-row {
+            overflow-x: visible;
+            flex-wrap: wrap;
+          }
+        }
+
         @media (min-width: 1024px) {
           .pd-container {
             padding: 40px 20px;
@@ -386,24 +422,15 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             gap: 40px;
           }
 
-          .pd-main-image {
-            height: 400px;
+          .pd-main-image-wrap {
+            aspect-ratio: 4 / 3;
           }
+        }
 
-          .pd-thumb-row {
-            overflow-x: visible;
-          }
-
-          .pd-title {
-            font-size: 2rem;
-          }
-
-          .pd-description {
-            font-size: 1.2rem;
-          }
-
-          .pd-price {
-            font-size: 1.5rem;
+        @media (min-width: 1440px) {
+          .pd-grid {
+            max-width: 1280px;
+            margin: 0 auto;
           }
         }
       `}</style>

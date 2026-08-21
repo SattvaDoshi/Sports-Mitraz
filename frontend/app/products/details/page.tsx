@@ -18,12 +18,13 @@ function ProductDetailsContent() {
   const productData = {
     id: itemSlug,
     title: formattedTitle,
-    mainImage: "/assets/hero-slide-1.jpg",
+    mainImage: "/hero-slide-1.jpg",
     gallery: [
-      "/assets/hero-slide-1.jpg",
-      "/assets/hero-slide-2.jpg",
-      "/assets/hero-slide-3.jpg",
-      "/assets/hero-slide-4.jpg",
+      "/hero-slide-1.jpg",
+      "/hero-slide-2.jpg",
+      "/hero-slide-3.jpg",
+      "/hero-slide-4.jpg",
+      
     ],
     description: `High-quality customized ${formattedTitle.toLowerCase()} designed for sports events, tournaments, and corporate branding. Built with durable material and precision printing.`,
     startingPrice: 1200,

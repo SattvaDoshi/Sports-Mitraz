@@ -213,6 +213,7 @@ header {
   display: block;
   width: 20px;
   height: 2px;
+  
   border-radius: 2px;
   background: var(--ink);
   transition: transform 0.25s ease, opacity 0.2s ease;
