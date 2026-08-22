@@ -6,7 +6,10 @@
   "type": "commonjs",
   "scripts": {
     "start": "node src/app.js",
-    "dev": "nodemon src/app.js"
+    "dev": "nodemon src/app.js",
+    "seed:admin": "node src/seeders/adminSeed.js",
+    "seed:catalog": "node src/seeders/catalogSeed.js",
+    "seed:all": "node src/seeders/adminSeed.js && node src/seeders/catalogSeed.js"
   },
   "dependencies": {
     "axios": "^1.7.2",

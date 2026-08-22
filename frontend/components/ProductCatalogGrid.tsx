@@ -5,6 +5,8 @@ import Link from "next/link";
 
 export interface CatalogItem {
   id?: string;
+  slug?: string;
+  categorySlug?: string;
   title: string;
   img: string;
   desc: string;
@@ -16,12 +18,14 @@ interface ProductCatalogGridProps {
   sectionTitle: string;
   description: string;
   items: CatalogItem[];
+  categorySlug?: string;
 }
 
 export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
   sectionTitle,
   description,
   items,
+  categorySlug,
 }) => {
   return (
     <section>
@@ -33,8 +37,13 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
         </div>
         <div className="catalog">
           {items.map((item, idx) => {
-            const productSlug = item.title.toLowerCase().replace(/\s+/g, "-");
+            // Prefer the backend slug passed as `slug` or `id`; fall back to deriving from title
+            const productSlug = item.slug || item.id || item.title.toLowerCase().replace(/\s+/g, "-");
+            const activeCategorySlug = item.categorySlug || categorySlug;
             const price = item.price || 1200;
+            const detailUrl = activeCategorySlug
+              ? `/products/${activeCategorySlug}/${productSlug}`
+              : `/products/details?item=${productSlug}`;
 
             return (
               <article className="pcard" key={idx}>
@@ -59,7 +68,7 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
                   {/* Inline marginTop removed */}
                   <div className="card-actions">
                     <Link
-                      href={`/products/details?item=${productSlug}`}
+                      href={detailUrl}
                       className="btn btn-lime"
                     >
                       VIEW DETAILS

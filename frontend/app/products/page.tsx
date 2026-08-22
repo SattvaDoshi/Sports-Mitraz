@@ -1,61 +1,56 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Header } from "../../components/Header";
 import { CtaBand } from "../../components/CtaBand";
 import { Footer } from "../../components/Footer";
 
-const categories = [
-  {
-    title: "Auction Accessories",
-    desc: "Paddles, table tops, bails, player keychains, auction boards and custom event pieces.",
-    img: "/auction.jpg",
-    tags: ["Custom logo", "Names", "Bulk order"],
-    link: "/products/auction-accessories",
-    btnClass: "btn-pink"
-  },
-  {
-    title: "Trophies & Medals",
-    desc: "Acrylic, metal and fibre trophies, momentos and medals for all sports events.",
-    img: "/trophies.jpg",
-    tags: ["Acrylic", "Metal", "Medals"],
-    link: "/products/trophies-medals",
-    btnClass: "btn-lime"
-  },
-  {
-    title: "Custom Jerseys",
-    desc: "Sports jerseys, sublimation options, plain jerseys with logo and team apparel.",
-    img: "/jerseys.jpg",
-    tags: ["Sublimation", "Name", "Number"],
-    link: "/products/custom-jerseys",
-    btnClass: "btn-pink"
-  },
-  {
-    title: "Printing Services",
-    desc: "Banners, flex, backdrops, standees, posters and tournament branding requirements.",
-    img: "/printing.jpg",
-    tags: ["Banners", "Backdrops", "Event print"],
-    link: "/products/printing-services",
-    btnClass: "btn-lime"
-  },
-  {
-    title: "Sports Accessories",
-    desc: "Selected sports equipment and team/event accessories for bulk orders.",
-    img: "/sports-accessories.jpg",
-    tags: ["Equipment", "Team gear", "Custom items"],
-    link: "/products/sports-accessories",
-    btnClass: "btn-pink"
-  }
-];
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  image: string | null;
+  tags?: string[];
+}
+
+const CATEGORY_IMAGES: Record<string, string> = {
+  "auction-accessories": "/auction.jpg",
+  "trophies-medals": "/trophies.jpg",
+  "custom-jerseys": "/jerseys.jpg",
+  "printing-services": "/printing.jpg",
+  "sports-accessories": "/sports-accessories.jpg",
+};
+
+const CATEGORY_BTN: Record<string, string> = {
+  "auction-accessories": "btn-pink",
+  "trophies-medals": "btn-lime",
+  "custom-jerseys": "btn-pink",
+  "printing-services": "btn-lime",
+  "sports-accessories": "btn-pink",
+};
 
 export default function ProductsPage() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) setCategories(data.data);
+      })
+      .catch((err) => console.error("Failed to load categories:", err))
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <>
       <Header />
       <main>
-        <section 
-          className="page-hero" 
+        <section
+          className="page-hero"
           style={{ "--hero": "url('/hero-slide-1.jpg')" } as React.CSSProperties}
         >
           <div className="container inner">
@@ -65,7 +60,7 @@ export default function ProductsPage() {
                 Everything for Your <span>Sports Event</span>
               </h1>
               <p>
-                Choose a category and send us your quantity, logo, names, sizes and event date. 
+                Choose a category and send us your quantity, logo, names, sizes and event date.
                 SportzMitra focuses on custom and bulk requirements rather than fixed-cart checkout.
               </p>
               <Link className="btn btn-pink" href="/contact">
@@ -77,29 +72,34 @@ export default function ProductsPage() {
 
         <section style={{ padding: "40px 0" }}>
           <div className="container">
-            <div className="catalog">
-              {categories.map((cat, idx) => (
-                <article className="pcard category-card" key={idx}>
-                  <img src={cat.img} alt={cat.title} />
-                  <div className="body">
-                    <h3>{cat.title}</h3>
-                    <p className="cat-desc">{cat.desc}</p>
-                    <div className="tags">
-                      {cat.tags.map((tag, tIdx) => (
-                        <span className="tag" key={tIdx}>
-                          {tag}
-                        </span>
-                      ))}
+            {loading ? (
+              <div style={{ padding: "60px", textAlign: "center", color: "#62686f" }}>
+                Loading categories...
+              </div>
+            ) : (
+              <div className="catalog">
+                {categories.map((cat) => (
+                  <article className="pcard category-card" key={cat.id}>
+                    <img
+                      src={cat.image || CATEGORY_IMAGES[cat.slug] || "/hero-slide-1.jpg"}
+                      alt={cat.name}
+                    />
+                    <div className="body">
+                      <h3>{cat.name}</h3>
+                      <p className="cat-desc">{cat.description}</p>
+                      <div className="card-actions">
+                        <Link
+                          className={`btn ${CATEGORY_BTN[cat.slug] || "btn-pink"}`}
+                          href={`/products/${cat.slug}`}
+                        >
+                          VIEW CATEGORY →
+                        </Link>
+                      </div>
                     </div>
-                    <div className="card-actions">
-                      <Link className={`btn ${cat.btnClass}`} href={cat.link}>
-                        VIEW CATEGORY →
-                      </Link>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
+                  </article>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </main>
