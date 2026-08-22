@@ -35,7 +35,7 @@ router.get("/", async (req, res) => {
 
     const { count, rows: orders } = await Order.findAndCountAll({
       where,
-      include: [{ model: Product, as: "product", attributes: ["id", "name", "slug"] }],
+      include: [{ model: Product, as: "productDetails", attributes: ["id", "name", "slug"] }],
       order: [["createdAt", "DESC"]],
       limit: parseInt(limit),
       offset,
@@ -90,7 +90,7 @@ router.get("/stats", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const order = await Order.findByPk(req.params.id, {
-      include: [{ model: Product, as: "product", attributes: ["id", "name", "slug"] }],
+      include: [{ model: Product, as: "productDetails", attributes: ["id", "name", "slug"] }],
     });
 
     if (!order) {

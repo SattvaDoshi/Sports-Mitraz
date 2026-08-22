@@ -2,6 +2,7 @@ const sequelize = require("../config/db");
 const Category = require("./Category");
 const Product = require("./Product");
 const Order = require("./Order");
+const Admin = require("./Admin");
 
 // ── Category self-referential (parent → children) ──────────────────────────
 Category.hasMany(Category, {
@@ -18,6 +19,7 @@ Category.belongsTo(Category, {
 Category.hasMany(Product, {
   as: "products",
   foreignKey: "categoryId",
+  onDelete: "CASCADE",
 });
 Product.belongsTo(Category, {
   as: "category",
@@ -30,8 +32,8 @@ Product.hasMany(Order, {
   foreignKey: "productId",
 });
 Order.belongsTo(Product, {
-  as: "product",
+  as: "productDetails",
   foreignKey: "productId",
 });
 
-module.exports = { sequelize, Category, Product, Order };
+module.exports = { sequelize, Category, Product, Order, Admin };

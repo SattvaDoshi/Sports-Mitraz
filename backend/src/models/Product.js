@@ -31,7 +31,7 @@ const Product = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: { model: "Categories", key: "id" },
-      onDelete: "SET NULL",
+      onDelete: "CASCADE",
     },
     images: {
       // JSON array of Cloudinary secure_urls
