@@ -22,8 +22,7 @@ export default function AdminOrders() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  
-  // For modal/drawer to edit order
+
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [adminNotes, setAdminNotes] = useState("");
 
@@ -53,8 +52,7 @@ export default function AdminOrders() {
         isAdmin: true,
         body: JSON.stringify({ status: newStatus }),
       });
-      // Update local state
-      setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus as any } : o));
+      setOrders(orders.map((o) => (o.id === orderId ? { ...o, status: newStatus as any } : o)));
       if (selectedOrder && selectedOrder.id === orderId) {
         setSelectedOrder({ ...selectedOrder, status: newStatus as any });
       }
@@ -71,9 +69,8 @@ export default function AdminOrders() {
         isAdmin: true,
         body: JSON.stringify({ adminNotes }),
       });
-      
-      // Update local state
-      setOrders(orders.map(o => o.id === selectedOrder.id ? { ...o, adminNotes } : o));
+
+      setOrders(orders.map((o) => (o.id === selectedOrder.id ? { ...o, adminNotes } : o)));
       setSelectedOrder({ ...selectedOrder, adminNotes });
       alert("Notes saved successfully");
     } catch (err: any) {
@@ -92,21 +89,52 @@ export default function AdminOrders() {
   };
 
   const getStatusColor = (status: string) => {
-    switch(status) {
-      case "pending": return "#f59e0b";
-      case "confirmed": return "#3b82f6";
-      case "booked": return "#10b981";
-      case "cancelled": return "#ef4444";
-      default: return "#62686f";
+    switch (status) {
+      case "pending":
+        return "#f59e0b";
+      case "confirmed":
+        return "#3b82f6";
+      case "booked":
+        return "#10b981";
+      case "cancelled":
+        return "#ef4444";
+      default:
+        return "#62686f";
     }
   };
 
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-        <h1 style={{ color: "#111318", margin: 0 }}>Orders / Enquiries</h1>
-        
-        <select 
+    <div style={{ padding: "16px", maxWidth: "1200px", margin: "0 auto", boxSizing: "border-box" }}>
+      <style>{`
+        @media (max-width: 640px) {
+          .orders-header {
+            flex-direction: column;
+            align-items: stretch !important;
+            gap: 12px;
+          }
+          .orders-header select {
+            width: 100%;
+          }
+          .modal-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
+
+      <div
+        className="orders-header"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "24px",
+        }}
+      >
+        <h1 style={{ color: "#111318", margin: 0, fontSize: "clamp(1.5rem, 4vw, 2rem)" }}>
+          Orders / Enquiries
+        </h1>
+
+        <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           style={{ padding: "8px 16px", borderRadius: "6px", border: "1px solid #e6e9e5" }}
@@ -127,105 +155,148 @@ export default function AdminOrders() {
         ) : orders.length === 0 ? (
           <div style={{ padding: "40px", textAlign: "center", color: "#62686f" }}>No orders found.</div>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-            <thead>
-              <tr style={{ background: "#f7f8f5", borderBottom: "1px solid #e6e9e5" }}>
-                <th style={{ padding: "16px", fontWeight: "bold", color: "#111318" }}>ID / Date</th>
-                <th style={{ padding: "16px", fontWeight: "bold", color: "#111318" }}>Customer</th>
-                <th style={{ padding: "16px", fontWeight: "bold", color: "#111318" }}>Requirement</th>
-                <th style={{ padding: "16px", fontWeight: "bold", color: "#111318" }}>Status</th>
-                <th style={{ padding: "16px", fontWeight: "bold", color: "#111318", textAlign: "right" }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr key={order.id} style={{ borderBottom: "1px solid #e6e9e5" }}>
-                  <td style={{ padding: "16px" }}>
-                    <div style={{ fontWeight: "bold" }}>#{order.id}</div>
-                    <div style={{ fontSize: "0.85rem", color: "#62686f" }}>
-                      {new Date(order.createdAt).toLocaleDateString()}
-                    </div>
-                  </td>
-                  <td style={{ padding: "16px" }}>
-                    <div style={{ fontWeight: "bold" }}>{order.name}</div>
-                    <div style={{ fontSize: "0.85rem", color: "#62686f" }}>{order.phone}</div>
-                  </td>
-                  <td style={{ padding: "16px" }}>
-                    <div>{order.product || "General Enquiry"}</div>
-                    {order.whatsappSent ? (
-                      <span style={{ fontSize: "0.75rem", background: "#e0f2fe", color: "#0284c7", padding: "2px 6px", borderRadius: "4px" }}>
-                        WhatsApp Sent
-                      </span>
-                    ) : null}
-                  </td>
-                  <td style={{ padding: "16px" }}>
-                    <select
-                      value={order.status}
-                      onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                      style={{
-                        padding: "6px 10px",
-                        borderRadius: "4px",
-                        border: `1px solid ${getStatusColor(order.status)}`,
-                        color: getStatusColor(order.status),
-                        fontWeight: "bold",
-                        background: "transparent",
-                        cursor: "pointer"
-                      }}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="confirmed">Confirmed</option>
-                      <option value="booked">Booked</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
-                  </td>
-                  <td style={{ padding: "16px", textAlign: "right" }}>
-                    <button
-                      onClick={() => openOrderModal(order)}
-                      style={{
-                        background: "#f3f4f6",
-                        border: "1px solid #d1d5db",
-                        padding: "6px 12px",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                        fontWeight: "500"
-                      }}
-                    >
-                      View Details
-                    </button>
-                  </td>
+          /* Horizontal scroll wrapper for mobile & tablet */
+          <div style={{ width: "100%", overflowX: "auto" }}>
+            <table style={{ width: "100%", minWidth: "650px", borderCollapse: "collapse", textAlign: "left" }}>
+              <thead>
+                <tr style={{ background: "#f7f8f5", borderBottom: "1px solid #e6e9e5" }}>
+                  <th style={{ padding: "16px", fontWeight: "bold", color: "#111318" }}>ID / Date</th>
+                  <th style={{ padding: "16px", fontWeight: "bold", color: "#111318" }}>Customer</th>
+                  <th style={{ padding: "16px", fontWeight: "bold", color: "#111318" }}>Requirement</th>
+                  <th style={{ padding: "16px", fontWeight: "bold", color: "#111318" }}>Status</th>
+                  <th style={{ padding: "16px", fontWeight: "bold", color: "#111318", textAlign: "right" }}>
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {orders.map((order) => (
+                  <tr key={order.id} style={{ borderBottom: "1px solid #e6e9e5" }}>
+                    <td style={{ padding: "16px" }}>
+                      <div style={{ fontWeight: "bold" }}>#{order.id}</div>
+                      <div style={{ fontSize: "0.85rem", color: "#62686f" }}>
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </div>
+                    </td>
+                    <td style={{ padding: "16px" }}>
+                      <div style={{ fontWeight: "bold" }}>{order.name}</div>
+                      <div style={{ fontSize: "0.85rem", color: "#62686f" }}>{order.phone}</div>
+                    </td>
+                    <td style={{ padding: "16px" }}>
+                      <div>{order.product || "General Enquiry"}</div>
+                      {order.whatsappSent ? (
+                        <span
+                          style={{
+                            fontSize: "0.75rem",
+                            background: "#e0f2fe",
+                            color: "#0284c7",
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            display: "inline-block",
+                            marginTop: "4px",
+                          }}
+                        >
+                          WhatsApp Sent
+                        </span>
+                      ) : null}
+                    </td>
+                    <td style={{ padding: "16px" }}>
+                      <select
+                        value={order.status}
+                        onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                        style={{
+                          padding: "6px 10px",
+                          borderRadius: "4px",
+                          border: `1px solid ${getStatusColor(order.status)}`,
+                          color: getStatusColor(order.status),
+                          fontWeight: "bold",
+                          background: "transparent",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="booked">Booked</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                    </td>
+                    <td style={{ padding: "16px", textAlign: "right" }}>
+                      <button
+                        onClick={() => openOrderModal(order)}
+                        style={{
+                          background: "#f3f4f6",
+                          border: "1px solid #d1d5db",
+                          padding: "6px 12px",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          fontWeight: "500",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
-      {/* Order Details Modal */}
+      {/* Modal */}
       {selectedOrder && (
-        <div style={{
-          position: "fixed",
-          inset: 0,
-          background: "rgba(0,0,0,0.5)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 1000
-        }}>
-          <div style={{
-            background: "#fff",
-            width: "90%",
-            maxWidth: "600px",
-            borderRadius: "12px",
-            padding: "24px",
-            maxHeight: "90vh",
-            overflowY: "auto"
-          }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-              <h2 style={{ margin: 0 }}>Order #{selectedOrder.id} Details</h2>
-              <button onClick={closeOrderModal} style={{ background: "none", border: "none", fontSize: "1.5rem", cursor: "pointer" }}>✕</button>
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+            padding: "16px",
+            boxSizing: "border-box",
+          }}
+        >
+          <div
+            style={{
+              background: "#fff",
+              width: "100%",
+              maxWidth: "600px",
+              borderRadius: "12px",
+              padding: "20px",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              boxSizing: "border-box",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "20px",
+              }}
+            >
+              <h2 style={{ margin: 0, fontSize: "1.3rem" }}>Order #{selectedOrder.id} Details</h2>
+              <button
+                onClick={closeOrderModal}
+                style={{ background: "none", border: "none", fontSize: "1.5rem", cursor: "pointer", padding: "4px" }}
+              >
+                ✕
+              </button>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "20px" }}>
+            <div
+              className="modal-grid"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "16px",
+                marginBottom: "20px",
+              }}
+            >
               <div>
                 <strong>Customer Name:</strong>
                 <div>{selectedOrder.name}</div>
@@ -248,26 +319,65 @@ export default function AdminOrders() {
               </div>
               <div style={{ gridColumn: "1 / -1" }}>
                 <strong>Message / Details:</strong>
-                <div style={{ background: "#f7f8f5", padding: "12px", borderRadius: "6px", marginTop: "4px" }}>
+                <div
+                  style={{
+                    background: "#f7f8f5",
+                    padding: "12px",
+                    borderRadius: "6px",
+                    marginTop: "4px",
+                    wordBreak: "break-word",
+                  }}
+                >
                   {selectedOrder.message}
                 </div>
               </div>
             </div>
 
             <div style={{ marginBottom: "20px" }}>
-              <label style={{ display: "block", fontWeight: "bold", marginBottom: "8px" }}>Admin Notes</label>
+              <label style={{ display: "block", fontWeight: "bold", marginBottom: "8px" }}>
+                Admin Notes
+              </label>
               <textarea
                 value={adminNotes}
                 onChange={(e) => setAdminNotes(e.target.value)}
                 placeholder="Add private notes here..."
                 rows={4}
-                style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #e6e9e5" }}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  borderRadius: "6px",
+                  border: "1px solid #e6e9e5",
+                  boxSizing: "border-box",
+                }}
               />
             </div>
 
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px" }}>
-              <button onClick={closeOrderModal} style={{ padding: "10px 16px", background: "#f3f4f6", border: "none", borderRadius: "6px", cursor: "pointer" }}>Cancel</button>
-              <button onClick={handleSaveNotes} style={{ padding: "10px 16px", background: "#111318", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer" }}>Save Notes</button>
+              <button
+                onClick={closeOrderModal}
+                style={{
+                  padding: "10px 16px",
+                  background: "#f3f4f6",
+                  border: "none",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveNotes}
+                style={{
+                  padding: "10px 16px",
+                  background: "#111318",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                }}
+              >
+                Save Notes
+              </button>
             </div>
           </div>
         </div>
