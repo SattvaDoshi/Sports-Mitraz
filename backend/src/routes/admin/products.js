@@ -2,7 +2,7 @@ const express = require("express");
 const { body, validationResult } = require("express-validator");
 const slugify = require("slugify");
 const { Product, Category } = require("../../models");
-const { upload, uploadToCloudinary, uploadManyToCloudinary } = require("../../middleware/upload");
+const { upload, uploadToDrive, uploadManyToDrive } = require("../../middleware/upload");
 
 const router = express.Router();
 
@@ -89,17 +89,18 @@ router.post(
       // Upload product images
       let imageUrls = [];
       if (req.files && req.files["images"]) {
-        imageUrls = await uploadManyToCloudinary(req.files["images"], "sportzmitra/products");
+        imageUrls = await uploadManyToDrive(req.files["images"]);
       }
 
       // Upload catalog PDF
       let catalogPdfUrl = null;
       if (req.files && req.files["catalogPdf"] && req.files["catalogPdf"][0]) {
-        const pdfResult = await uploadToCloudinary(
+        const pdfResult = await uploadToDrive(
           req.files["catalogPdf"][0].buffer,
-          "sportzmitra/catalogs"
+          req.files["catalogPdf"][0].originalname,
+          req.files["catalogPdf"][0].mimetype
         );
-        catalogPdfUrl = pdfResult.secure_url;
+        catalogPdfUrl = pdfResult.webViewLink || pdfResult.webContentLink;
       }
 
       // Parse tags (can be comma-separated string or JSON array)
@@ -167,7 +168,7 @@ router.put("/:id", productUpload, async (req, res) => {
     }
 
     if (req.files && req.files["images"] && req.files["images"].length > 0) {
-      const newUrls = await uploadManyToCloudinary(req.files["images"], "sportzmitra/products");
+      const newUrls = await uploadManyToDrive(req.files["images"]);
       if (replaceImages === "true") {
         imageUrls = newUrls;
       } else {
@@ -178,11 +179,12 @@ router.put("/:id", productUpload, async (req, res) => {
     // Handle catalog PDF
     let catalogPdfUrl = product.catalogPdfUrl;
     if (req.files && req.files["catalogPdf"] && req.files["catalogPdf"][0]) {
-      const pdfResult = await uploadToCloudinary(
+      const pdfResult = await uploadToDrive(
         req.files["catalogPdf"][0].buffer,
-        "sportzmitra/catalogs"
+        req.files["catalogPdf"][0].originalname,
+        req.files["catalogPdf"][0].mimetype
       );
-      catalogPdfUrl = pdfResult.secure_url;
+      product.catalogPdfUrl = pdfResult.webViewLink || pdfResult.webContentLink;
     }
 
     // Slug update

@@ -1,14 +1,14 @@
 const express = require("express");
 const { body, validationResult } = require("express-validator");
 const { Order } = require("../models");
-const { sendEnquiryToAdmin } = require("../services/whatsapp");
+const { appendEnquiryToSheet } = require("../services/googleSheets");
 
 const router = express.Router();
 
 /**
  * POST /api/enquiry
  * Public endpoint — receives the enquiry/quote form from the frontend.
- * Saves to DB and sends WhatsApp notification to admin.
+ * Saves to DB and appends data to Google Sheets.
  */
 router.post(
   "/",
@@ -46,21 +46,26 @@ router.post(
         message,
         productId: productId || null,
         status: "pending",
-        whatsappSent: false,
+        sheetSynced: false,
       });
 
-      // 2. Send WhatsApp notification to admin (non-blocking — errors are swallowed)
-      const waResult = await sendEnquiryToAdmin({
-        name,
-        phone,
-        email: email || "N/A",
-        product: product || "General Enquiry",
-        message,
-      });
+      // 2. Append to Google Sheets (non-blocking — errors are swallowed)
+      let sheetResult = null;
+      try {
+        sheetResult = await appendEnquiryToSheet({
+          name,
+          mobile: phone,
+          email: email || "N/A",
+          requirement: product || "General Enquiry",
+          message,
+        });
+      } catch (err) {
+        console.error("Failed to append to sheet", err);
+      }
 
-      // 3. Update whatsappSent flag if notification succeeded
-      if (waResult) {
-        await order.update({ whatsappSent: true });
+      // 3. Update sheetSynced flag if sync succeeded
+      if (sheetResult) {
+        await order.update({ sheetSynced: true });
       }
 
       return res.status(201).json({

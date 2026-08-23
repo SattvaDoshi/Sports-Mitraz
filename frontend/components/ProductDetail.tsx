@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { useCart, CustomQuoteDetails } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 interface ProductDetailProps {
   product?: {
@@ -37,10 +39,26 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   },
 }) => {
   const { addToCart } = useCart();
+  const router = useRouter();
 
   const [activeImage, setActiveImage] = useState<string>(product.mainImage);
-  const [showQuoteForm, setShowQuoteForm] = useState(false);
+  const [formAction, setFormAction] = useState<"buy_now" | "add_to_cart" | null>(null);
   const [isQuoteSubmitted, setIsQuoteSubmitted] = useState(false);
+  
+  const { isAuthenticated, setShowAuthModal, user } = useAuth();
+  const [pendingBuyNow, setPendingBuyNow] = useState(false);
+
+  useEffect(() => {
+    if (pendingBuyNow && isAuthenticated) {
+      setPendingBuyNow(false);
+      setFormAction('buy_now');
+      setFormData((prev) => ({
+        ...prev,
+        email: user?.email || prev.email,
+        mobile: user?.phone || prev.mobile,
+      }));
+    }
+  }, [pendingBuyNow, isAuthenticated, user]);
 
   useEffect(() => {
     if (product?.mainImage) {
@@ -63,13 +81,10 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleQuoteSubmit = (e: React.FormEvent) => {
+  const handleQuoteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsQuoteSubmitted(true);
-    alert("Quote details saved! You can now add this item to your cart.");
-  };
-
-  const handleAddToCart = () => {
+    
     addToCart({
       id: `${product.id}-${Date.now()}`,
       title: product.title,
@@ -78,6 +93,47 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
       quantity: 1,
       customization: formData,
     });
+    
+    if (formAction === 'buy_now') {
+      router.push("/checkout");
+    } else {
+      alert("Custom details saved and added to cart!");
+      setFormAction(null);
+    }
+  };
+
+  const handleAddToCart = () => {
+    if (formAction === 'add_to_cart') {
+      setFormAction(null);
+      return;
+    }
+    setFormAction('add_to_cart');
+    if (isAuthenticated) {
+      setFormData((prev) => ({
+        ...prev,
+        email: user?.email || prev.email,
+        mobile: user?.phone || prev.mobile,
+      }));
+    }
+  };
+
+  const handleBuyNowClick = () => {
+    if (formAction === 'buy_now') {
+      setFormAction(null);
+      return;
+    }
+    
+    if (!isAuthenticated) {
+      setPendingBuyNow(true);
+      setShowAuthModal(true);
+    } else {
+      setFormAction('buy_now');
+      setFormData((prev) => ({
+        ...prev,
+        email: user?.email || prev.email,
+        mobile: user?.phone || prev.mobile,
+      }));
+    }
   };
 
   return (
@@ -125,38 +181,27 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           <div className="pd-action-row">
             <button
               className="btn btn-pink pd-action-btn"
-              onClick={() => setShowQuoteForm(!showQuoteForm)}
+              onClick={handleBuyNowClick}
             >
-              {showQuoteForm ? "Hide Quote Form" : "REQUEST QUOTE"}
+              {formAction === 'buy_now' ? "Hide Form" : "BUY NOW"}
             </button>
 
             <button
               className="btn btn-lime pd-action-btn"
-              disabled={!isQuoteSubmitted}
               onClick={handleAddToCart}
-              style={{
-                opacity: isQuoteSubmitted ? 1 : 0.5,
-                cursor: isQuoteSubmitted ? "pointer" : "not-allowed",
-              }}
             >
-              ADD TO CART
+              {formAction === 'add_to_cart' ? "Hide Form" : "ADD TO CART"}
             </button>
           </div>
-
-          {!isQuoteSubmitted && (
-            <p className="pd-hint">
-              * Please fill and submit the Request Quote form below to enable Add to Cart.
-            </p>
-          )}
         </div>
       </div>
 
-      {/* Quote Form */}
-      {showQuoteForm && (
+      {/* Buy Now / Order Form */}
+      {formAction !== null && (
         <section className="contact-wrap pd-quote-section">
           <div className="info-box">
-            <h3>Request Custom Quotation</h3>
-            <p>Fill out the details below to unlock adding this customized item to your cart.</p>
+            <h3>Custom Order Details</h3>
+            <p>Fill out the details below to proceed with your customized item.</p>
 
             <div className="pd-instructions">
               <strong>Ordering Instructions:</strong>

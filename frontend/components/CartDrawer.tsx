@@ -3,10 +3,14 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 
 export const CartDrawer: React.FC = () => {
   const { cart, removeFromCart, isCartOpen, setIsCartOpen } = useCart();
+  const { isAuthenticated, setShowAuthModal } = useAuth();
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
   // Ensure portal only renders on the client
@@ -33,6 +37,16 @@ export const CartDrawer: React.FC = () => {
   if (!isCartOpen || !mounted) return null;
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const handleCheckout = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isAuthenticated) {
+      setIsCartOpen(false);
+      router.push("/checkout");
+    } else {
+      setShowAuthModal(true);
+    }
+  };
 
   const drawerContent = (
     <div className="cd-root">
@@ -91,13 +105,12 @@ export const CartDrawer: React.FC = () => {
             🛍️ SHOP MORE PRODUCTS
           </Link>
 
-          <Link
-            href="/checkout"
-            onClick={() => setIsCartOpen(false)}
+          <button
+            onClick={handleCheckout}
             className="btn btn-pink cd-footer-btn"
           >
             PROCEED TO CHECKOUT →
-          </Link>
+          </button>
         </div>
       </aside>
 

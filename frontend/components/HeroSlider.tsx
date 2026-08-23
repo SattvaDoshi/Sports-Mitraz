@@ -95,7 +95,7 @@ export const HeroSlider: React.FC = () => {
               EXPLORE PRODUCTS →
             </Link>
             <Link href="/contact" className="btn btn-lime">
-              WHATSAPP US ◉
+              CONTACT US ◉
             </Link>
           </div>
         </div>

@@ -47,8 +47,8 @@ const Order = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    // Track whether WhatsApp notification was sent
-    whatsappSent: {
+    // Track whether data was synced to Google Sheets
+    sheetSynced: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },

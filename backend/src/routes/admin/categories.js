@@ -2,7 +2,7 @@ const express = require("express");
 const { body, validationResult } = require("express-validator");
 const slugify = require("slugify");
 const { Category, Product } = require("../../models");
-const { upload, uploadToCloudinary } = require("../../middleware/upload");
+const { upload, uploadToDrive } = require("../../middleware/upload");
 
 const router = express.Router();
 
@@ -88,8 +88,8 @@ router.post(
       // Upload image to Cloudinary if provided
       let imageUrl = null;
       if (req.file) {
-        const result = await uploadToCloudinary(req.file.buffer, "sportzmitra/categories");
-        imageUrl = result.secure_url;
+        const result = await uploadToDrive(req.file.buffer, req.file.originalname, req.file.mimetype);
+        imageUrl = result.webViewLink || result.webContentLink;
       }
 
       const category = await Category.create({
@@ -130,8 +130,9 @@ router.put(
 
       let imageUrl = category.image;
       if (req.file) {
-        const result = await uploadToCloudinary(req.file.buffer, "sportzmitra/categories");
-        imageUrl = result.secure_url;
+        const result = await uploadToDrive(req.file.buffer, req.file.originalname, req.file.mimetype);
+        category.imageUrl = result.webViewLink || result.webContentLink;
+        imageUrl = category.imageUrl;
       }
 
       let slug = category.slug;

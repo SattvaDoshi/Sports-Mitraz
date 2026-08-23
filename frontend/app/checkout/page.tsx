@@ -2,16 +2,58 @@
 
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
 export default function CheckoutPage() {
   const { cart, clearCart } = useCart();
+  const { user } = useAuth();
+  const router = useRouter();
 
-  const handleFinalSubmit = () => {
-    alert("Your final quote request has been submitted successfully! We will contact you shortly.");
-    clearCart();
+  const handleFinalSubmit = async () => {
+    try {
+      // Extract customer details (prioritize customization, fallback to auth user)
+      const firstCustomization = cart.find(c => c.customization)?.customization;
+      const customerName = firstCustomization?.name || user?.email?.split('@')[0] || "Customer";
+      const customerPhone = firstCustomization?.mobile || user?.phone || "N/A";
+      const customerEmail = firstCustomization?.email || user?.email || "";
+
+      // Combine products
+      const productSummary = cart.map(item => `${item.title} (x${item.quantity})`).join(", ");
+      
+      // Combine messages (excluding redundant user details)
+      const messageSummary = cart.map(item => {
+        if (!item.customization) return `- ${item.title}: Standard (No customization)`;
+        return `- ${item.title}:\n  Specs: ${item.customization?.message || "No specs provided"}`;
+      }).join("\n\n");
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/enquiry`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: customerName,
+          phone: customerPhone,
+          email: customerEmail,
+          product: productSummary.substring(0, 300), // Max length in DB is 300
+          message: `Order Details:\n${messageSummary}`,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        alert("Your final order has been placed successfully! It will show up in the admin dashboard.");
+        clearCart();
+        router.push("/");
+      } else {
+        alert(data.message || "Failed to submit order.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("An error occurred while placing the order.");
+    }
   };
 
   return (
@@ -53,13 +95,19 @@ export default function CheckoutPage() {
                     <h3>{item.title}</h3>
                     <p style={{ fontWeight: "bold", color: "#e91e63" }}>Starting from ₹{item.price}</p>
 
-                    <div style={{ marginTop: "10px", background: "#f9f9f9", padding: "10px", borderRadius: "4px" }}>
-                      <strong>Custom Details:</strong>
-                      <p style={{ margin: "2px 0", fontSize: "0.9rem" }}><b>Name:</b> {item.customization.name}</p>
-                      <p style={{ margin: "2px 0", fontSize: "0.9rem" }}><b>Mobile:</b> {item.customization.mobile}</p>
-                      <p style={{ margin: "2px 0", fontSize: "0.9rem" }}><b>Email:</b> {item.customization.email}</p>
-                      <p style={{ margin: "2px 0", fontSize: "0.9rem" }}><b>Message:</b> {item.customization.message}</p>
-                    </div>
+                    {item.customization ? (
+                      <div style={{ marginTop: "10px", background: "#f9f9f9", padding: "10px", borderRadius: "4px" }}>
+                        <strong>Custom Details:</strong>
+                        <p style={{ margin: "2px 0", fontSize: "0.9rem" }}><b>Name:</b> {item.customization?.name || "N/A"}</p>
+                        <p style={{ margin: "2px 0", fontSize: "0.9rem" }}><b>Mobile:</b> {item.customization?.mobile || "N/A"}</p>
+                        <p style={{ margin: "2px 0", fontSize: "0.9rem" }}><b>Email:</b> {item.customization?.email || "N/A"}</p>
+                        <p style={{ margin: "2px 0", fontSize: "0.9rem" }}><b>Message:</b> {item.customization?.message || "N/A"}</p>
+                      </div>
+                    ) : (
+                      <div style={{ marginTop: "10px", background: "#f9f9f9", padding: "10px", borderRadius: "4px" }}>
+                        <strong>No custom details provided</strong>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

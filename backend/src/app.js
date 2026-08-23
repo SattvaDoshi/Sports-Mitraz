@@ -14,6 +14,7 @@ const productsRoutes = require("./routes/products");
 const adminCategoriesRoutes = require("./routes/admin/categories");
 const adminProductsRoutes = require("./routes/admin/products");
 const adminOrdersRoutes = require("./routes/admin/orders");
+const driveRoutes = require("./routes/driveRoutes");
 
 // ── App setup ─────────────────────────────────────────────────────────────
 const app = express();
@@ -72,6 +73,7 @@ app.get("/", (req, res) => {
 });
 
 // ── Public routes ─────────────────────────────────────────────────────────
+app.use("/api/auth", require("./routes/auth"));
 app.use("/api/enquiry", enquiryRoutes);
 app.use("/api/categories", categoriesRoutes);
 app.use("/api/products", productsRoutes);
@@ -80,6 +82,9 @@ app.use("/api/products", productsRoutes);
 app.use("/api/admin/categories", adminAuth, adminCategoriesRoutes);
 app.use("/api/admin/products", adminAuth, adminProductsRoutes);
 app.use("/api/admin/orders", adminAuth, adminOrdersRoutes);
+
+// ── Drive OAuth routes (no auth needed — only admin uses these) ────────────
+app.use("/api/drive", driveRoutes);
 
 // ── 404 handler ───────────────────────────────────────────────────────────
 app.use((req, res) => {

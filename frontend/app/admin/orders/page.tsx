@@ -13,7 +13,7 @@ interface Order {
   status: "pending" | "confirmed" | "booked" | "cancelled";
   adminNotes: string | null;
   createdAt: string;
-  whatsappSent: boolean;
+  sheetSynced: boolean;
   productDetails?: { id: number; name: string } | null;
 }
 
@@ -184,7 +184,7 @@ export default function AdminOrders() {
                     </td>
                     <td style={{ padding: "16px" }}>
                       <div>{order.product || "General Enquiry"}</div>
-                      {order.whatsappSent ? (
+                      {order.sheetSynced ? (
                         <span
                           style={{
                             fontSize: "0.75rem",
@@ -196,7 +196,7 @@ export default function AdminOrders() {
                             marginTop: "4px",
                           }}
                         >
-                          WhatsApp Sent
+                          Synced to Sheets
                         </span>
                       ) : null}
                     </td>
@@ -321,11 +321,12 @@ export default function AdminOrders() {
                 <strong>Message / Details:</strong>
                 <div
                   style={{
-                    background: "#f7f8f5",
-                    padding: "12px",
+                    background: "#f8f9fa",
+                    padding: "15px",
                     borderRadius: "6px",
-                    marginTop: "4px",
-                    wordBreak: "break-word",
+                    marginTop: "10px",
+                    whiteSpace: "pre-wrap",
+                    lineHeight: "1.5",
                   }}
                 >
                   {selectedOrder.message}
