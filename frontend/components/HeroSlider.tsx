@@ -124,7 +124,7 @@ export const HeroSlider: React.FC = () => {
                 </Link>
               </div>
             </div>
-          ))}
+          ))}  
           <button className="slider-arrow prev" onClick={prevSlide} aria-label="Previous Slide">‹</button>
           <button className="slider-arrow next" onClick={nextSlide} aria-label="Next Slide">›</button>
           <div className="dots">

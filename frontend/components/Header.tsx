@@ -516,7 +516,7 @@ export const Header: React.FC = () => {
             <img className="header-logo" src="/sportzmitra-logo.png" alt="SportzMitra Store" />
           </Link>
 
-          <nav className="navlinks-desktop">
+          <nav className="navlinks-desktop"> 
             <Link href="/">HOME</Link>
             <Link href="/products">PRODUCTS ▾</Link>
             <Link href="/event-planning">SPORTS EVENT PLANNING</Link>

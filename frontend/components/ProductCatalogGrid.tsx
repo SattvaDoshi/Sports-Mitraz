@@ -29,7 +29,7 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
   categorySlug,
 }) => {
   return (
-    <section>
+    <section style={{ marginBottom: "60px" }}>
       <div className="container">
         <div className="section-title left">
           <h2>{sectionTitle}</h2>
