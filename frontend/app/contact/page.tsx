@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { CtaBand } from "@/components/CtaBand";
@@ -25,7 +26,7 @@ export default function ContactPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Connect this to your backend, WhatsApp API, or email service
-    alert(`Thank you, ${formData.name}! Your enquiry has been submitted.`);
+    toast.success(`Thank you, ${formData.name}! Your enquiry has been submitted.`);
   };
 
   return (

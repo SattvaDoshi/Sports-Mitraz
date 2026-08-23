@@ -3,7 +3,9 @@
 import React, { useState, useEffect } from "react";
 import { useCart, CustomQuoteDetails } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { getDirectImageUrl } from "@/lib/driveImage";
 
 interface ProductDetailProps {
   product?: {
@@ -97,7 +99,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
     if (formAction === 'buy_now') {
       router.push("/checkout");
     } else {
-      alert("Custom details saved and added to cart!");
+      toast.success("Custom details saved and added to cart!");
       setFormAction(null);
     }
   };
@@ -143,7 +145,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
         <div className="pd-gallery">
           <div className="pd-main-image-wrap">
             <img
-              src={activeImage}
+              src={getDirectImageUrl(activeImage)}
               alt={product.title}
               className="pd-main-image"
             />
@@ -152,8 +154,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             {product.gallery.map((imgUrl, idx) => (
               <img
                 key={idx}
-                src={imgUrl}
-                alt={`Thumbnail ${idx + 1}`}
+                src={getDirectImageUrl(imgUrl)}
+                alt={`${product.title} view ${idx + 1}`}
                 onClick={() => setActiveImage(imgUrl)}
                 className={`pd-thumb ${activeImage === imgUrl ? "pd-thumb-active" : ""}`}
               />

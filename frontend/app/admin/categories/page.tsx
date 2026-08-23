@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { fetchApi } from "@/lib/api";
+import { toast } from "react-toastify";
+import { getDirectImageUrl } from "@/lib/driveImage";
 
 interface Category {
   id: number;
@@ -44,10 +46,11 @@ export default function AdminCategories() {
         fetchApi("/admin/categories", { isAdmin: true }),
         fetchApi("/admin/categories/flat", { isAdmin: true }),
       ]);
-      if (treeRes.success) setCategories(treeRes.data);
+      if (!treeRes.success) throw new Error(treeRes.message);
+      setCategories(treeRes.data);
       if (flatRes.success) setFlatCategories(flatRes.data);
     } catch (err: any) {
-      alert(err.message || "Failed to load categories");
+      toast.error(err.message || "Failed to load categories");
     } finally {
       setLoading(false);
     }
@@ -115,11 +118,14 @@ export default function AdminCategories() {
       });
 
       if (res.success) {
+        toast.success(editingCat ? "Category updated successfully!" : "Category created successfully!");
         closeModal();
         loadData();
+      } else {
+        throw new Error(res.message);
       }
     } catch (err: any) {
-      alert(err.message || "Failed to save category");
+      toast.error(err.message || "Failed to save category");
     } finally {
       setSaving(false);
     }
@@ -134,10 +140,13 @@ export default function AdminCategories() {
         isAdmin: true,
       });
       if (res.success) {
+        toast.success("Category deleted successfully!");
         loadData();
+      } else {
+        throw new Error(res.message);
       }
     } catch (err: any) {
-      alert(err.message || "Failed to delete category");
+      toast.error(err.message || "Failed to delete category");
     }
   };
 
@@ -170,9 +179,9 @@ export default function AdminCategories() {
           <div style={{ display: "flex", alignItems: "center", gap: "12px", flex: "1 1 200px" }}>
             {cat.image && (
               <img
-                src={cat.image}
-                alt={cat.name}
-                style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "4px", flexShrink: 0 }}
+                src={getDirectImageUrl(cat.image)}
+                alt="cat"
+                style={{ width: "30px", height: "30px", objectFit: "cover", borderRadius: "4px", flexShrink: 0 }}
               />
             )}
             <div style={{ wordBreak: "break-word" }}>
@@ -379,11 +388,13 @@ export default function AdminCategories() {
                   style={{ width: "100%" }}
                 />
                 {editingCat?.image && !imageFile && (
-                  <img
-                    src={editingCat.image}
-                    alt="Current"
-                    style={{ width: "60px", marginTop: "8px", borderRadius: "4px" }}
-                  />
+                  <div style={{ marginTop: "10px" }}>
+                    <img
+                      src={getDirectImageUrl(editingCat.image)}
+                      alt="Current"
+                      style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "6px", border: "1px solid #e6e9e5" }}
+                    />
+                  </div>
                 )}
               </div>
 

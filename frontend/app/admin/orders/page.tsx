@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { fetchApi } from "@/lib/api";
+import { toast } from "react-toastify";
 
 interface Order {
   id: number;
@@ -56,25 +57,27 @@ export default function AdminOrders() {
       if (selectedOrder && selectedOrder.id === orderId) {
         setSelectedOrder({ ...selectedOrder, status: newStatus as any });
       }
+      toast.success("Status updated successfully!");
     } catch (err: any) {
-      alert(err.message || "Failed to update status");
+      toast.error(err.message || "Failed to update status");
     }
   };
 
   const handleSaveNotes = async () => {
     if (!selectedOrder) return;
     try {
-      await fetchApi(`/admin/orders/${selectedOrder.id}/notes`, {
+      const data = await fetchApi(`/admin/orders/${selectedOrder.id}/notes`, {
         method: "PATCH",
         isAdmin: true,
         body: JSON.stringify({ adminNotes }),
       });
-
-      setOrders(orders.map((o) => (o.id === selectedOrder.id ? { ...o, adminNotes } : o)));
-      setSelectedOrder({ ...selectedOrder, adminNotes });
-      alert("Notes saved successfully");
+      if (data.success) {
+        setOrders(orders.map((o) => (o.id === selectedOrder.id ? data.data : o)));
+        setSelectedOrder(data.data);
+        toast.success("Notes saved successfully");
+      }
     } catch (err: any) {
-      alert(err.message || "Failed to save notes");
+      toast.error(err.message || "Failed to save notes");
     }
   };
 

@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { fetchApi } from "@/lib/api";
+import { toast } from "react-toastify";
+import { getDirectImageUrl } from "@/lib/driveImage";
 
 interface Category {
   id: number;
@@ -44,8 +46,10 @@ export default function AdminProducts() {
     sortOrder: 0,
   });
   const [imageFiles, setImageFiles] = useState<FileList | null>(null);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  const [removedImages, setRemovedImages] = useState<string[]>([]);
 
   const loadData = async () => {
     setLoading(true);
@@ -56,8 +60,9 @@ export default function AdminProducts() {
       ]);
       if (prodRes.success) setProducts(prodRes.data);
       if (catRes.success) setCategories(catRes.data);
+      else throw new Error(prodRes.message || "Failed to load data");
     } catch (err: any) {
-      alert(err.message || "Failed to load data");
+      toast.error(err.message || "Failed to load data");
     } finally {
       setLoading(false);
     }
@@ -92,13 +97,19 @@ export default function AdminProducts() {
       });
     }
     setImageFiles(null);
+    setImagePreviews([]);
     setPdfFile(null);
+    setRemovedImages([]);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingProd(null);
+    setImageFiles(null);
+    setImagePreviews([]);
+    setPdfFile(null);
+    setRemovedImages([]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -115,10 +126,17 @@ export default function AdminProducts() {
       fd.append("isActive", String(formData.isActive));
       fd.append("sortOrder", String(formData.sortOrder));
 
-      if (imageFiles) {
+      if (imageFiles && imageFiles.length > 0) {
         for (let i = 0; i < imageFiles.length; i++) {
           fd.append("images", imageFiles[i]);
         }
+        if (editingProd) {
+          // When editing and new images are selected, ALWAYS replace to prevent duplicates
+          fd.append("replaceImages", "true");
+        }
+      } else if (editingProd && removedImages.length > 0) {
+        // No new images, but some existing ones were removed individually
+        fd.append("removeImageUrls", JSON.stringify(removedImages));
       }
 
       if (pdfFile) {
@@ -137,9 +155,12 @@ export default function AdminProducts() {
       if (res.success) {
         closeModal();
         loadData();
+        toast.success(editingProd ? "Product updated successfully!" : "Product created successfully!");
+      } else {
+        throw new Error(res.message);
       }
     } catch (err: any) {
-      alert(err.message || "Failed to save product");
+      toast.error(err.message || "Failed to save product");
     } finally {
       setSaving(false);
     }
@@ -155,9 +176,12 @@ export default function AdminProducts() {
       });
       if (res.success) {
         loadData();
+        toast.success("Product deleted successfully!");
+      } else {
+        throw new Error(res.message);
       }
     } catch (err: any) {
-      alert(err.message || "Failed to delete product");
+      toast.error(err.message || "Failed to delete product");
     }
   };
 
@@ -227,7 +251,7 @@ export default function AdminProducts() {
                         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                           {prod.images && prod.images.length > 0 ? (
                             <img
-                              src={prod.images[0]}
+                              src={getDirectImageUrl(prod.images[0])}
                               alt={prod.name}
                               style={{ width: "50px", height: "50px", objectFit: "cover", borderRadius: "6px", flexShrink: 0 }}
                             />
@@ -376,17 +400,58 @@ export default function AdminProducts() {
                   type="file"
                   accept="image/*"
                   multiple
-                  onChange={(e) => setImageFiles(e.target.files)}
+                  onChange={(e) => {
+                    const files = e.target.files;
+                    setImageFiles(files);
+                    if (files && files.length > 0) {
+                      const previews = Array.from(files).map((f) => URL.createObjectURL(f));
+                      setImagePreviews(previews);
+                    } else {
+                      setImagePreviews([]);
+                    }
+                  }}
                   style={{ width: "100%", marginBottom: "8px" }}
                 />
-                <div style={{ fontSize: "0.85rem", color: "#62686f" }}>
-                  {editingProd ? "Uploading new images will append to existing ones." : "You can select multiple images."}
-                </div>
-                {editingProd?.images && editingProd.images.length > 0 && (
-                  <div style={{ display: "flex", gap: "8px", marginTop: "8px", flexWrap: "wrap" }}>
-                    {editingProd.images.map((img, i) => (
-                      <img key={i} src={img} alt={`Img ${i}`} style={{ width: "50px", height: "50px", objectFit: "cover", borderRadius: "4px", border: "1px solid #e6e9e5" }} />
-                    ))}
+
+                {/* New file previews */}
+                {imagePreviews.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: "0.8rem", color: "#62686f", marginBottom: "6px" }}>Selected images (will replace existing):</div>
+                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                      {imagePreviews.map((src, i) => (
+                        <img key={i} src={src} alt={`Preview ${i + 1}`}
+                          style={{ width: "60px", height: "60px", objectFit: "cover", borderRadius: "6px", border: "2px solid #ed0f63" }} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Existing images when editing */}
+                {editingProd?.images && editingProd.images.length > 0 && imagePreviews.length === 0 && (
+                  <div style={{ marginTop: "10px" }}>
+                    <div style={{ fontSize: "0.8rem", color: "#62686f", marginBottom: "6px" }}>Current images (click ✕ to remove):</div>
+                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                      {editingProd.images
+                        .filter((img) => !removedImages.includes(img))
+                        .map((img, i) => (
+                          <div key={i} style={{ position: "relative", cursor: "pointer" }}
+                            onClick={() => setRemovedImages((prev) => [...prev, img])}
+                            title="Click to remove">
+                            <img src={getDirectImageUrl(img)} alt={`Img ${i}`}
+                              style={{ width: "60px", height: "60px", objectFit: "cover", borderRadius: "6px", border: "1px solid #e6e9e5" }} />
+                            <div style={{
+                              position: "absolute", top: "-6px", right: "-6px",
+                              background: "#ef4444", color: "#fff",
+                              borderRadius: "50%", width: "18px", height: "18px",
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              fontSize: "12px", fontWeight: "bold",
+                            }}>×</div>
+                          </div>
+                        ))}
+                    </div>
+                    <div style={{ fontSize: "0.75rem", color: "#9ca3af", marginTop: "6px" }}>
+                      Selecting new images above will replace all current images.
+                    </div>
                   </div>
                 )}
               </div>

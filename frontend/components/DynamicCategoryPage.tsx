@@ -7,6 +7,7 @@ import { PageHero } from "@/components/PageHero";
 import { ProductCatalogGrid, CatalogItem } from "@/components/ProductCatalogGrid";
 import { CtaBand } from "@/components/CtaBand";
 import { Footer } from "@/components/Footer";
+import { getDirectImageUrl } from "@/lib/driveImage";
 
 interface ApiProduct {
   id: number;
@@ -88,8 +89,8 @@ export function DynamicCategoryPage({
             title: p.name,
             img:
               p.images && p.images.length > 0
-                ? p.images[0]
-                : (cat.image || heroImage),
+                ? getDirectImageUrl(p.images[0])
+                : getDirectImageUrl(cat.image || heroImage),
             desc: p.description,
             tags: p.tags || [],
             price: p.startingPrice ? Number(p.startingPrice) : undefined,
@@ -126,7 +127,7 @@ export function DynamicCategoryPage({
     }
   }
 
-  const activeHeroImage = category?.image || heroImage;
+  const activeHeroImage = category?.image ? getDirectImageUrl(category.image) : heroImage;
 
   return (
     <>
@@ -167,7 +168,9 @@ export function DynamicCategoryPage({
                   <div className="catalog">
                     {subcategories.map((subcat) => (
                       <article className="pcard category-card" key={subcat.id}>
-                        <img src={subcat.image || heroImage} alt={subcat.name} />
+                        <div className="cat-img">
+                          <img src={getDirectImageUrl(subcat.image || heroImage)} alt={subcat.name} />
+                        </div>
                         <div className="body">
                           <h3>{subcat.name}</h3>
                           <p className="cat-desc">{subcat.description}</p>

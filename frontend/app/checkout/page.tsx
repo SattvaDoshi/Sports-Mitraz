@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { Header } from "@/components/Header";
@@ -44,15 +45,15 @@ export default function CheckoutPage() {
 
       const data = await response.json();
       if (data.success) {
-        alert("Your final order has been placed successfully! It will show up in the admin dashboard.");
+        toast.success("Your final order has been placed successfully! It will show up in the admin dashboard.");
         clearCart();
         router.push("/");
       } else {
-        alert(data.message || "Failed to submit order.");
+        toast.error(data.message || "Failed to submit order.");
       }
     } catch (error) {
       console.error(error);
-      alert("An error occurred while placing the order.");
+      toast.error("An error occurred while placing the order.");
     }
   };
 

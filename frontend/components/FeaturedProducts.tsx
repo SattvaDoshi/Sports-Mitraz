@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { getDirectImageUrl } from "@/lib/driveImage";
 
 interface Category {
   id: number;
@@ -85,7 +86,7 @@ export const FeaturedProducts: React.FC = () => {
             <article className="card" key={cat.id || cat.slug}>
               <div className="card-img">
                 <img
-                  src={cat.image || CATEGORY_IMAGES[cat.slug] || "/hero-slide-1.jpg"}
+                  src={getDirectImageUrl(cat.image || CATEGORY_IMAGES[cat.slug] || "/hero-slide-1.jpg")}
                   alt={cat.name}
                 />
               </div>

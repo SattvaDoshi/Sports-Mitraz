@@ -75,6 +75,9 @@ const uploadToDrive = async (buffer, filename, mimeType) => {
       );
     }
 
+    // Use Drive's thumbnail API — works publicly in any browser without sign-in
+    file.data.directLink = `https://drive.google.com/thumbnail?id=${file.data.id}&sz=w800`;
+
     console.log(`✅ Uploaded to Drive: ${file.data.id}`);
     return file.data;
   } catch (error) {
@@ -92,7 +95,7 @@ const uploadManyToDrive = async (files) => {
   const results = await Promise.all(
     files.map((f) => uploadToDrive(f.buffer, f.originalname, f.mimetype))
   );
-  return results.map((r) => r.webViewLink);
+  return results.map((r) => r.directLink);
 };
 
 module.exports = { upload, uploadToDrive, uploadManyToDrive };
