@@ -22,7 +22,7 @@ export const AuthModal: React.FC = () => {
 
   if (!showAuthModal) return null;
 
-  const API_BASE = "http://localhost:5000/api/auth"; // Hardcoded for demo, normally from process.env
+  const API_BASE = "http://200.141.1.164:5000/api/auth"; // Hardcoded for demo, normally from process.env
 
   const close = () => {
     setShowAuthModal(false);
