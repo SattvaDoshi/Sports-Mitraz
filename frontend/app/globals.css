@@ -518,7 +518,7 @@ header {
 
 /* ---------- Sections / titles ---------- */
 section {
-  padding: 72px 0;
+  padding: 0 0;
 }
 
 .section-title {
@@ -837,7 +837,7 @@ footer {
 
 .footer-logo {
   width: 200px;
-  filter: brightness(0) invert(1);
+  /* filter: brightness(0) invert(1); */
   margin-bottom: 13px;
 }
 
@@ -1086,7 +1086,7 @@ footer {
     gap: 20px;
   }
   section {
-    padding: 60px 0;
+    padding: 0 0;
   }
 }
 
@@ -1227,7 +1227,7 @@ footer {
     display: none;
   }
   section {
-    padding: 48px 0;
+    padding: 0 0;
   }
   .hero-left {
     padding-bottom: 20px;

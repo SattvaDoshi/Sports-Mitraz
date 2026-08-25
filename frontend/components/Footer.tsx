@@ -14,20 +14,20 @@ export const Footer: React.FC = () => {
           <div>
             <h4>QUICK LINKS</h4>
             <ul>
-              <li><a href="#home">Home</a></li>
-              <li><a href="#products">Products</a></li>
-              <li><a href="#event-planning">Sports Event Planning</a></li>
-              <li><a href="#contact">Contact Us</a></li>
+              <li><a href="/">Home</a></li>
+              <li><a href="/products">Products</a></li>
+              <li><a href="/event-planning">Sports Event Planning</a></li>
+              <li><a href="/contact">Contact Us</a></li>
             </ul>
           </div>
           <div>
             <h4>OUR PRODUCTS</h4>
             <ul>
-              <li><a href="#catalog">Auction Accessories</a></li>
-              <li><a href="#catalog">Trophies & Medals</a></li>
-              <li><a href="#catalog">Custom Jerseys</a></li>
-              <li><a href="#catalog">Printing Services</a></li>
-              <li><a href="#catalog">Sports Accessories</a></li>
+              <li><a href="/products/auction-accessories">Auction Accessories</a></li>
+              <li><a href="/products/trophies-medals">Trophies & Medals</a></li>
+              <li><a href="/products/custom-jerseys">Custom Jerseys</a></li>
+              <li><a href="/products/printing-services">Printing Services</a></li>
+              <li><a href="/products/sports-accessories">Sports Accessories</a></li>
             </ul>
           </div>
           <div>
