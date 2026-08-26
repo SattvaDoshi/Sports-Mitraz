@@ -16,6 +16,8 @@ interface ApiProduct {
   catalogPdfUrl: string | null;
   tags: string[];
   category: { name: string; slug: string };
+  averageRating?: number;
+  totalRatings?: number;
 }
 
 const FALLBACK_IMAGES = [
@@ -97,6 +99,8 @@ function ProductDetailsContent() {
         description: product.description,
         startingPrice: product.startingPrice || 1200,
         catalogPdfUrl: product.catalogPdfUrl || undefined,
+        averageRating: product.averageRating,
+        totalRatings: product.totalRatings,
       }}
     />
   );

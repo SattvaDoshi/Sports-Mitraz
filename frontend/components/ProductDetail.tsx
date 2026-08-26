@@ -16,6 +16,8 @@ interface ProductDetailProps {
     description: string;
     startingPrice: number;
     catalogPdfUrl?: string;
+    averageRating?: number;
+    totalRatings?: number;
   };
 }
 
@@ -49,6 +51,47 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   
   const { isAuthenticated, setShowAuthModal, user } = useAuth();
   const [pendingBuyNow, setPendingBuyNow] = useState(false);
+
+  // Rating State
+  const [rating, setRating] = useState<number>(0);
+  const [hoverRating, setHoverRating] = useState<number>(0);
+  const [isSubmittingRating, setIsSubmittingRating] = useState(false);
+  const [currentAvg, setCurrentAvg] = useState<number>(product.averageRating || 0);
+  const [currentTotal, setCurrentTotal] = useState<number>(product.totalRatings || 0);
+
+  // Sync state if product changes
+  useEffect(() => {
+    setCurrentAvg(product.averageRating || 0);
+    setCurrentTotal(product.totalRatings || 0);
+  }, [product.averageRating, product.totalRatings]);
+
+  const handleRatingSubmit = async (selectedRating: number) => {
+    if (isSubmittingRating) return;
+    setIsSubmittingRating(true);
+    setRating(selectedRating);
+    
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/products/${product.id}/rate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rating: selectedRating }),
+      });
+      const data = await res.json();
+      if (data.success && data.data) {
+        setCurrentAvg(data.data.averageRating);
+        setCurrentTotal(data.data.totalRatings);
+        toast.success("Thank you for your rating!");
+      } else {
+        toast.error(data.message || "Failed to submit rating");
+      }
+    } catch (err) {
+      toast.error("Failed to submit rating");
+    } finally {
+      setIsSubmittingRating(false);
+    }
+  };
+
+
 
   useEffect(() => {
     if (pendingBuyNow && isAuthenticated) {
@@ -166,6 +209,37 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
         {/* Info */}
         <div className="pd-info">
           <h1 className="pd-title">{product.title}</h1>
+          
+          <div className="pd-rating-section">
+            <div className="pd-rating-display">
+              <span className="pd-rating-stars">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span key={star} className={star <= Math.round(currentAvg) ? "star filled" : "star"}>★</span>
+                ))}
+              </span>
+              <span className="pd-rating-text">
+                {Number(currentAvg).toFixed(1)} ({currentTotal} {currentTotal === 1 ? 'rating' : 'ratings'})
+              </span>
+            </div>
+            
+            <div className="pd-rating-interactive">
+              <span className="pd-rating-prompt">Rate this product:</span>
+              <span className="pd-rating-stars interactive">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span 
+                    key={star} 
+                    className={`star ${star <= (hoverRating || rating) ? "filled" : ""}`}
+                    onMouseEnter={() => setHoverRating(star)}
+                    onMouseLeave={() => setHoverRating(0)}
+                    onClick={() => handleRatingSubmit(star)}
+                  >
+                    ★
+                  </span>
+                ))}
+              </span>
+            </div>
+          </div>
+
           <p className="pd-description">{product.description}</p>
           <h2 className="pd-price">Starting from Rs.{product.startingPrice}</h2>
 
@@ -346,6 +420,61 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           font-size: clamp(1.35rem, 4vw, 2rem);
           line-height: 1.25;
           margin: 0 0 10px 0;
+        }
+
+        .pd-rating-section {
+          margin-bottom: 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .pd-rating-display {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .pd-rating-interactive {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          background: #f8f9fa;
+          padding: 8px 12px;
+          border-radius: 6px;
+          display: inline-flex;
+          width: fit-content;
+        }
+
+        .pd-rating-prompt {
+          font-size: 0.9rem;
+          color: #555;
+          font-weight: 500;
+        }
+
+        .pd-rating-stars .star {
+          color: #ddd;
+          font-size: 1.2rem;
+          margin-right: 2px;
+        }
+        
+        .pd-rating-stars.interactive .star {
+          cursor: pointer;
+          transition: transform 0.1s, color 0.1s;
+        }
+        
+        .pd-rating-stars.interactive .star:hover {
+          transform: scale(1.2);
+        }
+
+        .pd-rating-stars .star.filled {
+          color: #ffc107;
+        }
+
+        .pd-rating-text {
+          font-size: 0.95rem;
+          color: #666;
+          font-weight: 500;
         }
 
         .pd-description {

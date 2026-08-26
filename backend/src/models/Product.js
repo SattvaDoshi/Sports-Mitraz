@@ -56,6 +56,14 @@ const Product = sequelize.define(
       type: DataTypes.INTEGER,
       defaultValue: 0,
     },
+    averageRating: {
+      type: DataTypes.DECIMAL(3, 2),
+      defaultValue: 0,
+    },
+    totalRatings: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
   },
   {
     tableName: "Products",

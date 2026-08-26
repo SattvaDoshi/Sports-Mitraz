@@ -17,6 +17,8 @@ interface ApiProduct {
   startingPrice: number | null;
   images: string[];
   tags: string[];
+  averageRating?: number;
+  totalRatings?: number;
 }
 
 interface ApiSubcategory {
@@ -56,6 +58,9 @@ export function DynamicCategoryPage({
   const [subcategories, setSubcategories] = useState<ApiSubcategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/${categorySlug}`)
@@ -94,6 +99,8 @@ export function DynamicCategoryPage({
             desc: p.description,
             tags: p.tags || [],
             price: p.startingPrice ? Number(p.startingPrice) : undefined,
+            averageRating: p.averageRating,
+            totalRatings: p.totalRatings,
           }));
           setItems(mapped);
         } else {
@@ -128,6 +135,27 @@ export function DynamicCategoryPage({
   }
 
   const activeHeroImage = category?.image ? getDirectImageUrl(category.image) : heroImage;
+
+  // Filter and sort items based on search query
+  const filteredAndSortedItems = React.useMemo(() => {
+    let result = [...items];
+    if (searchQuery.trim()) {
+      const lowerQuery = searchQuery.toLowerCase();
+      // Filter by name or tags
+      result = result.filter(
+        (item) =>
+          item.title.toLowerCase().includes(lowerQuery) ||
+          item.tags.some((t) => t.toLowerCase().includes(lowerQuery))
+      );
+      // Sort by average rating descending
+      result.sort((a, b) => {
+        const ratingA = a.averageRating || 0;
+        const ratingB = b.averageRating || 0;
+        return ratingB - ratingA;
+      });
+    }
+    return result;
+  }, [items, searchQuery]);
 
   return (
     <>
@@ -187,12 +215,32 @@ export function DynamicCategoryPage({
               </section>
             )}
 
+            {/* Search Bar */}
+            <div className="container" style={{ marginBottom: "20px" }}>
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{
+                    padding: "10px 16px",
+                    borderRadius: "6px",
+                    border: "1px solid #ddd",
+                    width: "100%",
+                    maxWidth: "300px",
+                    fontSize: "1rem"
+                  }}
+                />
+              </div>
+            </div>
+
             {/* Products grid */}
-            {items.length > 0 ? (
+            {filteredAndSortedItems.length > 0 ? (
               <ProductCatalogGrid
                 sectionTitle={`Explore ${category?.name || titleParts.join(" ")}`}
                 description="Every item is quote-based and can be customised by quantity, artwork, size, name, logo and event theme."
-                items={items}
+                items={filteredAndSortedItems}
                 categorySlug={categorySlug}
               />
             ) : subcategories.length === 0 ? (

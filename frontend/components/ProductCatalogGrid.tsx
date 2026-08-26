@@ -13,6 +13,8 @@ export interface CatalogItem {
   desc: string;
   tags: string[];
   price?: number;
+  averageRating?: number;
+  totalRatings?: number;
 }
 
 interface ProductCatalogGridProps {
@@ -59,6 +61,14 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
                   <p className="price-tag">
                     Starting from ₹{price}
                   </p>
+                  
+                  {item.totalRatings ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '10px', fontSize: '0.9rem', color: '#666' }}>
+                      <span style={{ color: '#ffc107', fontSize: '1.1rem' }}>★</span>
+                      <span>{Number(item.averageRating).toFixed(1)}</span>
+                      <span style={{ fontSize: '0.8rem' }}>({item.totalRatings})</span>
+                    </div>
+                  ) : null}
 
                   <div className="tags">
                     {item.tags.map((tag, tIdx) => (
