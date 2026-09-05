@@ -377,6 +377,8 @@ const seedCatalog = async () => {
             slug: prodData.slug,
             description: prodData.description,
             startingPrice: prodData.startingPrice,
+            priceType: prodData.priceType || "starting",
+            sizes: prodData.sizes || [],
             categoryId: category.id,
             images: [],
             tags: prodData.tags || [],

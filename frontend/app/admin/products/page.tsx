@@ -22,8 +22,10 @@ interface Product {
   images: string[];
   catalogPdfUrl: string | null;
   tags: string[];
+  sizes: string[];
   isActive: boolean;
   sortOrder: number;
+  priceType: "starting" | "fixed";
 }
 
 export default function AdminProducts() {
@@ -40,8 +42,10 @@ export default function AdminProducts() {
     name: "",
     description: "",
     startingPrice: "",
+    priceType: "starting" as "starting" | "fixed",
     categoryId: "",
     tags: "",
+    sizes: "",
     isActive: true,
     sortOrder: 0,
   });
@@ -79,8 +83,10 @@ export default function AdminProducts() {
         name: prod.name,
         description: prod.description || "",
         startingPrice: prod.startingPrice || "",
+        priceType: prod.priceType || "starting",
         categoryId: prod.categoryId.toString(),
-        tags: prod.tags.join(", "),
+        tags: prod.tags ? prod.tags.join(", ") : "",
+        sizes: prod.sizes ? prod.sizes.join(", ") : "",
         isActive: prod.isActive,
         sortOrder: prod.sortOrder,
       });
@@ -90,8 +96,10 @@ export default function AdminProducts() {
         name: "",
         description: "",
         startingPrice: "",
+        priceType: "starting",
         categoryId: categories.length > 0 ? categories[0].id.toString() : "",
         tags: "",
+        sizes: "",
         isActive: true,
         sortOrder: 0,
       });
@@ -121,8 +129,10 @@ export default function AdminProducts() {
       fd.append("name", formData.name);
       if (formData.description) fd.append("description", formData.description);
       if (formData.startingPrice) fd.append("startingPrice", formData.startingPrice);
+      fd.append("priceType", formData.priceType);
       fd.append("categoryId", formData.categoryId);
       fd.append("tags", formData.tags);
+      fd.append("sizes", formData.sizes);
       fd.append("isActive", String(formData.isActive));
       fd.append("sortOrder", String(formData.sortOrder));
 
@@ -265,7 +275,11 @@ export default function AdminProducts() {
                         </div>
                       </td>
                       <td style={{ padding: "16px" }}>{prod.category?.name || "Unknown"}</td>
-                      <td style={{ padding: "16px" }}>{prod.startingPrice ? `₹${prod.startingPrice}` : "-"}</td>
+                      <td style={{ padding: "16px" }}>
+                        {prod.startingPrice ? (
+                          prod.priceType === "fixed" ? `₹${prod.startingPrice}` : `From ₹${prod.startingPrice}`
+                        ) : "-"}
+                      </td>
                       <td style={{ padding: "16px" }}>
                         {prod.isActive ? (
                           <span style={{ color: "#10b981", background: "#ecfdf5", padding: "4px 8px", borderRadius: "4px", fontSize: "0.85rem", fontWeight: "bold" }}>
@@ -373,7 +387,20 @@ export default function AdminProducts() {
               {/* Responsive Grid Row */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
                 <div>
-                  <label style={{ display: "block", marginBottom: "4px", fontWeight: "bold" }}>Starting Price (₹)</label>
+                  <label style={{ display: "block", marginBottom: "4px", fontWeight: "bold" }}>Price Type</label>
+                  <select
+                    value={formData.priceType}
+                    onChange={(e) => setFormData({ ...formData, priceType: e.target.value as "starting" | "fixed" })}
+                    style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #e6e9e5", boxSizing: "border-box" }}
+                  >
+                    <option value="starting">Starting From</option>
+                    <option value="fixed">Fixed Price</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: "block", marginBottom: "4px", fontWeight: "bold" }}>
+                    {formData.priceType === "starting" ? "Starting Price (₹)" : "Price (₹)"}
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -389,6 +416,16 @@ export default function AdminProducts() {
                     value={formData.tags}
                     onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
                     placeholder="e.g. Sublimation, Premium"
+                    style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #e6e9e5", boxSizing: "border-box" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", marginBottom: "4px", fontWeight: "bold" }}>Sizes (comma separated)</label>
+                  <input
+                    type="text"
+                    value={formData.sizes}
+                    onChange={(e) => setFormData({ ...formData, sizes: e.target.value })}
+                    placeholder="e.g. S, M, L, XL"
                     style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #e6e9e5", boxSizing: "border-box" }}
                   />
                 </div>

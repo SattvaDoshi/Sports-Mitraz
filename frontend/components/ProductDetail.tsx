@@ -15,6 +15,8 @@ interface ProductDetailProps {
     gallery: string[];
     description: string;
     startingPrice: number;
+    priceType?: "starting" | "fixed";
+    sizes?: string[];
     catalogPdfUrl?: string;
     averageRating?: number;
     totalRatings?: number;
@@ -39,6 +41,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
     description:
       "Fully customizable high-grade sports gear and event apparel designed for durability, vibrant colors, and premium finish.",
     startingPrice: 1200,
+    priceType: "starting",
+    sizes: ["S", "M", "L", "XL"],
     catalogPdfUrl: "/sample-catalog.pdf",
   },
 }) => {
@@ -137,6 +141,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
       img: activeImage,
       quantity: 1,
       customization: formData,
+      size: formData.requirement, // If size is needed, could be added to context
     });
     
     if (formAction === 'buy_now') {
@@ -241,7 +246,20 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           </div>
 
           <p className="pd-description">{product.description}</p>
-          <h2 className="pd-price">Starting from Rs.{product.startingPrice}</h2>
+          <h2 className="pd-price">
+            {product.priceType === "fixed" ? `Rs. ${product.startingPrice}` : `Starting from Rs. ${product.startingPrice}`}
+          </h2>
+
+          {product.sizes && product.sizes.length > 0 && (
+            <div className="pd-sizes">
+              <span className="pd-sizes-label">Available Sizes:</span>
+              <div className="pd-sizes-list">
+                {product.sizes.map((size, idx) => (
+                  <span key={idx} className="pd-size-badge">{size}</span>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="pd-catalog-row">
             <a
@@ -488,6 +506,32 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           color: #e91e63;
           font-size: clamp(1.1rem, 3vw, 1.5rem);
           margin-bottom: 16px;
+        }
+
+        .pd-sizes {
+          margin-bottom: 16px;
+        }
+
+        .pd-sizes-label {
+          font-weight: bold;
+          margin-bottom: 8px;
+          display: block;
+          color: #333;
+        }
+
+        .pd-sizes-list {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .pd-size-badge {
+          padding: 6px 12px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          font-size: 0.9rem;
+          background: #f9f9f9;
+          color: #555;
         }
 
         .pd-catalog-row {

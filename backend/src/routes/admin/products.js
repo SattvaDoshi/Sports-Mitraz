@@ -73,7 +73,7 @@ router.post(
     }
 
     try {
-      const { name, description, startingPrice, categoryId, tags, isActive, sortOrder } = req.body;
+      const { name, description, startingPrice, priceType, sizes, categoryId, tags, isActive, sortOrder } = req.body;
 
       // Validate category exists
       const category = await Category.findByPk(parseInt(categoryId));
@@ -113,11 +113,23 @@ router.post(
         }
       }
 
+      // Parse sizes (can be comma-separated string or JSON array)
+      let parsedSizes = [];
+      if (sizes) {
+        try {
+          parsedSizes = JSON.parse(sizes);
+        } catch {
+          parsedSizes = sizes.split(",").map((s) => s.trim()).filter(Boolean);
+        }
+      }
+
       const product = await Product.create({
         name,
         slug,
         description: description || null,
         startingPrice: startingPrice ? parseFloat(startingPrice) : null,
+        priceType: priceType || "starting",
+        sizes: parsedSizes,
         categoryId: parseInt(categoryId),
         images: imageUrls,
         catalogPdfUrl,
@@ -150,6 +162,8 @@ router.put("/:id", productUpload, async (req, res) => {
       name,
       description,
       startingPrice,
+      priceType,
+      sizes,
       categoryId,
       tags,
       isActive,
@@ -206,12 +220,24 @@ router.put("/:id", productUpload, async (req, res) => {
         parsedTags = tags.split(",").map((t) => t.trim()).filter(Boolean);
       }
     }
+    
+    // Parse sizes
+    let parsedSizes = product.sizes;
+    if (sizes !== undefined) {
+      try {
+        parsedSizes = JSON.parse(sizes);
+      } catch {
+        parsedSizes = sizes.split(",").map((s) => s.trim()).filter(Boolean);
+      }
+    }
 
     await product.update({
       name: name || product.name,
       slug,
       description: description !== undefined ? description : product.description,
       startingPrice: startingPrice !== undefined ? parseFloat(startingPrice) : product.startingPrice,
+      priceType: priceType !== undefined ? priceType : product.priceType,
+      sizes: parsedSizes,
       categoryId: categoryId ? parseInt(categoryId) : product.categoryId,
       images: imageUrls,
       catalogPdfUrl,

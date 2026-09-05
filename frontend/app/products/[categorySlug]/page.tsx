@@ -1,6 +1,4 @@
-"use client";
-
-import React, { use } from "react";
+import React from "react";
 import { DynamicCategoryPage } from "@/components/DynamicCategoryPage";
 
 interface PageProps {
@@ -17,8 +15,8 @@ const CATEGORY_IMAGES: Record<string, string> = {
   "sports-accessories": "/sports-accessories.jpg",
 };
 
-export default function CategoryDynamicPage({ params }: PageProps) {
-  const { categorySlug } = use(params);
+export default async function CategoryDynamicPage({ params }: PageProps) {
+  const { categorySlug } = await params;
 
   // Format title parts (split last word for styling if multi-word)
   const words = categorySlug

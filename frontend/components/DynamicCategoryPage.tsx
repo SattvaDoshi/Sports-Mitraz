@@ -15,6 +15,7 @@ interface ApiProduct {
   slug: string;
   description: string;
   startingPrice: number | null;
+  priceType?: "starting" | "fixed";
   images: string[];
   tags: string[];
   averageRating?: number;
@@ -99,6 +100,7 @@ export function DynamicCategoryPage({
             desc: p.description,
             tags: p.tags || [],
             price: p.startingPrice ? Number(p.startingPrice) : undefined,
+            priceType: p.priceType,
             averageRating: p.averageRating,
             totalRatings: p.totalRatings,
           }));

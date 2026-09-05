@@ -13,6 +13,7 @@ export interface CatalogItem {
   desc: string;
   tags: string[];
   price?: number;
+  priceType?: "starting" | "fixed";
   averageRating?: number;
   totalRatings?: number;
 }
@@ -59,7 +60,7 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
                   
                   {/* Class added & inline margins removed */}
                   <p className="price-tag">
-                    Starting from ₹{price}
+                    {item.priceType === "fixed" ? `₹${price}` : `Starting from ₹${price}`}
                   </p>
                   
                   {item.totalRatings ? (

@@ -27,6 +27,14 @@ const Product = sequelize.define(
       type: DataTypes.DECIMAL(10, 2),
       allowNull: true,
     },
+    priceType: {
+      type: DataTypes.ENUM("starting", "fixed"),
+      defaultValue: "starting",
+    },
+    sizes: {
+      type: DataTypes.JSON,
+      defaultValue: [],
+    },
     categoryId: {
       type: DataTypes.INTEGER,
       allowNull: false,
