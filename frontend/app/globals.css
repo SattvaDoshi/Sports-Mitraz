@@ -1,3 +1,385 @@
+/* ---------- Sportz Mitra reference home ---------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #090b0d;
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.site-header-inner {
+  width: min(1280px, calc(100% - 48px));
+  min-height: 72px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+.site-logo,
+.site-nav,
+.site-actions,
+.header-cart,
+.header-icon-button {
+  display: flex;
+  align-items: center;
+}
+
+.site-logo-image {
+  width: 154px;
+  height: auto;
+}
+.site-nav {
+  gap: clamp(14px, 2.1vw, 30px);
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.site-nav a {
+  position: relative;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.site-nav a:hover,
+.site-nav a.is-active {
+  color: var(--lime);
+}
+.site-nav a.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -10px;
+  height: 2px;
+  background: var(--lime);
+}
+.site-actions {
+  gap: 18px;
+  margin-left: 6px;
+}
+.header-icon-button,
+.header-cart {
+  color: #fff;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+
+.header-cart {
+  position: relative;
+}
+
+.cart-count {
+  position: absolute;
+  top: -8px;
+  right: -9px;
+  width: 15px;
+  height: 15px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--pink);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.site-menu-toggle {
+  display: none;
+}
+.reference-hero {
+  position: relative;
+  min-height: 360px;
+  overflow: hidden;
+  background: #11181b;
+  color: #fff;
+}
+
+.reference-hero-background {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.16;
+}
+
+.reference-hero-inner {
+  position: relative;
+  z-index: 1;
+  width: min(1280px, calc(100% - 48px));
+  min-height: 360px;
+  margin: auto;
+}
+.reference-hero-grid {
+  min-height: 360px;
+  display: grid;
+  grid-template-columns: minmax(360px, 0.9fr) minmax(440px, 1.1fr);
+  align-items: center;
+}
+.reference-hero-copy {
+  position: relative;
+  z-index: 2;
+  padding: 38px 0 78px;
+}
+
+.reference-hero-kicker {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--lime);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+.reference-hero-title {
+  max-width: 520px;
+  margin: 0;
+  font-size: clamp(38px, 4.5vw, 64px);
+  line-height: 0.98;
+  letter-spacing: 0;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+.reference-hero-title span {
+  color: var(--lime);
+}
+
+.reference-hero-description {
+  max-width: 370px;
+  margin: 16px 0 18px;
+  color: #d3d8d8;
+  font-size: 10px;
+  line-height: 1.55;
+}
+.reference-hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.reference-primary-button,
+.reference-secondary-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  padding: 0 14px;
+  text-transform: uppercase;
+  font-size: 9px;
+  font-weight: 900;
+}
+.reference-primary-button {
+  color: #101418;
+  background: var(--lime);
+}
+
+.reference-secondary-button {
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+}
+
+.reference-hero-features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 450px;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.17);
+}
+
+.reference-hero-features h4 {
+  margin: 0;
+  font-size: 8px;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.reference-hero-features p {
+  margin: 4px 0 0;
+  color: #aeb7b7;
+  font-size: 8px;
+}
+
+.reference-hero-visual {
+  align-self: stretch;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.reference-hero-image {
+  width: min(680px, 112%);
+  max-width: none;
+  margin: 0 -10% -5px 0;
+  object-fit: contain;
+  align-self: flex-end;
+}
+
+.featured-products {
+  position: relative;
+  z-index: 5;
+  width: min(1280px, calc(100% - 48px));
+  margin: -25px auto 0;
+  padding-bottom: 48px;
+}
+.featured-products-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  background: #fff;
+  border-radius: 9px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.featured-product-card {
+  min-width: 0;
+  min-height: 220px;
+  padding: 12px 12px 16px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #e7e7e7;
+  background: #fff;
+}
+
+.featured-product-card:last-child {
+  border-right: 0;
+}
+.featured-product-image {
+  height: 106px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 10px;
+  background: #fafafa;
+}
+.featured-product-image-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.featured-product-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+.featured-product-title {
+  margin: 0 0 7px;
+  color: #111318;
+  font-size: 10px;
+  line-height: 1.15;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.featured-product-description {
+  margin: 0 0 10px;
+  color: #73777a;
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.featured-product-link {
+  margin-top: auto;
+  color: var(--pink);
+  font-size: 8px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+@media (max-width: 760px) {
+  .site-header-inner,
+  .reference-hero-inner,
+  .featured-products {
+    width: min(100% - 28px, 560px);
+  }
+
+  .site-header-inner {
+    min-height: 62px;
+  }
+
+  .site-logo-image {
+    width: 132px;
+  }
+
+  .site-nav {
+    position: absolute;
+    top: 62px;
+    left: 0;
+    right: 0;
+    display: none;
+    padding: 18px 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    background: #090b0d;
+  }
+
+  .site-nav.is-open {
+    display: flex;
+  }
+
+  .site-nav a.is-active::after {
+    display: none;
+  }
+
+  .site-menu-toggle {
+    display: flex;
+    width: 28px;
+    height: 28px;
+    padding: 5px 0;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 0;
+    background: transparent;
+  }
+  .site-menu-toggle span {
+    width: 100%;
+    height: 2px;
+    background: #fff;
+  }
+
+  .reference-hero,
+  .reference-hero-inner,
+  .reference-hero-grid {
+    min-height: 530px;
+  }
+
+  .reference-hero-grid {
+    display: flex;
+    flex-direction: column;
+  }
+  .reference-hero-copy {
+    padding: 36px 0 0;
+  }
+  .reference-hero-title {
+    font-size: clamp(38px, 12vw, 56px);
+  }
+  .reference-hero-visual {
+    width: 100%;
+    flex: 1;
+  }
+  .reference-hero-image {
+    width: 130%;
+    margin: -15px -15% 0 0;
+  }
+
+  .featured-products {
+    margin-top: -18px;
+  }
+
+  .featured-products-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .featured-product-card:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .featured-product-card:last-child {
+    grid-column: 1 / -1;
+  }
+}
 :root {
   --pink: #ed0f63;
   --pink2: #ff2f7d;
@@ -213,7 +595,6 @@ header {
   display: block;
   width: 20px;
   height: 2px;
-  
   border-radius: 2px;
   background: var(--ink);
   transition: transform 0.25s ease, opacity 0.2s ease;
@@ -379,7 +760,6 @@ header {
   border-radius: 50%;
   border: 0;
   background: rgba(255, 255, 255, 0.02);
-  /* backdrop-filter: blur(4px); */
   color: #fff;
   font-size: 26px;
   line-height: 1;
@@ -837,7 +1217,6 @@ footer {
 
 .footer-logo {
   width: 200px;
-  /* filter: brightness(0) invert(1); */
   margin-bottom: 13px;
 }
 
@@ -1109,10 +1488,6 @@ footer {
     display: inline-flex;
   }
 
-  /* .navlinks becomes the full-screen mobile menu panel.
-     JS should toggle a class of "open" on this element
-     (e.g. document.querySelector('.navlinks').classList.toggle('open'))
-     and toggle "menu-open" on <body> to enable the dim backdrop. */
   .navlinks {
     display: none;
     flex-direction: column;
@@ -1154,7 +1529,6 @@ footer {
     color: var(--pink);
   }
 
-  /* dims the page content behind the open mobile menu */
   body.menu-open {
     overflow: hidden;
   }
@@ -1236,25 +1610,24 @@ footer {
     margin-bottom: 16px;
   }
   .slider {
-    height: 420px; 
+    height: 420px;
     min-height: auto;
-    background: #111; 
+    background: #111;
   }
   .slide {
-   position: absolute; /* Keep absolute so images stretch full container height */
+    position: absolute;
     inset: 0;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
   }
   .slide-copy {
-   position: relative;
+    position: relative;
     padding: 24px 20px 32px;
     max-width: 100%;
-    /* Subtle dark gradient behind text for mobile readability */
     background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.85) 40%);
   }
-  
+
   .features-mini {
     gap: 16px;
     margin: 14px 0 20px;
@@ -1369,14 +1742,12 @@ footer {
 
 /* Target catalog layout on mobile screens */
 @media (max-width: 768px) {
-  /* Common Grid Container for 2 Columns */
   .catalog {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 12px !important;
   }
 
-  /* Shared Card Shell */
   .pcard {
     display: flex !important;
     flex-direction: column !important;
@@ -1405,7 +1776,6 @@ footer {
     margin: 0 0 4px 0 !important;
   }
 
-  /* Tags styling for all cards */
   .pcard .tags {
     display: flex !important;
     gap: 4px !important;
@@ -1424,7 +1794,7 @@ footer {
     display: flex !important;
     flex-direction: column !important;
     gap: 6px !important;
-    margin-top: auto !important; /* Pins button flush to bottom */
+    margin-top: auto !important;
   }
 
   .pcard .card-actions .btn {
@@ -1435,9 +1805,7 @@ footer {
     line-height: 1 !important;
   }
 
-  /* --- CATEGORY CARD SPECIFICS --- */
   .category-card .cat-desc {
-    display: block !important;
     font-size: 11px !important;
     color: var(--muted, #64748b) !important;
     line-height: 1.3 !important;
@@ -1448,7 +1816,6 @@ footer {
     overflow: hidden;
   }
 
-  /* --- PRODUCT CARD SPECIFICS (ZERO WHITE SPACE) --- */
   .pcard .price-tag {
     color: #e91e63 !important;
     font-weight: bold !important;
@@ -1457,4 +1824,135 @@ footer {
     padding: 0 !important;
     line-height: 1.1 !important;
   }
+  /* ============================================================
+   PAGE HERO BUTTONS - DESKTOP + TABLET + MOBILE
+   ============================================================ */
+
+.page-hero .btn-primary,
+.btn-primary {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  min-height: 50px !important;
+  padding: 0 24px !important;
+
+  background: #ed0f63 !important;
+  background-color: #ed0f63 !important;
+
+  color: #ffffff !important;
+
+  border: none !important;
+  border-radius: 8px !important;
+
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+
+  text-decoration: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+
+  box-shadow: 0 10px 25px rgba(237, 15, 99, 0.25) !important;
+
+  cursor: pointer !important;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease !important;
+}
+
+.page-hero .btn-primary:hover,
+.btn-primary:hover {
+  background: #d90c58 !important;
+  background-color: #d90c58 !important;
+  color: #ffffff !important;
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 14px 30px rgba(237, 15, 99, 0.32) !important;
+}
+
+
+/* ============================================================
+   SECONDARY / GET A QUOTE BUTTON
+   ============================================================ */
+
+.page-hero .btn-secondary,
+.btn-secondary {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  min-height: 50px !important;
+  padding: 0 24px !important;
+
+  background: #a7d900 !important;
+  background-color: #a7d900 !important;
+
+  color: #111318 !important;
+
+  border: none !important;
+  border-radius: 8px !important;
+
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+
+  text-decoration: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+
+  box-shadow: 0 10px 25px rgba(167, 217, 0, 0.25) !important;
+
+  cursor: pointer !important;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease !important;
+}
+
+.page-hero .btn-secondary:hover,
+.btn-secondary:hover {
+  background: #8ec000 !important;
+  background-color: #8ec000 !important;
+  color: #111318 !important;
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 14px 30px rgba(167, 217, 0, 0.3) !important;
+}
+
+
+/* ============================================================
+   BUTTON SPACING
+   ============================================================ */
+
+.page-hero .actions,
+.page-hero .hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+  .page-hero .btn-primary,
+  .page-hero .btn-secondary,
+  .btn-primary,
+  .btn-secondary {
+    min-height: 46px !important;
+    padding: 0 20px !important;
+    font-size: 13px !important;
+  }
+
+}
 }

@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Header } from "@/components/Header";
-import { PageHero } from "@/components/PageHero";
 import { ProductCatalogGrid, CatalogItem } from "@/components/ProductCatalogGrid";
 import { CtaBand } from "@/components/CtaBand";
 import { Footer } from "@/components/Footer";
@@ -59,8 +58,7 @@ export function DynamicCategoryPage({
   const [subcategories, setSubcategories] = useState<ApiSubcategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  
-  // Search state
+
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -71,10 +69,8 @@ export function DynamicCategoryPage({
           const cat: ApiCategory = data.data;
           setCategory(cat);
 
-          // Collect direct products
           const directProducts = cat.products || [];
-          
-          // Also collect products from subcategories if any
+
           const subcatProducts: ApiProduct[] = [];
           if (cat.subcategories && cat.subcategories.length > 0) {
             setSubcategories(cat.subcategories);
@@ -87,7 +83,6 @@ export function DynamicCategoryPage({
 
           const allProducts = directProducts.length > 0 ? directProducts : subcatProducts;
 
-          // Map API products to CatalogItems
           const mapped: CatalogItem[] = allProducts.map((p) => ({
             id: p.slug,
             slug: p.slug,
@@ -116,40 +111,32 @@ export function DynamicCategoryPage({
       .finally(() => setLoading(false));
   }, [categorySlug, heroImage]);
 
-  // Compute dynamic title from API if available
-  let displayTitle = (
-    <>
-      {titleParts[0]} {titleParts[1] && <span>{titleParts[1]}</span>}
-    </>
-  );
+  // Compute display title (normal + highlighted word), used by ProductCatalogGrid's hero
+  let heroTitleText = titleParts[0];
+  let heroHighlightText = titleParts[1];
 
   if (category?.name) {
     const words = category.name.split(" ");
     if (words.length > 1) {
-      displayTitle = (
-        <>
-          {words.slice(0, -1).join(" ")} <span>{words[words.length - 1]}</span>
-        </>
-      );
+      heroTitleText = words.slice(0, -1).join(" ");
+      heroHighlightText = words[words.length - 1];
     } else {
-      displayTitle = <>{category.name}</>;
+      heroTitleText = category.name;
+      heroHighlightText = "";
     }
   }
 
-  const activeHeroImage = category?.image ? getDirectImageUrl(category.image) : heroImage;
+  const activeHeroImage = heroImage;
 
-  // Filter and sort items based on search query
   const filteredAndSortedItems = React.useMemo(() => {
     let result = [...items];
     if (searchQuery.trim()) {
       const lowerQuery = searchQuery.toLowerCase();
-      // Filter by name or tags
       result = result.filter(
         (item) =>
           item.title.toLowerCase().includes(lowerQuery) ||
           item.tags.some((t) => t.toLowerCase().includes(lowerQuery))
       );
-      // Sort by average rating descending
       result.sort((a, b) => {
         const ratingA = a.averageRating || 0;
         const ratingB = b.averageRating || 0;
@@ -163,13 +150,6 @@ export function DynamicCategoryPage({
     <>
       <Header />
       <main>
-        <PageHero
-          bgImage={activeHeroImage}
-          breadcrumb={breadcrumb}
-          title={displayTitle}
-          description={category?.description || "Browse our customized items and request a fast bulk quote for your sports event."}
-        />
-
         {loading ? (
           <div className="container" style={{ padding: "80px 20px", textAlign: "center", color: "#62686f" }}>
             <h2>Loading products...</h2>
@@ -217,33 +197,27 @@ export function DynamicCategoryPage({
               </section>
             )}
 
-            {/* Search Bar */}
-            <div className="container" style={{ marginBottom: "20px" }}>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{
-                    padding: "10px 16px",
-                    borderRadius: "6px",
-                    border: "1px solid #ddd",
-                    width: "100%",
-                    maxWidth: "300px",
-                    fontSize: "1rem"
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Products grid */}
-            {filteredAndSortedItems.length > 0 ? (
+            {/* Products grid — includes its own category hero, search now lives inside it */}
+            {filteredAndSortedItems.length > 0 || items.length > 0 ? (
               <ProductCatalogGrid
+                heroImage={activeHeroImage}
+                breadcrumbs={[
+                  { label: "Home", href: "/" },
+                  { label: "Products", href: "/products" },
+                  { label: breadcrumb },
+                ]}
+                heroTitle={heroTitleText}
+                heroHighlight={heroHighlightText}
+                heroDescription={
+                  category?.description ||
+                  "Browse our customized items and request a fast bulk quote for your sports event."
+                }
                 sectionTitle={`Explore ${category?.name || titleParts.join(" ")}`}
                 description="Every item is quote-based and can be customised by quantity, artwork, size, name, logo and event theme."
                 items={filteredAndSortedItems}
                 categorySlug={categorySlug}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
               />
             ) : subcategories.length === 0 ? (
               <div className="container" style={{ padding: "60px 20px", textAlign: "center", color: "#62686f" }}>

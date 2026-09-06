@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Header } from "../components/Header";
-import { HeroSlider } from "../components/HeroSlider";
+import { PageHero } from "../components/PageHero";
 import { Benefits } from "../components/Benefits";
 import { FeaturedProducts } from "../components/FeaturedProducts";
 import { EventSteps } from "../components/EventSteps";
@@ -15,13 +15,14 @@ export default function Home() {
     <>
       <Header />
       <main>
-        <HeroSlider />
-        <Benefits />
+        <PageHero />
         <FeaturedProducts />
+        <Benefits />
         <EventSteps />
+        <CtaBand />
         <RecentWorkGallery />
       </main>
-      <CtaBand />
+      
       <Footer />
     </>
   );
