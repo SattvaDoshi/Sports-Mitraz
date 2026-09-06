@@ -9,6 +9,7 @@ interface PageProps {
 
 const CATEGORY_IMAGES: Record<string, string> = {
   "auction-accessories": "/auction.jpg",
+  "trophies": "/trophies.jpg",        // ← was this line added?
   "trophies-medals": "/trophies.jpg",
   "custom-jerseys": "/jerseys.jpg",
   "printing-services": "/printing.jpg",
@@ -31,7 +32,7 @@ export default async function CategoryDynamicPage({ params }: PageProps) {
     firstPart = words.slice(0, -1).join(" ");
   }
 
-  const heroImage = CATEGORY_IMAGES[categorySlug] || "/hero-slide-1.jpg";
+  const heroImage = "/ProductCatalog-bg.png";
 
   return (
     <DynamicCategoryPage

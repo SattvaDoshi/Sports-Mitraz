@@ -5,7 +5,9 @@ const router = express.Router();
 
 /**
  * GET /api/categories
- * Returns all top-level categories with their direct subcategories.
+ * Returns all top-level categories with their direct subcategories,
+ * plus a computed product count for each (direct products + all
+ * products nested under its subcategories).
  */
 router.get("/", async (req, res) => {
   try {
@@ -18,12 +20,42 @@ router.get("/", async (req, res) => {
           where: { isActive: true },
           required: false,
           order: [["sortOrder", "ASC"]],
+          include: [
+            {
+              model: Product,
+              as: "products",
+              where: { isActive: true },
+              required: false,
+              attributes: ["id"],
+            },
+          ],
+        },
+        {
+          model: Product,
+          as: "products",
+          where: { isActive: true },
+          required: false,
+          attributes: ["id"],
         },
       ],
       order: [["sortOrder", "ASC"]],
     });
 
-    return res.json({ success: true, data: categories });
+    const withCounts = categories.map((cat) => {
+      const json = cat.toJSON();
+      const directCount = json.products?.length || 0;
+      const subcatCount =
+        json.subcategories?.reduce(
+          (sum, sc) => sum + (sc.products?.length || 0),
+          0
+        ) || 0;
+      return {
+        ...json,
+        count: directCount + subcatCount,
+      };
+    });
+
+    return res.json({ success: true, data: withCounts });
   } catch (error) {
     console.error("GET /api/categories error:", error);
     return res.status(500).json({ success: false, message: "Server error" });

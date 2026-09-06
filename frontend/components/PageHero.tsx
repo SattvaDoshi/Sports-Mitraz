@@ -67,47 +67,111 @@ export const PageHero: React.FC<PageHeroProps> = ({
 
           {/* Action Buttons */}
           <div className="hero-actions">
-           <Link
+ <Link
   href="/products"
   className="btn-primary"
   style={{
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "10px",
+
+    width: "auto",
+    minWidth: "190px",
+    height: "50px",
+
+    padding: "0 24px",
+
+    boxSizing: "border-box",
+
     backgroundColor: "#ec1876",
-    background: "#ec1876",
-    color: "#ffffff",
-    border: "none",
+    color: "#101010",
+
+    border: "2px solid #ec1876",
+    borderRadius: "8px",
+
+    fontFamily: "inherit",
+    fontSize: "14px",
+    fontWeight: 800,
+    lineHeight: 1,
+    letterSpacing: "0.03em",
+
+    textDecoration: "none",
+    textTransform: "uppercase",
+
+    cursor: "pointer",
+
     opacity: 1,
     visibility: "visible",
+
+    boxShadow: "0 8px 20px rgba(236, 24, 118, 0.25)",
+
+    transition: "all 0.2s ease",
   }}
 >
-              <span>{primaryBtnText}</span>
-              <svg
-                className="btn-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-            </Link>
+  <span>{primaryBtnText}</span>
+
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{
+      width: "16px",
+      height: "16px",
+      flexShrink: 0,
+    }}
+  >
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
+  </svg>
+</Link>
 
             <Link
   href="/contact"
   className="btn-secondary"
   style={{
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    width: "auto",
+    minWidth: "160px",
+    height: "50px",
+
+    padding: "0 24px",
+
+    boxSizing: "border-box",
+
     backgroundColor: "#a7d900",
-    background: "#a7d900",
     color: "#111111",
-    border: "none",
+
+    border: "2px solid #8fbd00",
+    borderRadius: "8px",
+
+    fontFamily: "inherit",
+    fontSize: "14px",
+    fontWeight: 800,
+    lineHeight: 1,
+    letterSpacing: "0.03em",
+
+    textDecoration: "none",
+    textTransform: "uppercase",
+
+    cursor: "pointer",
+
     opacity: 1,
     visibility: "visible",
+
+    boxShadow: "0 8px 20px rgba(167, 217, 0, 0.22)",
+
+    transition: "all 0.2s ease",
   }}
 >
-              <span>{secondaryBtnText}</span>
-            </Link>
+  <span>{secondaryBtnText}</span>
+</Link>
           </div>
 
           {/* Photo block — mobile/tablet only */}

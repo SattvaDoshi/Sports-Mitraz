@@ -43,9 +43,60 @@ export const CtaBand: React.FC = () => {
             </div>
           </a>
 
-          <Link href="#contact" className="ctaband-get-in-touch-btn">
-            GET IN TOUCH <span className="ctaband-arrow">→</span>
-          </Link>
+          <Link
+  href="#contact"
+  style={{
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "10px",
+
+    width: "fit-content",
+    minWidth: "170px",
+    height: "48px",
+
+    padding: "0 26px",
+
+    boxSizing: "border-box",
+
+    backgroundColor: "#a7d900",
+    color: "#111318",
+
+    border: "2px solid #a7d900",
+    borderRadius: "8px",
+
+    fontFamily: "inherit",
+    fontSize: "13px",
+    fontWeight: 900,
+    lineHeight: 1,
+    letterSpacing: "0.05em",
+
+    textDecoration: "none",
+    textTransform: "uppercase",
+    whiteSpace: "nowrap",
+
+    cursor: "pointer",
+
+    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.25)",
+
+    transition:
+      "background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease",
+  }}
+>
+  GET IN TOUCH
+  <span
+    style={{
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "16px",
+      lineHeight: 1,
+      color: "#111318",
+    }}
+  >
+    →
+  </span>
+</Link>
         </div>
       </div>
 

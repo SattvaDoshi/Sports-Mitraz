@@ -36,6 +36,7 @@ interface ApiCategory {
   slug: string;
   description: string;
   image: string | null;
+  count?: number;
   products?: ApiProduct[];
   subcategories?: ApiSubcategory[];
 }
@@ -56,9 +57,9 @@ export function DynamicCategoryPage({
   const [category, setCategory] = useState<ApiCategory | null>(null);
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [subcategories, setSubcategories] = useState<ApiSubcategory[]>([]);
+  const [allCategories, setAllCategories] = useState<ApiCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -111,6 +112,17 @@ export function DynamicCategoryPage({
       .finally(() => setLoading(false));
   }, [categorySlug, heroImage]);
 
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data) {
+          setAllCategories(data.data);
+        }
+      })
+      .catch((err) => console.error("Failed to load category list:", err));
+  }, []);
+
   // Compute display title (normal + highlighted word), used by ProductCatalogGrid's hero
   let heroTitleText = titleParts[0];
   let heroHighlightText = titleParts[1];
@@ -135,7 +147,9 @@ export function DynamicCategoryPage({
       result = result.filter(
         (item) =>
           item.title.toLowerCase().includes(lowerQuery) ||
-          item.tags.some((t) => t.toLowerCase().includes(lowerQuery))
+          (item.tags ?? []).some((t) =>
+  t.toLowerCase().includes(lowerQuery)
+)
       );
       result.sort((a, b) => {
         const ratingA = a.averageRating || 0;
@@ -218,6 +232,12 @@ export function DynamicCategoryPage({
                 categorySlug={categorySlug}
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
+                activeCategorySlug={categorySlug}
+                categories={allCategories.map((c) => ({
+                  name: c.name,
+                  slug: c.slug,
+                  count: c.count || 0,
+                }))}
               />
             ) : subcategories.length === 0 ? (
               <div className="container" style={{ padding: "60px 20px", textAlign: "center", color: "#62686f" }}>

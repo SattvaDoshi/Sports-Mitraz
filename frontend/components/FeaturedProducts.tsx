@@ -130,9 +130,53 @@ export const FeaturedProducts: React.FC = () => {
                 <h3 className="fp-card-heading">{cat.name}</h3>
                 <p className="fp-card-text">{cat.description}</p>
 
-                <Link href={`/products/${cat.slug}`} className="fp-view-more">
-                  VIEW MORE <span className="fp-view-more-arrow">→</span>
-                </Link>
+                <Link
+  href={`/products/${cat.slug}`}
+  style={{
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+
+    width: "fit-content",
+    minWidth: "125px",
+    height: "42px",
+
+    marginTop: "auto",
+    padding: "0 20px",
+
+    backgroundColor: "#ffffff",
+    color: "#ed0f63",
+
+    border: "2px solid #ed0f63",
+    borderRadius: "8px",
+
+    fontFamily: "inherit",
+    fontSize: "12px",
+    fontWeight: 900,
+    lineHeight: 1,
+    letterSpacing: "0.05em",
+
+    textDecoration: "none",
+    textTransform: "uppercase",
+
+    cursor: "pointer",
+    boxSizing: "border-box",
+
+    transition: "all 0.2s ease",
+  }}
+>
+  VIEW MORE
+  <span
+    style={{
+      color: "#ed0f63",
+      fontSize: "15px",
+      lineHeight: 1,
+    }}
+  >
+    →
+  </span>
+</Link>
               </div>
             </article>
           ))}
@@ -140,9 +184,54 @@ export const FeaturedProducts: React.FC = () => {
 
         {/* Bottom CTA */}
         <div className="fp-cta-row">
-          <Link href="/products" className="fp-explore-btn">
-            EXPLORE CATEGORIES <span className="fp-explore-btn-arrow">→</span>
-          </Link>
+         <Link
+  href="/products"
+  style={{
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "10px",
+
+    width: "fit-content",
+    minWidth: "220px",
+    height: "50px",
+
+    padding: "0 28px",
+
+    backgroundColor: "#ffffff",
+    color: "#ed0f63",
+
+    border: "2px solid #ed0f63",
+    borderRadius: "8px",
+
+    fontFamily: "inherit",
+    fontSize: "14px",
+    fontWeight: 900,
+    lineHeight: 1,
+    letterSpacing: "0.04em",
+
+    textDecoration: "none",
+    textTransform: "uppercase",
+
+    cursor: "pointer",
+    boxSizing: "border-box",
+
+    boxShadow: "0 6px 18px rgba(237, 15, 99, 0.12)",
+
+    transition: "all 0.2s ease",
+  }}
+>
+  EXPLORE CATEGORIES
+  <span
+    style={{
+      color: "#ed0f63",
+      fontSize: "17px",
+      lineHeight: 1,
+    }}
+  >
+    →
+  </span>
+</Link>
         </div>
       </div>
 

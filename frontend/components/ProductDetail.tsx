@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useCart, CustomQuoteDetails } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-toastify";
@@ -51,6 +51,9 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   const { addToCart } = useCart();
   const router = useRouter();
 
+  // Ref to handle auto-scrolling to the quote section
+  const formRef = useRef<HTMLDivElement | null>(null);
+
   const [activeImage, setActiveImage] = useState<string>(product.mainImage);
   const [formAction, setFormAction] = useState<"buy_now" | "add_to_cart" | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
@@ -96,6 +99,13 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
       }));
     }
   }, [pendingBuyNow, isAuthenticated, user]);
+
+  // Scroll smooth to the form whenever formAction becomes active
+  useEffect(() => {
+    if (formAction !== null && formRef.current) {
+      formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [formAction]);
 
   const handleRatingSubmit = async (selectedRating: number) => {
     if (isSubmittingRating) return;
@@ -157,6 +167,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
 
   const handleAddToCart = () => {
     if (formAction === "add_to_cart") {
+      // Toggle off if clicked again
       setFormAction(null);
       return;
     }
@@ -191,16 +202,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
 
   const activeIndex = product.gallery.indexOf(activeImage);
 
-  const handlePrevImage = () => {
-    const nextIdx = activeIndex > 0 ? activeIndex - 1 : product.gallery.length - 1;
-    setActiveImage(product.gallery[nextIdx]);
-  };
-
-  const handleNextImage = () => {
-    const nextIdx = activeIndex < product.gallery.length - 1 ? activeIndex + 1 : 0;
-    setActiveImage(product.gallery[nextIdx]);
-  };
-
   return (
     <div className="pd-wrapper">
       {/* Breadcrumbs */}
@@ -228,20 +229,11 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
 
             {/* Main Stage */}
             <div className="pd-main-stage">
-              <button className="pd-nav-btn prev" onClick={handlePrevImage} aria-label="Previous image">
-                ‹
-              </button>
               <img
                 src={getDirectImageUrl(activeImage)}
                 alt={product.title}
                 className="pd-main-image"
               />
-              <button className="pd-nav-btn next" onClick={handleNextImage} aria-label="Next image">
-                ›
-              </button>
-              <button className="pd-zoom-btn" aria-label="Zoom image">
-                🔍
-              </button>
             </div>
 
             {/* Mobile Thumbnails */}
@@ -279,30 +271,10 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             <div className="pd-price-row">
               <span className="pd-price-text">
                 {product.priceType === "fixed" ? "Rs." : "Starting from Rs."}{" "}
-             <span className="pd-price-amount">
-  {(Number(product?.startingPrice) || 0).toFixed(2)}
-</span>
+                <span className="pd-price-amount">
+                  {(Number(product?.startingPrice) || 0).toFixed(2)}
+                </span>
               </span>
-            </div>
-
-            {/* Feature Icons */}
-            <div className="pd-features-grid">
-              <div className="pd-feature-item">
-                <div className="pd-feature-icon">🛡️</div>
-                <span>Premium Quality</span>
-              </div>
-              <div className="pd-feature-item">
-                <div className="pd-feature-icon">✏️</div>
-                <span>Custom Engraving</span>
-              </div>
-              <div className="pd-feature-item">
-                <div className="pd-feature-icon">📦</div>
-                <span>Bulk Orders</span>
-              </div>
-              <div className="pd-feature-item">
-                <div className="pd-feature-icon">🚀</div>
-                <span>Fast Delivery</span>
-              </div>
             </div>
 
             {/* Quantity + Add to Cart */}
@@ -350,7 +322,13 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
 
         {/* Custom Order Form Accordion / Section */}
         {formAction !== null && (
-          <section className="contact-wrap pd-quote-section">
+          <section className="contact-wrap pd-quote-section" ref={formRef}>
+            {/* {formAction === "add_to_cart" && (
+              <div className="pd-redirect-note">
+                📌 <strong>Please fill out this form to save your product details and add it to your cart.</strong>
+              </div>
+            )} */}
+
             <div className="info-box">
               <h3>Custom Order Details</h3>
               <p>Fill out the details below to proceed with your customized item.</p>
@@ -414,44 +392,12 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
               </div>
               <div className="field full">
                 <button className="btn-buy-now" type="submit">
-                  SAVE QUOTE DETAILS
+                  SAVE & ADD TO CART
                 </button>
               </div>
             </form>
           </section>
         )}
-
-        {/* Footer Trust Badges */}
-        <div className="pd-trust-bar">
-          <div className="pd-trust-item">
-            <div className="pd-trust-icon">🔒</div>
-            <div>
-              <strong>Secure Payment</strong>
-              <p>100% safe & secure</p>
-            </div>
-          </div>
-          <div className="pd-trust-item">
-            <div className="pd-trust-icon">🔄</div>
-            <div>
-              <strong>Easy Returns</strong>
-              <p>Hassle-free policy</p>
-            </div>
-          </div>
-          <div className="pd-trust-item">
-            <div className="pd-trust-icon">🏢</div>
-            <div>
-              <strong>Bulk Enquiry</strong>
-              <p>Get best prices</p>
-            </div>
-          </div>
-          <div className="pd-trust-item">
-            <div className="pd-trust-icon">🎧</div>
-            <div>
-              <strong>Dedicated Support</strong>
-              <p>We're here to help</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       <style jsx>{`
@@ -507,48 +453,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           width: 100%;
           height: 100%;
           object-fit: cover;
-        }
-
-        .pd-nav-btn {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.9);
-          border: none;
-          font-size: 1.2rem;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-          z-index: 2;
-        }
-
-        .pd-nav-btn.prev {
-          left: 12px;
-        }
-
-        .pd-nav-btn.next {
-          right: 12px;
-        }
-
-        .pd-zoom-btn {
-          position: absolute;
-          bottom: 12px;
-          right: 12px;
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.9);
-          border: none;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
         .pd-thumbs-mobile {
@@ -655,36 +559,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           font-size: 1.5rem;
         }
 
-        /* Feature Icons */
-        .pd-features-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 8px;
-          margin-bottom: 24px;
-          text-align: center;
-        }
-
-        .pd-feature-item {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 6px;
-          font-size: 0.75rem;
-          color: #555;
-          font-weight: 500;
-        }
-
-        .pd-feature-icon {
-          width: 42px;
-          height: 42px;
-          background: #f7f8fa;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.2rem;
-        }
-
         /* Action Controls */
         .pd-qty-cart-row {
           display: flex;
@@ -785,39 +659,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           background-color: #ffeef4;
         }
 
-        /* Trust Bar */
-        .pd-trust-bar {
-          margin-top: 48px;
-          padding: 20px;
-          background: #fafafa;
-          border-radius: 12px;
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 20px;
-        }
-
-        .pd-trust-item {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .pd-trust-icon {
-          font-size: 1.5rem;
-        }
-
-        .pd-trust-item strong {
-          display: block;
-          font-size: 0.9rem;
-          color: #222;
-        }
-
-        .pd-trust-item p {
-          margin: 0;
-          font-size: 0.78rem;
-          color: #777;
-        }
-
         /* Form styling */
         .pd-quote-section {
           margin-top: 32px;
@@ -825,6 +666,17 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           background: #fbfbfb;
           border-radius: 12px;
           border: 1px solid #eee;
+          scroll-margin-top: 20px;
+        }
+
+        .pd-redirect-note {
+          background-color: #e7f5ff;
+          color: #0056b3;
+          border: 1px solid #b3d7ff;
+          padding: 12px 16px;
+          border-radius: 8px;
+          margin-bottom: 20px;
+          font-size: 0.9rem;
         }
 
         .pd-instructions {
@@ -859,10 +711,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
 
           .pd-thumbs-mobile {
             display: none;
-          }
-
-          .pd-trust-bar {
-            grid-template-columns: repeat(4, 1fr);
           }
         }
       `}</style>

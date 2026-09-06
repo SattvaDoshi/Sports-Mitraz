@@ -17,6 +17,7 @@ export interface CartItem {
   img: string;
   quantity: number;
   customization: CustomQuoteDetails;
+  size?: string;
 }
 
 interface CartContextType {
@@ -26,6 +27,7 @@ interface CartContextType {
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
   clearCart: () => void;
+  updateQuantity: (id: string, quantity: number) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -42,12 +44,20 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const removeFromCart = (id: string) => {
     setCart((prev) => prev.filter((item) => item.id !== id));
   };
-
+const updateQuantity = (id: string, quantity: number) => {
+  setCart((prev) =>
+    prev.map((item) =>
+      item.id === id
+        ? { ...item, quantity: Math.max(1, quantity) }
+        : item
+    )
+  );
+};
   const clearCart = () => setCart([]);
 
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, removeFromCart, isCartOpen, setIsCartOpen, clearCart }}
+      value={{ cart, addToCart, removeFromCart, isCartOpen, setIsCartOpen, clearCart,   updateQuantity, }}
     >
       {children}
     </CartContext.Provider>
@@ -59,3 +69,4 @@ export const useCart = () => {
   if (!context) throw new Error("useCart must be used within a CartProvider");
   return context;
 };
+

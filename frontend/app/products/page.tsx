@@ -24,16 +24,6 @@ const CATEGORY_IMAGES: Record<string, string> = {
   "event-setups": "/event-setups.jpg",
 };
 
-const CATEGORY_BTN: Record<string, "pink" | "lime"> = {
-  trophies: "lime",
-  medals: "pink",
-  "custom-jerseys": "lime",
-  "sports-equipment": "pink",
-  "auction-accessories": "lime",
-  "event-setups": "pink",
-};
-
-// Fallback so the page always looks right even if the API is empty/down
 const DEFAULT_CATEGORIES: Category[] = [
   { id: 1, name: "Trophies", slug: "trophies", description: "Metal, acrylic & wooden trophies for every occasion.", image: null },
   { id: 2, name: "Medals", slug: "medals", description: "Custom medals for tournaments, schools & corporates.", image: null },
@@ -49,15 +39,6 @@ const FEATURES = [
   { label: "PAN INDIA\nDELIVERY", icon: <path d="M3 7h10v8H3zM13 10h4l3 3v2h-7zM6 18a2 2 0 100-4 2 2 0 000 4zM17 18a2 2 0 100-4 2 2 0 000 4z" /> },
   { label: "IDEAL FOR\nALL EVENTS", icon: <path d="M12 2a5 5 0 015 5c0 3-5 9-5 9s-5-6-5-9a5 5 0 015-5zM12 9a2 2 0 100-4 2 2 0 000 4z" /> },
 ];
-
-function ArrowIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="5" y1="12" x2="19" y2="12" />
-      <polyline points="12 5 19 12 12 19" />
-    </svg>
-  );
-}
 
 export default function ProductsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -130,16 +111,11 @@ export default function ProductsPage() {
         <section id="categories" className="categories-section">
           <div className="container">
             <div className="categories-head">
-              <div>
+              <div className="head-left">
                 <span className="eyebrow">EXPLORE OUR RANGE</span>
                 <h2>Product Categories</h2>
               </div>
-              <div className="head-right">
-                <p>From trophies to custom jerseys, we provide everything you need to make your event special.</p>
-                <Link className="btn btn-outline-pink view-all" href="/products">
-                  VIEW ALL →
-                </Link>
-              </div>
+            
             </div>
 
             {loading ? (
@@ -149,7 +125,6 @@ export default function ProductsPage() {
             ) : (
               <div className="catalog">
                 {categories.map((cat) => {
-                  const accent = CATEGORY_BTN[cat.slug] || "pink";
                   return (
                     <article className="pcard category-card" key={cat.id}>
                       <div className="thumb">
@@ -159,18 +134,62 @@ export default function ProductsPage() {
                         />
                       </div>
                       <div className="body">
-                        <div>
+                        <div className="text-content">
                           <h3>{cat.name}</h3>
                           <p className="cat-desc">{cat.description}</p>
                         </div>
                         <div className="card-actions">
                           <Link
-                            className={`circle-btn circle-${accent}`}
-                            href={`/products/${cat.slug}`}
-                            aria-label={`View ${cat.name}`}
-                          >
-                            <ArrowIcon />
-                          </Link>
+  href={`/products/${cat.slug}`}
+  aria-label={`View ${cat.name}`}
+  style={{
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+
+    width: "fit-content",
+    minWidth: "125px",
+    height: "40px",
+
+    padding: "0 18px",
+
+    boxSizing: "border-box",
+
+    backgroundColor: "#ffffff",
+    color: "#ec1a6d",
+
+    border: "2px solid #ec1a6d",
+    borderRadius: "8px",
+
+    fontFamily: "inherit",
+    fontSize: "12px",
+    fontWeight: 800,
+    lineHeight: 1,
+    letterSpacing: "0.04em",
+
+    textDecoration: "none",
+    textTransform: "uppercase",
+
+    cursor: "pointer",
+
+    boxShadow: "0 4px 12px rgba(236, 26, 109, 0.12)",
+
+    transition:
+      "background-color 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease",
+  }}
+>
+  VIEW MORE
+  <span
+    style={{
+      fontSize: "15px",
+      lineHeight: 1,
+      color: "#ec1a6d",
+    }}
+  >
+    →
+  </span>
+</Link>
                         </div>
                       </div>
                     </article>
@@ -194,8 +213,6 @@ export default function ProductsPage() {
           --muted: #62686f;
         }
 
-        /* Define container ourselves so this page can't be broken by a
-           fixed/min-width .container coming from a global stylesheet */
         .container {
           width: 100%;
           max-width: 1240px;
@@ -215,9 +232,9 @@ export default function ProductsPage() {
         .page-hero {
           position: relative;
           background-size: cover;
-          background-position: center;
+          background-position: center top;
           background-repeat: no-repeat;
-          padding: 64px 0 48px;
+          padding: 40px 0 48px;
           overflow: hidden;
         }
         .page-hero::before {
@@ -227,9 +244,9 @@ export default function ProductsPage() {
           background: linear-gradient(
             100deg,
             rgba(255, 255, 255, 0.96) 0%,
-            rgba(255, 255, 255, 0.75) 40%,
-            rgba(255, 255, 255, 0.25) 68%,
-            rgba(255, 255, 255, 0.05) 100%
+            rgba(255, 255, 255, 0.85) 40%,
+            rgba(255, 255, 255, 0.45) 68%,
+            rgba(255, 255, 255, 0.1) 100%
           );
         }
         .hero-grid {
@@ -245,7 +262,7 @@ export default function ProductsPage() {
           font-weight: 700;
           letter-spacing: 0.08em;
           color: var(--muted);
-          margin-bottom: 18px;
+          margin-bottom: 12px;
         }
         .breadcrumb span {
           color: var(--pink);
@@ -347,7 +364,7 @@ export default function ProductsPage() {
 
         /* ---------- CATEGORIES ---------- */
         .categories-section {
-          padding: 56px 0 64px;
+          padding: 48px 0 64px;
           background: #fff;
         }
         .categories-head {
@@ -356,7 +373,9 @@ export default function ProductsPage() {
           align-items: flex-end;
           gap: 24px;
           margin-bottom: 32px;
-          flex-wrap: wrap;
+        }
+        .head-left {
+          flex: 1;
         }
         .eyebrow {
           display: block;
@@ -401,12 +420,13 @@ export default function ProductsPage() {
           box-shadow: 0 6px 22px rgba(20, 20, 28, 0.09);
           display: flex;
           flex-direction: column;
-          text-align: left;
+          height: 100%;
         }
         .pcard.category-card .thumb {
           width: 100%;
           aspect-ratio: 4 / 3;
           overflow: hidden;
+          flex-shrink: 0;
         }
         .pcard.category-card .thumb img {
           width: 100%;
@@ -415,20 +435,25 @@ export default function ProductsPage() {
           display: block;
         }
         .pcard.category-card .body {
-          padding: 20px 20px 24px;
+          padding: 20px;
           display: flex;
-          align-items: flex-end;
+          flex-direction: column;
           justify-content: space-between;
-          gap: 12px;
+          gap: 16px;
           flex: 1;
+          text-align: left;
+        }
+        .text-content {
+          width: 100%;
           text-align: left;
         }
         .pcard.category-card h3 {
           font-size: 18px;
           font-weight: 800;
           color: var(--ink);
-          margin: 0 0 5px;
+          margin: 0 0 6px;
           text-align: left;
+          width: 100%;
         }
         .pcard.category-card .cat-desc {
           font-size: 13.5px;
@@ -436,40 +461,39 @@ export default function ProductsPage() {
           line-height: 1.45;
           margin: 0;
           text-align: left;
+          width: 100%;
         }
         .card-actions {
-          flex-shrink: 0;
-        }
-        .circle-btn {
-          width: 42px;
-          height: 42px;
-          flex-shrink: 0;
-          border-radius: 50%;
           display: flex;
+          justify-content: flex-end;
+          align-items: center;
+          width: 100%;
+          margin-top: auto;
+        }
+
+        /* Pink Border "VIEW MORE" Button */
+        .btn-view-more {
+          display: inline-flex;
           align-items: center;
           justify-content: center;
-          text-decoration: none;
-          transition: background 0.15s ease, color 0.15s ease;
-        }
-        .circle-pink {
+          padding: 8px 18px;
+          border-radius: 999px;
           border: 2px solid var(--pink);
+          background: #fff;
           color: var(--pink);
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: 0.04em;
+          text-decoration: none;
+          transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
         }
-        .circle-pink:hover {
+        .btn-view-more:hover {
           background: var(--pink);
           color: #fff;
-        }
-        .circle-lime {
-          border: 2px solid var(--lime);
-          color: var(--lime-dark);
-        }
-        .circle-lime:hover {
-          background: var(--lime);
-          color: #fff;
+          transform: translateY(-1px);
         }
 
         /* ---------- RESPONSIVE ---------- */
-        /* Tablet / small laptop: 2 bigger cards per row */
         @media (max-width: 1100px) {
           .catalog {
             grid-template-columns: repeat(2, 1fr);
@@ -479,84 +503,101 @@ export default function ProductsPage() {
             grid-template-columns: 1fr;
           }
           .hero-visual {
-            order: -1;
-            min-height: 220px;
-          }
-          .hero-copy p {
-            max-width: 100%;
+            display: none;
           }
           .categories-head {
             flex-direction: column;
             align-items: flex-start;
+            gap: 12px;
           }
           .head-right {
             max-width: 100%;
+            width: 100%;
+            justify-content: space-between;
           }
         }
 
-        /* Mobile: 1 full-width card, larger imagery/text, and a hero
-           that reads as a designed screen rather than stacked text */
         @media (max-width: 640px) {
           .container {
-            padding-left: 20px;
-            padding-right: 20px;
-            max-width: 100%;
+            padding-left: 16px;
+            padding-right: 16px;
           }
           .page-hero {
-            padding: 36px 0 32px;
+            padding: 20px 0 28px;
+            background-position: center center;
+          }
+          .page-hero::before {
+            background: rgba(255, 255, 255, 0.88);
           }
           .breadcrumb {
-            margin-bottom: 14px;
+            margin-bottom: 8px;
           }
           .hero-copy h1 {
             font-size: 28px;
+            margin-bottom: 12px;
           }
           .hero-copy p {
             font-size: 14px;
+            margin-bottom: 20px;
           }
           .hero-cta {
             flex-direction: column;
             align-items: stretch;
-            gap: 12px;
-            margin-bottom: 28px;
+            gap: 10px;
+            margin-bottom: 24px;
           }
           .hero-cta .btn {
             width: 100%;
             justify-content: center;
-            padding: 15px 20px;
+            padding: 14px 20px;
           }
           .hero-features {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 18px 12px;
-          }
-          .hero-features li {
-            font-size: 11px;
-          }
-          .feature-icon {
-            width: 44px;
-            height: 44px;
+            gap: 14px 10px;
           }
 
           .categories-section {
-            padding: 40px 0 48px;
+            padding: 28px 0 40px;
+          }
+          .categories-head {
+            margin-bottom: 20px;
+          }
+          .head-right {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+          }
+          .head-right .view-all {
+            align-self: flex-start;
           }
           .catalog {
-            grid-template-columns: 1fr;
-            gap: 22px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+          }
+          .pcard.category-card {
+            border-radius: 12px;
           }
           .pcard.category-card .thumb {
-            aspect-ratio: 16 / 10;
+            aspect-ratio: 4 / 3;
+          }
+          .pcard.category-card .body {
+            padding: 12px;
+            gap: 10px;
           }
           .pcard.category-card h3 {
-            font-size: 19px;
+            font-size: 15px;
+            line-height: 1.2;
+            margin-bottom: 4px;
           }
           .pcard.category-card .cat-desc {
-            font-size: 14px;
+            font-size: 12px;
+            line-height: 1.3;
           }
-          .circle-btn {
-            width: 44px;
-            height: 44px;
+          .btn-view-more {
+            padding: 6px 12px;
+            font-size: 10.5px;
+            width: 100%;
           }
         }
       `}</style>

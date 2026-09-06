@@ -6,11 +6,12 @@ import { getDirectImageUrl } from "@/lib/driveImage";
 import {
   Heart,
   ChevronRight,
+  ChevronUp,
   ChevronDown,
   LayoutGrid,
   List,
   Trophy,
-  Paintbrush,
+  Percent,
   Truck,
   Star,
   Search,
@@ -52,6 +53,8 @@ interface ProductCatalogGridProps {
   heroDescription?: string;
   categories?: CatalogCategory[];
   activeCategorySlug?: string;
+  searchQuery?: string;
+  onSearchChange?: (value: string) => void;
 }
 
 const DEFAULT_CATEGORIES: CatalogCategory[] = [
@@ -94,103 +97,49 @@ const resolveImageSrc = (src?: string) => {
   return `/${src}`;
 };
 
-export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
-  sectionTitle,
-  description,
-  items = DEFAULT_ITEMS,
-  categorySlug,
-  heroImage = "/ProductCatalog-bg.png",
-  breadcrumbs = [
-    { label: "Home", href: "/" },
-    { label: "Products", href: "/products" },
-    { label: "Trophies" },
-  ],
-  heroTitle = "Trophies",
-  heroHighlight = "Celebrate Every Achievement",
-  heroDescription = "Premium quality trophies for tournaments, school events, corporate leagues and more. Customise with your logo, name and event details.",
-  categories = DEFAULT_CATEGORIES,
-  activeCategorySlug = "cricket-trophies",
-}) => {
+export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => {
+  const {
+    sectionTitle,
+    description,
+    items = DEFAULT_ITEMS,
+    categorySlug,
+    heroImage = "/ProductCatalog-bg.png",
+    breadcrumbs = [
+      { label: "Home", href: "/" },
+      { label: "Products", href: "/products" },
+      { label: "Trophies" },
+    ],
+    heroTitle = "Trophies",
+    heroHighlight = "Every Achievement",
+    heroDescription = "Premium quality trophies for tournaments, school events, corporate leagues and more. Customise with your logo, name and event details.",
+    categories = DEFAULT_CATEGORIES,
+    activeCategorySlug = "cricket-trophies",
+    onSearchChange,
+  } = props;
+
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("Popularity");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [uncontrolledSearchQuery, setUncontrolledSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const searchQuery = onSearchChange ? props.searchQuery ?? "" : uncontrolledSearchQuery;
+  const setSearchQuery = onSearchChange ?? setUncontrolledSearchQuery;
 
   const bgImageResolved = resolveImageSrc(heroImage);
 
   return (
     <div className="pcg-wrapper">
       {/* ---------- Header Navigation ---------- */}
-      {/* <header className="pcg-header"> */}
-        {/* <div className="pcg-header-container"> */}
-          {/* <div className="pcg-logo-wrap">
-            <Link href="/" className="pcg-logo">
-              <span className="pcg-logo-icon">⚡</span>
-              <span className="pcg-logo-text">
-                Sportz<span className="pcg-logo-highlight">Mitra</span>
-              </span>
-            </Link>
-          </div> */}
-
-          {/* <nav className={`pcg-nav ${mobileMenuOpen ? "pcg-nav-mobile-open" : ""}`}>
-            <Link href="/" className="pcg-nav-link">Home</Link>
-            <Link href="/products" className="pcg-nav-link pcg-nav-active">Products</Link>
-            <Link href="/customization" className="pcg-nav-link">Customization</Link>
-            <Link href="/about" className="pcg-nav-link">About Us</Link>
-            <Link href="/contact" className="pcg-nav-link">Contact</Link>
-          </nav> */}
-
-          {/* Search Bar */}
-          {/* <div className="pcg-search-bar">
-            <Search size={16} className="pcg-search-icon" />
-            <input
-              type="text"
-              placeholder="Search for trophies, medals, jerseys, accessories..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pcg-search-input"
-            />
-          </div> */}
-
-          {/* <div className="pcg-header-actions">
-            <Link href="/account" className="pcg-action-item">
-              <User size={18} />
-              <span className="pcg-action-text">My Account</span>
-            </Link>
-            <Link href="/wishlist" className="pcg-action-item">
-              <Heart size={18} />
-              <span className="pcg-action-text">Wishlist</span>
-            </Link>
-            <Link href="/cart" className="pcg-action-item pcg-cart-item">
-              <div className="pcg-cart-icon-wrap">
-                <ShoppingBag size={18} />
-                <span className="pcg-cart-badge">0</span>
-              </div>
-              <span className="pcg-action-text">Cart</span>
-            </Link>
-            <Link href="/quote" className="pcg-btn-quote">
-              GET A QUOTE →
-            </Link>
-            <button
-              className="pcg-mobile-menu-toggle"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle Menu"
-            >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div> */}
-        {/* </div> */}
-      {/* </header> */}
+      <header className="pcg-header">
+        {/* Navigation Content */}
+      </header>
 
       {/* ---------- Hero Banner ---------- */}
       <section
         className="pcg-hero"
         style={{ backgroundImage: `url("${bgImageResolved}")` }}
       >
-        <span className="pcg-hero-confetti pcg-confetti-1" aria-hidden="true" />
-        <span className="pcg-hero-confetti pcg-confetti-2" aria-hidden="true" />
-        <span className="pcg-hero-confetti pcg-confetti-3" aria-hidden="true" />
         <span className="pcg-hero-script" aria-hidden="true">
           MORE
           <br />
@@ -200,10 +149,10 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
         </span>
 
         <div className="pcg-hero-inner">
-          <div className="pcg-breadcrumb">
+          {/* <div className="pcg-breadcrumb">
             {breadcrumbs.map((b, i) => (
               <React.Fragment key={i}>
-                {i > 0 && <ChevronRight size={13} className="pcg-breadcrumb-sep" />}
+                {i > 0 && <span className="pcg-breadcrumb-sep">/</span>}
                 {b.href ? (
                   <Link href={b.href} className="pcg-breadcrumb-link">
                     {b.label}
@@ -213,7 +162,7 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
                 )}
               </React.Fragment>
             ))}
-          </div>
+          </div> */}
 
           <h1 className="pcg-hero-title">{heroTitle}</h1>
           <p className="pcg-hero-subtitle">
@@ -223,20 +172,40 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
 
           <div className="pcg-hero-features">
             <div className="pcg-hero-feature">
-              <Trophy size={18} className="pcg-hero-feature-icon" />
-              <span>Premium Quality</span>
+              <div className="pcg-feature-icon-box">
+                <Trophy size={16} />
+              </div>
+              <div>
+                <span className="pcg-feature-title">Premium</span>
+                <span className="pcg-feature-sub">Quality</span>
+              </div>
             </div>
             <div className="pcg-hero-feature">
-              <Paintbrush size={18} className="pcg-hero-feature-icon" />
-              <span>Fully Customizable</span>
+              <div className="pcg-feature-icon-box">
+                <Percent size={16} />
+              </div>
+              <div>
+                <span className="pcg-feature-title">Fully</span>
+                <span className="pcg-feature-sub">Customizable</span>
+              </div>
             </div>
             <div className="pcg-hero-feature">
-              <Truck size={18} className="pcg-hero-feature-icon" />
-              <span>Pan India Delivery</span>
+              <div className="pcg-feature-icon-box">
+                <Truck size={16} />
+              </div>
+              <div>
+                <span className="pcg-feature-title">Pan India</span>
+                <span className="pcg-feature-sub">Delivery</span>
+              </div>
             </div>
             <div className="pcg-hero-feature">
-              <Star size={18} className="pcg-hero-feature-icon" />
-              <span>Perfect for All Events</span>
+              <div className="pcg-feature-icon-box">
+                <Star size={16} />
+              </div>
+              <div>
+                <span className="pcg-feature-title">Perfect for</span>
+                <span className="pcg-feature-sub">All Events</span>
+              </div>
             </div>
           </div>
         </div>
@@ -261,12 +230,23 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
             />
           </button>
 
-          {/* Sidebar */}
+          {/* Search Bar positioned below category toggle for mobile, top of main content for desktop */}
+          <div className="pcg-content-search-bar">
+            <Search size={16} className="pcg-search-icon" />
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pcg-search-input"
+            />
+          </div>
+
           <aside className={`pcg-sidebar ${filtersOpen ? "pcg-sidebar-open" : ""}`}>
             <div className="pcg-filter-block">
               <div className="pcg-filter-head">
                 <h3>Categories</h3>
-                <ChevronDown size={16} />
+                <ChevronUp size={16} className="pcg-head-chevron" />
               </div>
               <ul className="pcg-category-list">
                 {categories.map((cat) => (
@@ -280,7 +260,7 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
                       <span>
                         {cat.name} ({cat.count})
                       </span>
-                      {cat.slug === activeCategorySlug && <ChevronRight size={15} />}
+                      {cat.slug === activeCategorySlug && <ChevronRight size={14} />}
                     </Link>
                   </li>
                 ))}
@@ -288,7 +268,6 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
             </div>
           </aside>
 
-          {/* Main Content */}
           <div className="pcg-main">
             {sectionTitle && (
               <div className="pcg-section-title">
@@ -298,9 +277,9 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
             )}
 
             <div className="pcg-toolbar">
-              <span className="pcg-showing-count">
+              {/* <span className="pcg-showing-count">
                 Showing {items.length} products
-              </span>
+              </span> */}
 
               <div className="pcg-toolbar-right">
                 <div className="pcg-sort-wrap">
@@ -325,7 +304,7 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
                     onClick={() => setViewMode("grid")}
                     aria-label="Grid view"
                   >
-                    <LayoutGrid size={16} />
+                    <LayoutGrid size={14} />
                   </button>
                   <button
                     className={`pcg-view-btn ${
@@ -334,13 +313,12 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
                     onClick={() => setViewMode("list")}
                     aria-label="List view"
                   >
-                    <List size={16} />
+                    <List size={14} />
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Product Grid */}
             <div
               className={`pcg-grid ${
                 viewMode === "list" ? "pcg-grid-list" : ""
@@ -364,7 +342,7 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
                         className="pcg-wishlist-btn"
                         aria-label="Add to wishlist"
                       >
-                        <Heart size={16} />
+                        <Heart size={14} />
                       </button>
                       <img
                         src={resolveImageSrc(item.img)}
@@ -397,7 +375,6 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
               })}
             </div>
 
-            {/* Bottom Custom Strip */}
             <div className="pcg-quote-strip">
               <div className="pcg-quote-content">
                 <h3>Need something more custom?</h3>
@@ -407,7 +384,7 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
                 </p>
               </div>
               <Link className="pcg-btn pcg-btn-pink-solid" href="/contact">
-                SHARE REQUIREMENT →
+                SHARE REQUIREMENT &rarr;
               </Link>
             </div>
           </div>
@@ -417,8 +394,9 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
       <style jsx>{`
         .pcg-wrapper {
           width: 100%;
-          font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
           background: #ffffff;
+          color: #111827;
         }
 
         /* HEADER */
@@ -429,114 +407,6 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
           top: 0;
           z-index: 50;
         }
-        .pcg-header-container {
-          max-width: 1280px;
-          margin: 0 auto;
-          padding: 12px 20px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-        }
-        .pcg-logo {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          text-decoration: none;
-          font-size: 20px;
-          font-weight: 800;
-          color: #111827;
-        }
-        .pcg-logo-icon {
-          color: #10b981;
-        }
-        .pcg-logo-highlight {
-          color: #e11d48;
-        }
-        .pcg-nav {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-        }
-        .pcg-nav-link {
-          text-decoration: none;
-          font-size: 14px;
-          font-weight: 600;
-          color: #374151;
-        }
-        .pcg-nav-active {
-          color: #e11d48;
-          border-bottom: 2px solid #e11d48;
-          padding-bottom: 2px;
-        }
-        .pcg-search-bar {
-          display: flex;
-          align-items: center;
-          background: #f3f4f6;
-          border-radius: 20px;
-          padding: 6px 14px;
-          flex: 1;
-          max-width: 320px;
-        }
-        .pcg-search-icon {
-          color: #6b7280;
-          margin-right: 8px;
-        }
-        .pcg-search-input {
-          border: none;
-          background: transparent;
-          outline: none;
-          font-size: 13px;
-          width: 100%;
-        }
-        .pcg-header-actions {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-        }
-        .pcg-action-item {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-decoration: none;
-          color: #374151;
-          font-size: 11px;
-        }
-        .pcg-cart-item {
-          position: relative;
-        }
-        .pcg-cart-icon-wrap {
-          position: relative;
-        }
-        .pcg-cart-badge {
-          position: absolute;
-          top: -6px;
-          right: -8px;
-          background: #e11d48;
-          color: white;
-          border-radius: 50%;
-          font-size: 10px;
-          width: 15px;
-          height: 15px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .pcg-btn-quote {
-          background: #e11d48;
-          color: white;
-          padding: 8px 14px;
-          border-radius: 6px;
-          font-size: 12px;
-          font-weight: 700;
-          text-decoration: none;
-        }
-        .pcg-mobile-menu-toggle {
-          display: none;
-          background: none;
-          border: none;
-          cursor: pointer;
-        }
 
         /* HERO */
         .pcg-hero {
@@ -545,7 +415,7 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
           background-position: center;
           background-repeat: no-repeat;
           overflow: hidden;
-          min-height: 320px;
+          min-height: 300px;
         }
         .pcg-hero::before {
           content: "";
@@ -554,80 +424,102 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
           background: linear-gradient(
             90deg,
             rgba(255, 255, 255, 0.95) 0%,
-            rgba(255, 255, 255, 0.85) 40%,
-            rgba(255, 255, 255, 0.2) 80%
+            rgba(255, 255, 255, 0.85) 42%,
+            rgba(255, 255, 255, 0.08) 82%
           );
         }
         .pcg-pink-text {
-          color: #e11d48;
+          color: #ed0f63;
         }
         .pcg-hero-script {
           position: absolute;
           right: 5%;
-          bottom: 20%;
+          bottom: 16%;
           z-index: 1;
           font-weight: 900;
-          font-size: clamp(24px, 4vw, 42px);
+          font-size: clamp(24px, 3.4vw, 36px);
           line-height: 1;
           color: #ffffff;
           text-align: right;
-          text-shadow: 0 2px 8px rgba(0,0,0,0.3);
-          transform: rotate(-5deg);
+          text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+          transform: rotate(-6deg);
+          font-style: italic;
         }
         .pcg-hero-inner {
           position: relative;
           z-index: 2;
           max-width: 1280px;
           margin: 0 auto;
-          padding: 30px 20px;
+          padding: 32px 24px 40px;
         }
         .pcg-breadcrumb {
           display: flex;
           align-items: center;
           gap: 6px;
-          font-size: 13px;
-          color: #6b7280;
-          margin-bottom: 12px;
+          font-size: 12.5px;
+          color: #9ca3af;
+          margin-bottom: 14px;
         }
-        .pcg-breadcrumb-link { color: #6b7280; text-decoration: none; }
-        .pcg-breadcrumb-current { color: #111827; font-weight: 700; }
+        .pcg-breadcrumb-sep {
+          color: #d1d5db;
+        }
+        .pcg-breadcrumb-link {
+          color: #9ca3af;
+          text-decoration: none;
+        }
+        .pcg-breadcrumb-current {
+          color: #111827;
+          font-weight: 700;
+        }
         .pcg-hero-title {
-          font-size: clamp(28px, 4vw, 42px);
+          font-size: clamp(32px, 4.2vw, 44px);
           font-weight: 900;
           color: #111827;
           margin: 0;
+          letter-spacing: -0.5px;
         }
         .pcg-hero-subtitle {
           font-size: 18px;
           font-weight: 700;
-          margin: 4px 0 12px;
+          color: #111827;
+          margin: 6px 0 10px;
         }
         .pcg-hero-desc {
-          font-size: 13px;
-          color: #4b5563;
-          max-width: 480px;
-          margin-bottom: 20px;
+          font-size: 13.5px;
+          color: #6b7280;
+          max-width: 460px;
+          line-height: 1.6;
+          margin-bottom: 26px;
         }
         .pcg-hero-features {
           display: flex;
           flex-wrap: wrap;
-          gap: 20px;
+          gap: 26px;
         }
         .pcg-hero-feature {
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
+        }
+        .pcg-feature-icon-box {
+          color: #ed0f63;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .pcg-feature-title,
+        .pcg-feature-sub {
+          display: block;
           font-size: 12px;
           font-weight: 700;
-        }
-        .pcg-hero-feature-icon {
-          color: #e11d48;
+          color: #111827;
+          line-height: 1.15;
         }
 
         /* SHOP LAYOUT */
         .pcg-shop {
-          background: #f9fafb;
-          padding: 30px 20px;
+          background: #f8fafc;
+          padding: 28px 24px;
         }
         .pcg-shop-container {
           max-width: 1280px;
@@ -635,6 +527,7 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
           display: grid;
           grid-template-columns: 240px 1fr;
           gap: 24px;
+          align-items: start;
         }
         .pcg-filters-toggle {
           display: none;
@@ -642,40 +535,98 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
           width: 100%;
           background: #fff;
           border: 1px solid #e5e7eb;
-          padding: 10px;
+          padding: 10px 14px;
           border-radius: 8px;
           font-weight: 700;
+          cursor: pointer;
         }
+
+        /* INLINE CONTENT SEARCH BAR */
+        .pcg-content-search-bar {
+          display: flex;
+          align-items: center;
+          background: #ffffff;
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          padding: 10px 14px;
+          width: 100%;
+          box-sizing: border-box;
+          margin-bottom: 16px;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+        .pcg-search-icon {
+          color: #9ca3af;
+          margin-right: 10px;
+          flex-shrink: 0;
+        }
+        .pcg-search-input {
+          border: none;
+          background: transparent;
+          outline: none;
+          font-size: 13.5px;
+          color: #374151;
+          width: 100%;
+        }
+        .pcg-search-input::placeholder {
+          color: #9ca3af;
+        }
+
         .pcg-sidebar {
           background: #ffffff;
           border-radius: 12px;
-          border: 1px solid #e5e7eb;
-          padding: 16px;
+          border: 1px solid #f0f0f0;
+          padding: 18px;
+          height: fit-content;
         }
         .pcg-filter-head {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 12px;
+          margin-bottom: 14px;
+        }
+        .pcg-filter-head h3 {
+          font-size: 15px;
+          font-weight: 800;
+          color: #111827;
+          margin: 0;
+        }
+        .pcg-head-chevron {
+          color: #6b7280;
         }
         .pcg-category-list {
           list-style: none;
           padding: 0;
           margin: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
         }
         .pcg-category-item {
           display: flex;
+          align-items: center;
           justify-content: space-between;
-          padding: 8px 10px;
-          border-radius: 6px;
+          width: 100%;
+          padding: 9px 10px;
+          border-radius: 7px;
+          background: #ffffff;
+          color: #4b5563;
           font-size: 13px;
-          color: #374151;
+          font-weight: 500;
+          line-height: 1.2;
           text-decoration: none;
+          border: 1px solid transparent;
+          transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
         }
-        .pcg-category-active {
-          background-color: #fce7ef;
-          color: #e11d48;
-          font-weight: 700;
+        .pcg-category-item:hover {
+          background: #fff1f5;
+          color: #ed0f63;
+          border-color: #fbcfe0;
+        }
+        .pcg-category-item.pcg-category-active {
+          background: #fce7ef !important;
+          color: #ed0f63 !important;
+          border-color: #f8c4d8 !important;
+          font-weight: 700 !important;
         }
 
         /* TOOLBAR */
@@ -683,55 +634,84 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 16px;
+          margin-bottom: 18px;
+        }
+        .pcg-showing-count {
+          font-size: 13.5px;
+          font-weight: 600;
+          color: #6b7280;
         }
         .pcg-toolbar-right {
           display: flex;
           align-items: center;
           gap: 12px;
         }
-        .pcg-sort-select {
+        .pcg-sort-wrap {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          background: #ffffff;
           border: 1px solid #e5e7eb;
           border-radius: 6px;
-          padding: 6px 10px;
-          font-size: 13px;
+          padding: 6px 12px;
+        }
+        .pcg-sort-label {
+          font-size: 12.5px;
+          color: #6b7280;
+        }
+        .pcg-sort-select {
+          border: none;
+          background: transparent;
+          font-size: 12.5px;
+          font-weight: 700;
+          color: #111827;
+          outline: none;
+          cursor: pointer;
         }
         .pcg-view-toggle {
           display: flex;
-          gap: 4px;
+          gap: 2px;
           background: #fce7ef;
-          padding: 2px;
+          padding: 3px;
           border-radius: 6px;
         }
         .pcg-view-btn {
           border: none;
           background: transparent;
-          padding: 6px;
+          padding: 7px;
           border-radius: 4px;
           cursor: pointer;
+          color: #ed0f63;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .pcg-view-btn-active {
-          background: #e11d48;
+          background: #ed0f63;
           color: #ffffff;
         }
 
-        /* GRID */
+        /* GRID & CARDS */
         .pcg-grid {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 16px;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 20px;
+        }
+        .pcg-grid-list {
+          grid-template-columns: 1fr;
         }
         .pcg-card {
           background: #ffffff;
-          border: 1px solid #e5e7eb;
-          border-radius: 10px;
+          border: 1px solid #f0f0f0;
+          border-radius: 12px;
           overflow: hidden;
           display: flex;
           flex-direction: column;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.03);
         }
         .pcg-card-img-wrap {
           position: relative;
-          background: #f3f4f6;
+          background: #f3f1ed;
           padding-top: 80%;
         }
         .pcg-card-img {
@@ -740,94 +720,166 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
           width: 100%;
           height: 100%;
           object-fit: contain;
-          padding: 12px;
+          padding: 10px;
         }
         .pcg-wishlist-btn {
           position: absolute;
-          top: 8px;
-          right: 8px;
-          background: #fff;
-          border: 1px solid #e5e7eb;
+          top: 10px;
+          right: 10px;
+          background: #ffffff;
+          border: none;
           border-radius: 50%;
-          width: 28px;
-          height: 28px;
+          width: 30px;
+          height: 30px;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
+          color: #111827;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+          z-index: 2;
         }
         .pcg-card-body {
-          padding: 12px;
+          padding: 16px;
           display: flex;
           flex-direction: column;
           flex: 1;
         }
         .pcg-card-title {
-          font-size: 13px;
+          font-size: 14px;
           font-weight: 700;
-          margin: 0 0 4px;
+          color: #111827;
+          margin: 0 0 6px;
         }
         .pcg-price-tag {
-          font-size: 12px;
-          margin-bottom: 12px;
+          font-size: 13px;
+          margin-bottom: 14px;
+        }
+        .pcg-price-label {
+          color: #6b7280;
         }
         .pcg-price-amount {
-          color: #e11d48;
-          font-weight: 700;
+          color: #ed0f63;
+          font-weight: 800;
         }
         .pcg-card-actions {
           display: flex;
-          gap: 6px;
+          gap: 8px;
           margin-top: auto;
+          width: 100%;
         }
-        .pcg-btn {
-          font-size: 11px;
-          font-weight: 700;
-          padding: 6px;
-          border-radius: 4px;
+        .pcg-card-actions .pcg-btn {
+          display: flex !important;
+          align-items: center;
+          justify-content: center;
+          flex: 1 1 0 !important;
+          width: 50%;
+          min-height: 34px;
+          padding: 9px 6px !important;
+          box-sizing: border-box;
+          border-radius: 6px !important;
+          font-family: inherit;
+          font-size: 12px !important;
+          font-weight: 700 !important;
+          line-height: 1 !important;
           text-align: center;
-          text-decoration: none;
-          flex: 1;
+          text-decoration: none !important;
+          cursor: pointer;
+          transition: all 0.2s ease;
         }
-        .pcg-btn-lime { background: #d9f99d; color: #365314; }
-        .pcg-btn-pink-outline { border: 1px solid #e11d48; color: #e11d48; }
+        .pcg-card-actions a.pcg-btn-lime {
+          background-color: #ecfccb !important;
+          border: 1px solid #d9f99d !important;
+          color: #3f6212 !important;
+        }
+        .pcg-card-actions a.pcg-btn-lime:hover {
+          background-color: #d9f99d !important;
+          border-color: #bef264 !important;
+          color: #365314 !important;
+        }
+        .pcg-card-actions a.pcg-btn-pink-outline {
+          background-color: #ffffff !important;
+          border: 1px solid #ed0f63 !important;
+          color: #ed0f63 !important;
+        }
+        .pcg-card-actions a.pcg-btn-pink-outline:hover {
+          background-color: #fff1f5 !important;
+          border-color: #d90c58 !important;
+          color: #d90c58 !important;
+        }
 
         /* QUOTE STRIP */
         .pcg-quote-strip {
-          margin-top: 30px;
+          margin-top: 36px;
           background: #111827;
-          border-radius: 10px;
-          padding: 20px;
-          color: #fff;
+          border-radius: 12px;
+          padding: 26px;
+          color: #ffffff;
           display: flex;
           justify-content: space-between;
           align-items: center;
         }
-        .pcg-quote-content h3 { margin: 0 0 4px; font-size: 16px; }
-        .pcg-quote-content p { margin: 0; font-size: 12px; color: #9ca3af; }
+        .pcg-quote-content h3 {
+          margin: 0 0 4px;
+          font-size: 17px;
+          font-weight: 800;
+        }
+        .pcg-quote-content p {
+          margin: 0;
+          font-size: 13px;
+          color: #9ca3af;
+        }
         .pcg-btn-pink-solid {
-          background: #e11d48;
-          color: #fff;
-          padding: 8px 16px;
+          background: #ed0f63;
+          color: #ffffff;
+          padding: 12px 20px;
           border-radius: 6px;
-          font-weight: 700;
+          font-weight: 800;
           text-decoration: none;
           font-size: 12px;
+          letter-spacing: 0.3px;
+          white-space: nowrap;
+        }
+        .pcg-btn-pink-solid:hover {
+          background: #d90c58;
         }
 
-        /* RESPONSIVE DESIGN */
+        /* RESPONSIVE MEDIA QUERIES */
+        @media (min-width: 1025px) {
+          .pcg-content-search-bar {
+            grid-column: 2;
+            margin-bottom: 0;
+          }
+        }
         @media (max-width: 1024px) {
-          .pcg-grid { grid-template-columns: repeat(3, 1fr); }
-          .pcg-shop-container { grid-template-columns: 1fr; }
-          .pcg-filters-toggle { display: flex; }
-          .pcg-sidebar { display: none; }
-          .pcg-sidebar-open { display: block; }
+          .pcg-grid {
+            grid-template-columns: repeat(3, 1fr);
+          }
+          .pcg-shop-container {
+            grid-template-columns: 1fr;
+          }
+          .pcg-filters-toggle {
+            display: flex;
+          }
+          .pcg-sidebar {
+            display: none;
+          }
+          .pcg-sidebar-open {
+            display: block;
+          }
         }
         @media (max-width: 768px) {
-          .pcg-grid { grid-template-columns: repeat(2, 1fr); }
-          .pcg-nav, .pcg-search-bar, .pcg-action-text { display: none; }
-          .pcg-mobile-menu-toggle { display: block; }
-          .pcg-quote-strip { flex-direction: column; gap: 12px; text-align: center; }
+          .pcg-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+          .pcg-mobile-menu-toggle {
+            display: block;
+          }
+          .pcg-quote-strip {
+            flex-direction: column;
+            gap: 16px;
+            text-align: center;
+          }
           .pcg-nav-mobile-open {
             display: flex;
             flex-direction: column;
@@ -835,13 +887,15 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = ({
             top: 100%;
             left: 0;
             right: 0;
-            background: #fff;
+            background: #ffffff;
             padding: 20px;
             border-bottom: 1px solid #e5e7eb;
           }
         }
         @media (max-width: 480px) {
-          .pcg-grid { grid-template-columns: repeat(1, 1fr); }
+          .pcg-grid {
+            grid-template-columns: repeat(1, 1fr);
+          }
         }
       `}</style>
     </div>
