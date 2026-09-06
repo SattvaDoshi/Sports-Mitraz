@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { getDirectImageUrl } from "@/lib/driveImage";
 import {
@@ -15,10 +15,7 @@ import {
   Truck,
   Star,
   Search,
-  User,
-  ShoppingBag,
-  Menu,
-  X,
+  ChevronLeft,
 } from "lucide-react";
 
 export interface CatalogItem {
@@ -78,6 +75,10 @@ const DEFAULT_ITEMS: CatalogItem[] = [
   { title: "Golden Globe Trophy", price: 320, img: "/hero-slide-1.jpg" },
   { title: "Flame Trophy", price: 380, img: "/hero-slide-2.jpg" },
   { title: "Elite Cup Trophy", price: 450, img: "/hero-slide-3.jpg" },
+  { title: "Runner Up Cup", price: 210, img: "/hero-slide-4.jpg" },
+  { title: "Grand Winner Trophy", price: 500, img: "/hero-slide-5.jpg" },
+  { title: "Silver Shield Award", price: 340, img: "/hero-slide-1.jpg" },
+  { title: "Bronze Medallion", price: 150, img: "/hero-slide-2.jpg" },
 ];
 
 const resolveImageSrc = (src?: string) => {
@@ -104,11 +105,6 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
     items = DEFAULT_ITEMS,
     categorySlug,
     heroImage = "/ProductCatalog-bg.png",
-    breadcrumbs = [
-      { label: "Home", href: "/" },
-      { label: "Products", href: "/products" },
-      { label: "Trophies" },
-    ],
     heroTitle = "Trophies",
     heroHighlight = "Every Achievement",
     heroDescription = "Premium quality trophies for tournaments, school events, corporate leagues and more. Customise with your logo, name and event details.",
@@ -121,21 +117,41 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
   const [sortBy, setSortBy] = useState("Popularity");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [uncontrolledSearchQuery, setUncontrolledSearchQuery] = useState("");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const ITEMS_PER_PAGE = 10;
 
   const searchQuery = onSearchChange ? props.searchQuery ?? "" : uncontrolledSearchQuery;
   const setSearchQuery = onSearchChange ?? setUncontrolledSearchQuery;
 
   const bgImageResolved = resolveImageSrc(heroImage);
 
+  const filteredItems = useMemo(() => {
+    return items.filter((item) =>
+      item.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [items, searchQuery]);
+
+  const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
+
+  const paginatedItems = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredItems, currentPage]);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      window.scrollTo({ top: 400, behavior: "smooth" });
+    }
+  };
+
   return (
     <div className="pcg-wrapper">
-      {/* ---------- Header Navigation ---------- */}
-      <header className="pcg-header">
-        {/* Navigation Content */}
-      </header>
+      {/* Header Navigation */}
+      <header className="pcg-header"></header>
 
-      {/* ---------- Hero Banner ---------- */}
+      {/* Hero Banner */}
       <section
         className="pcg-hero"
         style={{ backgroundImage: `url("${bgImageResolved}")` }}
@@ -149,21 +165,6 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
         </span>
 
         <div className="pcg-hero-inner">
-          {/* <div className="pcg-breadcrumb">
-            {breadcrumbs.map((b, i) => (
-              <React.Fragment key={i}>
-                {i > 0 && <span className="pcg-breadcrumb-sep">/</span>}
-                {b.href ? (
-                  <Link href={b.href} className="pcg-breadcrumb-link">
-                    {b.label}
-                  </Link>
-                ) : (
-                  <span className="pcg-breadcrumb-current">{b.label}</span>
-                )}
-              </React.Fragment>
-            ))}
-          </div> */}
-
           <h1 className="pcg-hero-title">{heroTitle}</h1>
           <p className="pcg-hero-subtitle">
             Celebrate <span className="pcg-pink-text">{heroHighlight}</span>
@@ -211,7 +212,7 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
         </div>
       </section>
 
-      {/* ---------- Shop Section ---------- */}
+      {/* Shop Section */}
       <section className="pcg-shop">
         <div className="pcg-shop-container">
           <button
@@ -230,14 +231,16 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
             />
           </button>
 
-          {/* Search Bar positioned below category toggle for mobile, top of main content for desktop */}
           <div className="pcg-content-search-bar">
             <Search size={16} className="pcg-search-icon" />
             <input
               type="text"
               placeholder="Search products..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
               className="pcg-search-input"
             />
           </div>
@@ -277,10 +280,6 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
             )}
 
             <div className="pcg-toolbar">
-              {/* <span className="pcg-showing-count">
-                Showing {items.length} products
-              </span> */}
-
               <div className="pcg-toolbar-right">
                 <div className="pcg-sort-wrap">
                   <span className="pcg-sort-label">Sort by:</span>
@@ -324,7 +323,7 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
                 viewMode === "list" ? "pcg-grid-list" : ""
               }`}
             >
-              {items.map((item, idx) => {
+              {paginatedItems.map((item, idx) => {
                 const productSlug =
                   item.slug ||
                   item.id ||
@@ -362,10 +361,18 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
                       </div>
 
                       <div className="pcg-card-actions">
-                        <Link href={detailUrl} className="pcg-btn pcg-btn-lime">
+                        <Link
+                          href={detailUrl}
+                          className="pcg-btn pcg-btn-lime"
+                          style={{ color: "#3f6212", backgroundColor: "#ecfccb" }}
+                        >
                           View Details
                         </Link>
-                        <Link href="/contact" className="pcg-btn pcg-btn-pink-outline">
+                        <Link
+                          href="/contact"
+                          className="pcg-btn pcg-btn-pink-outline"
+                          style={{ color: "#ed0f63", backgroundColor: "#ffffff" }}
+                        >
                           Request Quote
                         </Link>
                       </div>
@@ -375,6 +382,39 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
               })}
             </div>
 
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="pcg-pagination">
+                <button
+                  className="pcg-page-btn"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  aria-label="Previous Page"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    className={`pcg-page-btn ${
+                      currentPage === page ? "pcg-page-btn-active" : ""
+                    }`}
+                    onClick={() => handlePageChange(page)}
+                  >
+                    {page}
+                  </button>
+                ))}
+                <button
+                  className="pcg-page-btn"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  aria-label="Next Page"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
+
             <div className="pcg-quote-strip">
               <div className="pcg-quote-content">
                 <h3>Need something more custom?</h3>
@@ -383,7 +423,11 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
                   use it to understand your requirement.
                 </p>
               </div>
-              <Link className="pcg-btn pcg-btn-pink-solid" href="/contact">
+              <Link
+                className="pcg-btn pcg-btn-pink-solid"
+                href="/contact"
+                // style={{ color: "#ffffff", backgroundColor: "#ed0f63" }}
+              >
                 SHARE REQUIREMENT &rarr;
               </Link>
             </div>
@@ -451,25 +495,6 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
           max-width: 1280px;
           margin: 0 auto;
           padding: 32px 24px 40px;
-        }
-        .pcg-breadcrumb {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 12.5px;
-          color: #9ca3af;
-          margin-bottom: 14px;
-        }
-        .pcg-breadcrumb-sep {
-          color: #d1d5db;
-        }
-        .pcg-breadcrumb-link {
-          color: #9ca3af;
-          text-decoration: none;
-        }
-        .pcg-breadcrumb-current {
-          color: #111827;
-          font-weight: 700;
         }
         .pcg-hero-title {
           font-size: clamp(32px, 4.2vw, 44px);
@@ -632,14 +657,9 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
         /* TOOLBAR */
         .pcg-toolbar {
           display: flex;
-          justify-content: space-between;
+          justify-content: flex-end;
           align-items: center;
           margin-bottom: 18px;
-        }
-        .pcg-showing-count {
-          font-size: 13.5px;
-          font-weight: 600;
-          color: #6b7280;
         }
         .pcg-toolbar-right {
           display: flex;
@@ -768,7 +788,10 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
           margin-top: auto;
           width: 100%;
         }
-        .pcg-card-actions .pcg-btn {
+        
+        /* SPECIFIC CARD BUTTON OVERRIDES */
+        .pcg-card-actions :global(a.pcg-btn),
+        .pcg-card-actions a.pcg-btn {
           display: flex !important;
           align-items: center;
           justify-content: center;
@@ -787,25 +810,67 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
           cursor: pointer;
           transition: all 0.2s ease;
         }
+        .pcg-card-actions :global(a.pcg-btn-lime),
         .pcg-card-actions a.pcg-btn-lime {
           background-color: #ecfccb !important;
           border: 1px solid #d9f99d !important;
           color: #3f6212 !important;
         }
+        .pcg-card-actions :global(a.pcg-btn-lime:hover),
         .pcg-card-actions a.pcg-btn-lime:hover {
           background-color: #d9f99d !important;
           border-color: #bef264 !important;
           color: #365314 !important;
         }
+        .pcg-card-actions :global(a.pcg-btn-pink-outline),
         .pcg-card-actions a.pcg-btn-pink-outline {
           background-color: #ffffff !important;
           border: 1px solid #ed0f63 !important;
           color: #ed0f63 !important;
         }
+        .pcg-card-actions :global(a.pcg-btn-pink-outline:hover),
         .pcg-card-actions a.pcg-btn-pink-outline:hover {
           background-color: #fff1f5 !important;
           border-color: #d90c58 !important;
           color: #d90c58 !important;
+        }
+
+        /* PAGINATION */
+        .pcg-pagination {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          margin-top: 32px;
+        }
+        .pcg-page-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 36px;
+          height: 36px;
+          padding: 0 8px;
+          border: 1px solid #e5e7eb;
+          border-radius: 6px;
+          background: #ffffff;
+          color: #374151;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .pcg-page-btn:hover:not(:disabled) {
+          border-color: #ed0f63;
+          color: #ed0f63;
+        }
+        .pcg-page-btn-active {
+          background: #ed0f63 !important;
+          color: #ffffff !important;
+          border-color: #ed0f63 !important;
+        }
+        .pcg-page-btn:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
         }
 
         /* QUOTE STRIP */
@@ -830,18 +895,19 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
           color: #9ca3af;
         }
         .pcg-btn-pink-solid {
-          background: #ed0f63;
-          color: #ffffff;
+          background: #ed0f63 !important;
+          color: #ffffff !important;
           padding: 12px 20px;
           border-radius: 6px;
           font-weight: 800;
-          text-decoration: none;
+          text-decoration: none !important;
           font-size: 12px;
           letter-spacing: 0.3px;
           white-space: nowrap;
         }
         .pcg-btn-pink-solid:hover {
-          background: #d90c58;
+          background: #d90c58 !important;
+          color: #ffffff !important;
         }
 
         /* RESPONSIVE MEDIA QUERIES */
@@ -871,30 +937,28 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
         @media (max-width: 768px) {
           .pcg-grid {
             grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
           }
-          .pcg-mobile-menu-toggle {
-            display: block;
+          .pcg-card-body {
+            padding: 10px;
+          }
+          .pcg-card-title {
+            font-size: 13px;
+          }
+          .pcg-card-actions {
+            flex-direction: column;
+            gap: 6px;
+          }
+          .pcg-card-actions :global(a.pcg-btn),
+          .pcg-card-actions a.pcg-btn {
+            width: 100% !important;
+            padding: 7px 4px !important;
+            font-size: 11px !important;
           }
           .pcg-quote-strip {
             flex-direction: column;
             gap: 16px;
             text-align: center;
-          }
-          .pcg-nav-mobile-open {
-            display: flex;
-            flex-direction: column;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: #ffffff;
-            padding: 20px;
-            border-bottom: 1px solid #e5e7eb;
-          }
-        }
-        @media (max-width: 480px) {
-          .pcg-grid {
-            grid-template-columns: repeat(1, 1fr);
           }
         }
       `}</style>
