@@ -19,6 +19,7 @@ interface ApiProduct {
   tags: string[];
   averageRating?: number;
   totalRatings?: number;
+  createdAt?: string;
 }
 
 interface ApiSubcategory {
@@ -99,6 +100,7 @@ export function DynamicCategoryPage({
             priceType: p.priceType,
             averageRating: p.averageRating,
             totalRatings: p.totalRatings,
+            createdAt: p.createdAt,
           }));
           setItems(mapped);
         } else {
@@ -140,25 +142,9 @@ export function DynamicCategoryPage({
 
   const activeHeroImage = heroImage;
 
-  const filteredAndSortedItems = React.useMemo(() => {
-    let result = [...items];
-    if (searchQuery.trim()) {
-      const lowerQuery = searchQuery.toLowerCase();
-      result = result.filter(
-        (item) =>
-          item.title.toLowerCase().includes(lowerQuery) ||
-          (item.tags ?? []).some((t) =>
-  t.toLowerCase().includes(lowerQuery)
-)
-      );
-      result.sort((a, b) => {
-        const ratingA = a.averageRating || 0;
-        const ratingB = b.averageRating || 0;
-        return ratingB - ratingA;
-      });
-    }
-    return result;
-  }, [items, searchQuery]);
+  // We will pass the raw items to ProductCatalogGrid so it can manage its own sorting and filtering,
+  // but we still keep searchQuery state hoisted if we want to sync it with URL later.
+  // We'll let ProductCatalogGrid handle the actual filtering.
 
   return (
     <>
@@ -212,7 +198,7 @@ export function DynamicCategoryPage({
             )}
 
             {/* Products grid — includes its own category hero, search now lives inside it */}
-            {filteredAndSortedItems.length > 0 || items.length > 0 ? (
+            {items.length > 0 ? (
               <ProductCatalogGrid
                 heroImage={activeHeroImage}
                 breadcrumbs={[
@@ -228,7 +214,7 @@ export function DynamicCategoryPage({
                 }
                 sectionTitle={`Explore ${category?.name || titleParts.join(" ")}`}
                 description="Every item is quote-based and can be customised by quantity, artwork, size, name, logo and event theme."
-                items={filteredAndSortedItems}
+                items={items}
                 categorySlug={categorySlug}
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}

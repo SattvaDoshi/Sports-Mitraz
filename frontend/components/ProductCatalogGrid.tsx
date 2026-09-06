@@ -30,6 +30,7 @@ export interface CatalogItem {
   priceType?: "starting" | "fixed";
   averageRating?: number;
   totalRatings?: number;
+  createdAt?: string;
 }
 
 export interface CatalogCategory {
@@ -117,35 +118,88 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
   const [sortBy, setSortBy] = useState("Popularity");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [uncontrolledSearchQuery, setUncontrolledSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const ITEMS_PER_PAGE = 10;
-
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [minPrice, setMinPrice] = useState<number | "">("");
+  const [maxPrice, setMaxPrice] = useState<number | "">("");
+  const [minRating, setMinRating] = useState<number>(0);
+const [currentPage, setCurrentPage] = useState(1);
   const searchQuery = onSearchChange ? props.searchQuery ?? "" : uncontrolledSearchQuery;
   const setSearchQuery = onSearchChange ?? setUncontrolledSearchQuery;
 
   const bgImageResolved = resolveImageSrc(heroImage);
 
-  const filteredItems = useMemo(() => {
-    return items.filter((item) =>
-      item.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [items, searchQuery]);
-
-  const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
-
-  const paginatedItems = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredItems, currentPage]);
-
-  const handlePageChange = (newPage: number) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-      window.scrollTo({ top: 400, behavior: "smooth" });
+  const filteredItems = React.useMemo(() => {
+    let result = [...items];
+    
+    if (searchQuery.trim()) {
+      const lowerQuery = searchQuery.toLowerCase();
+      result = result.filter(
+        (item) =>
+          item.title.toLowerCase().includes(lowerQuery) ||
+          (item.tags ?? []).some((t) => t.toLowerCase().includes(lowerQuery))
+      );
     }
-  };
+    
+    if (minPrice !== "") {
+      result = result.filter(item => (item.price || 0) >= Number(minPrice));
+    }
+    if (maxPrice !== "") {
+      result = result.filter(item => (item.price || 0) <= Number(maxPrice));
+    }
+    if (minRating > 0) {
+      result = result.filter(item => (item.averageRating || 0) >= minRating);
+    }
+    
+    result.sort((a, b) => {
+      if (sortBy === "Price: Low to High") {
+        return (a.price || 0) - (b.price || 0);
+      }
+      if (sortBy === "Price: High to Low") {
+        return (b.price || 0) - (a.price || 0);
+      }
+      if (sortBy === "Newest") {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+      }
+      if (sortBy === "Rating: High to Low") {
+        const ratingA = a.averageRating || 0;
+        const ratingB = b.averageRating || 0;
+        return ratingB - ratingA;
+      }
+      // default: Popularity (sort by totalRatings descending)
+      const popA = a.totalRatings || 0;
+      const popB = b.totalRatings || 0;
+      return popB - popA;
+    });
 
+    return result;
+  }, [items, searchQuery, sortBy, minPrice, maxPrice, minRating]);
+const ITEMS_PER_PAGE = 10;
+
+const totalPages = Math.ceil(
+  filteredItems.length / ITEMS_PER_PAGE
+);
+
+const paginatedItems = useMemo(() => {
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  return filteredItems.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE
+  );
+}, [filteredItems, currentPage]);
+
+const handlePageChange = (newPage: number) => {
+  if (newPage >= 1 && newPage <= totalPages) {
+    setCurrentPage(newPage);
+
+    window.scrollTo({
+      top: 400,
+      behavior: "smooth",
+    });
+  }
+};
   return (
     <div className="pcg-wrapper">
       {/* Header Navigation */}
@@ -269,6 +323,50 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
                 ))}
               </ul>
             </div>
+
+            <div className="pcg-filter-block" style={{ marginTop: "18px", paddingTop: "18px", borderTop: "1px solid #f0f0f0" }}>
+              <div className="pcg-filter-head">
+                <h3>Price Range</h3>
+                <ChevronUp size={16} className="pcg-head-chevron" />
+              </div>
+              <div style={{ display: "flex", gap: "8px", marginTop: "12px", alignItems: "center" }}>
+                <input 
+                  type="number" 
+                  placeholder="Min" 
+                  value={minPrice} 
+                  onChange={(e) => setMinPrice(e.target.value ? Number(e.target.value) : "")}
+                  style={{ width: "100%", padding: "6px 8px", borderRadius: "4px", border: "1px solid #e5e7eb", fontSize: "13px" }}
+                />
+                <span style={{ color: "#6b7280" }}>-</span>
+                <input 
+                  type="number" 
+                  placeholder="Max" 
+                  value={maxPrice} 
+                  onChange={(e) => setMaxPrice(e.target.value ? Number(e.target.value) : "")}
+                  style={{ width: "100%", padding: "6px 8px", borderRadius: "4px", border: "1px solid #e5e7eb", fontSize: "13px" }}
+                />
+              </div>
+            </div>
+
+            <div className="pcg-filter-block" style={{ marginTop: "18px", paddingTop: "18px", borderTop: "1px solid #f0f0f0" }}>
+              <div className="pcg-filter-head">
+                <h3>Minimum Rating</h3>
+                <ChevronUp size={16} className="pcg-head-chevron" />
+              </div>
+              <div style={{ marginTop: "12px" }}>
+                <select
+                  value={minRating}
+                  onChange={(e) => setMinRating(Number(e.target.value))}
+                  style={{ width: "100%", padding: "6px 8px", borderRadius: "4px", border: "1px solid #e5e7eb", fontSize: "13px", background: "#fff" }}
+                >
+                  <option value={0}>Any Rating</option>
+                  <option value={4}>4 Stars & Above</option>
+                  <option value={3}>3 Stars & Above</option>
+                  <option value={2}>2 Stars & Above</option>
+                  <option value={1}>1 Star & Above</option>
+                </select>
+              </div>
+            </div>
           </aside>
 
           <div className="pcg-main">
@@ -292,6 +390,7 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
                     <option>Price: Low to High</option>
                     <option>Price: High to Low</option>
                     <option>Newest</option>
+                    <option>Rating: High to Low</option>
                   </select>
                 </div>
 
@@ -323,7 +422,7 @@ export const ProductCatalogGrid: React.FC<ProductCatalogGridProps> = (props) => 
                 viewMode === "list" ? "pcg-grid-list" : ""
               }`}
             >
-              {paginatedItems.map((item, idx) => {
+              {filteredItems.map((item, idx) => {
                 const productSlug =
                   item.slug ||
                   item.id ||
