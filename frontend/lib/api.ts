@@ -51,8 +51,8 @@ export const fetchApi = async (endpoint: string, options: FetchOptions = {}) => 
 
   if (!response.ok) {
     if (response.status === 401 && isAdmin && typeof window !== "undefined") {
-        // Redirect to login if unauthorized
-        window.location.href = "/admin/login";
+      // Redirect to login if unauthorized
+      window.location.href = "/admin/login";
     }
     throw new Error(data.message || "Something went wrong");
   }
