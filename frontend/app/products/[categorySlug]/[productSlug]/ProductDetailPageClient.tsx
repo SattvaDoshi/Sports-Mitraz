@@ -85,12 +85,12 @@ export function ProductDetailPageClient({ categorySlug, productSlug }: ClientPag
         <Header />
         <main>
           <div className="container" style={{ padding: "20px 20px 0" }}>
-            <div className="breadcrumb" style={{ fontSize: "14px", color: "#64748b", marginBottom: "20px" }}>
-              <Link href="/" style={{ color: "#64748b", textDecoration: "none" }}>Home</Link> /{" "}
+            {/* <div className="breadcrumb" style={{ fontSize: "14px", color: "#64748b", marginBottom: "20px" }}> */}
+              {/* <Link href="/" style={{ color: "#64748b", textDecoration: "none" }}>Home</Link> /{" "}
               <Link href="/products" style={{ color: "#64748b", textDecoration: "none" }}>Products</Link> /{" "}
               <Link href={`/products/${categorySlug}`} style={{ color: "#64748b", textDecoration: "none" }}>{formattedCategoryName}</Link> /{" "}
               <span style={{ color: "#0f172a", fontWeight: "600" }}>{formattedTitle}</span>
-            </div>
+            </div> */}
           </div>
           <ProductDetail
             product={{
@@ -118,14 +118,14 @@ export function ProductDetailPageClient({ categorySlug, productSlug }: ClientPag
       <Header />
       <main>
         <div className="container" style={{ padding: "20px 20px 0" }}>
-          <div className="breadcrumb" style={{ fontSize: "14px", color: "#64748b", marginBottom: "10px" }}>
+          {/* <div className="breadcrumb" style={{ fontSize: "14px", color: "#64748b", marginBottom: "10px" }}>
             <Link href="/" style={{ color: "#64748b", textDecoration: "none" }}>Home</Link> /{" "}
             <Link href="/products" style={{ color: "#64748b", textDecoration: "none" }}>Products</Link> /{" "}
             <Link href={`/products/${categorySlug}`} style={{ color: "#64748b", textDecoration: "none" }}>
               {product.category?.name || formattedCategoryName}
             </Link>{" "}
             / <span style={{ color: "#0f172a", fontWeight: "600" }}>{product.name}</span>
-          </div>
+          </div> */}
         </div>
         <ProductDetail
           product={{

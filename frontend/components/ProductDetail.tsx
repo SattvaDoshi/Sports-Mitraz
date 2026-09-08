@@ -205,10 +205,10 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   return (
     <div className="pd-wrapper">
       {/* Breadcrumbs */}
-      <nav className="pd-breadcrumbs container">
+      {/* <nav className="pd-breadcrumbs container">
         <span>Home</span> / <span>Products</span> / <span>{product.category || "Trophies"}</span> /{" "}
         <strong className="pd-breadcrumb-current">{product.title}</strong>
-      </nav>
+      </nav> */}
 
       <div className="pd-container container">
         <div className="pd-grid">

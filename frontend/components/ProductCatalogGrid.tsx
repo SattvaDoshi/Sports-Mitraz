@@ -334,7 +334,10 @@ const handlePageChange = (newPage: number) => {
                   type="number" 
                   placeholder="Min" 
                   value={minPrice} 
-                  onChange={(e) => setMinPrice(e.target.value ? Number(e.target.value) : "")}
+                  onChange={(e) => {
+                    setMinPrice(e.target.value ? Number(e.target.value) : "");
+                    setCurrentPage(1);
+                  }}
                   style={{ width: "100%", padding: "6px 8px", borderRadius: "4px", border: "1px solid #e5e7eb", fontSize: "13px" }}
                 />
                 <span style={{ color: "#6b7280" }}>-</span>
@@ -342,7 +345,10 @@ const handlePageChange = (newPage: number) => {
                   type="number" 
                   placeholder="Max" 
                   value={maxPrice} 
-                  onChange={(e) => setMaxPrice(e.target.value ? Number(e.target.value) : "")}
+                  onChange={(e) => {
+                    setMaxPrice(e.target.value ? Number(e.target.value) : "");
+                    setCurrentPage(1);
+                  }}
                   style={{ width: "100%", padding: "6px 8px", borderRadius: "4px", border: "1px solid #e5e7eb", fontSize: "13px" }}
                 />
               </div>
@@ -356,7 +362,10 @@ const handlePageChange = (newPage: number) => {
               <div style={{ marginTop: "12px" }}>
                 <select
                   value={minRating}
-                  onChange={(e) => setMinRating(Number(e.target.value))}
+                  onChange={(e) => {
+                    setMinRating(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
                   style={{ width: "100%", padding: "6px 8px", borderRadius: "4px", border: "1px solid #e5e7eb", fontSize: "13px", background: "#fff" }}
                 >
                   <option value={0}>Any Rating</option>
@@ -422,7 +431,7 @@ const handlePageChange = (newPage: number) => {
                 viewMode === "list" ? "pcg-grid-list" : ""
               }`}
             >
-              {filteredItems.map((item, idx) => {
+              {paginatedItems.map((item, idx) => {
                 const productSlug =
                   item.slug ||
                   item.id ||

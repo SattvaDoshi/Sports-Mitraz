@@ -201,11 +201,11 @@ export function DynamicCategoryPage({
             {items.length > 0 ? (
               <ProductCatalogGrid
                 heroImage={activeHeroImage}
-                breadcrumbs={[
-                  { label: "Home", href: "/" },
-                  { label: "Products", href: "/products" },
-                  { label: breadcrumb },
-                ]}
+                // breadcrumbs={[
+                //   { label: "Home", href: "/" },
+                //   { label: "Products", href: "/products" },
+                //   { label: breadcrumb },
+                // ]}
                 heroTitle={heroTitleText}
                 heroHighlight={heroHighlightText}
                 heroDescription={

@@ -69,9 +69,9 @@ export default function ProductsPage() {
         <section className="page-hero" style={{ backgroundImage: "url('/Product-bg.png')" }}>
           <div className="container hero-grid">
             <div className="hero-copy">
-              <div className="breadcrumb">
+              {/* <div className="breadcrumb">
                 HOME / <span>PRODUCTS</span>
-              </div>
+              </div> */}
               <h1>
                 Everything for Your <span>Sports Event</span>
               </h1>
