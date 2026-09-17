@@ -342,17 +342,17 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             </div>
 
             <form className="contact-form pd-form" onSubmit={handleQuoteSubmit}>
-              <div className="field">
-                <label>Name</label>
+              {/* <div className="field"> */}
+                {/* <label>Name</label>
                 <input
                   name="name"
                   required
                   placeholder="Your name"
                   value={formData.name}
                   onChange={handleInputChange}
-                />
-              </div>
-              <div className="field">
+                /> */}
+              {/* </div> */}
+              {/* <div className="field">
                 <label>Mobile</label>
                 <input
                   name="mobile"
@@ -371,7 +371,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                   value={formData.email}
                   onChange={handleInputChange}
                 />
-              </div>
+              </div> */}
               <div className="field">
                 <label>Requirement / Design Code</label>
                 <input

@@ -324,12 +324,12 @@ const handlePageChange = (newPage: number) => {
               </ul>
             </div>
 
-            <div className="pcg-filter-block" style={{ marginTop: "18px", paddingTop: "18px", borderTop: "1px solid #f0f0f0" }}>
-              <div className="pcg-filter-head">
+            {/* <div className="pcg-filter-block" style={{ marginTop: "18px", paddingTop: "18px", borderTop: "1px solid #f0f0f0" }}> */}
+              {/* <div className="pcg-filter-head">
                 <h3>Price Range</h3>
                 <ChevronUp size={16} className="pcg-head-chevron" />
-              </div>
-              <div style={{ display: "flex", gap: "8px", marginTop: "12px", alignItems: "center" }}>
+              </div> */}
+              {/* <div style={{ display: "flex", gap: "8px", marginTop: "12px", alignItems: "center" }}>
                 <input 
                   type="number" 
                   placeholder="Min" 
@@ -351,8 +351,8 @@ const handlePageChange = (newPage: number) => {
                   }}
                   style={{ width: "100%", padding: "6px 8px", borderRadius: "4px", border: "1px solid #e5e7eb", fontSize: "13px" }}
                 />
-              </div>
-            </div>
+              </div> */}
+            {/* </div> */}
 
             <div className="pcg-filter-block" style={{ marginTop: "18px", paddingTop: "18px", borderTop: "1px solid #f0f0f0" }}>
               <div className="pcg-filter-head">
@@ -476,13 +476,13 @@ const handlePageChange = (newPage: number) => {
                         >
                           View Details
                         </Link>
-                        <Link
+                        {/* <Link
                           href="/contact"
                           className="pcg-btn pcg-btn-pink-outline"
                           style={{ color: "#ed0f63", backgroundColor: "#ffffff" }}
                         >
                           Request Quote
-                        </Link>
+                        </Link> */}
                       </div>
                     </div>
                   </article>

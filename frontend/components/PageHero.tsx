@@ -224,7 +224,7 @@ export const PageHero: React.FC<PageHeroProps> = ({
           </div>
 
           {/* Stats row */}
-          <div className="hero-stats">
+          {/* <div className="hero-stats">
             <div className="stat-item">
               <h3>10K+</h3>
               <p>Happy Athletes</p>
@@ -237,7 +237,7 @@ export const PageHero: React.FC<PageHeroProps> = ({
               <h3>100%</h3>
               <p>Original Products</p>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
