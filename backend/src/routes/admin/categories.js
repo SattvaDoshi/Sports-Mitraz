@@ -62,6 +62,7 @@ router.get("/flat", async (req, res) => {
 // ─────────────────────────────────────────────
 router.put("/featured", async (req, res) => {
   try {
+    console.log("PUT /featured STARTED");
     const { featuredIds } = req.body;
     if (!Array.isArray(featuredIds)) {
       return res.status(400).json({ success: false, message: "featuredIds must be an array" });
@@ -70,14 +71,17 @@ router.put("/featured", async (req, res) => {
       return res.status(400).json({ success: false, message: "Maximum 5 featured categories allowed" });
     }
 
-    // Reset all to false
-    await Category.update({ isFeatured: false }, { where: { isFeatured: true } });
-
-    // Set selected to true
+    console.log("RESETTING isFeatured = false");
+    // Reset all to false using raw SQL
+    await Category.sequelize.query("UPDATE Categories SET isFeatured = false WHERE isFeatured = true");
+    
+    console.log("SETTING isFeatured = true for", featuredIds);
+    // Set selected to true using raw SQL
     if (featuredIds.length > 0) {
-      await Category.update({ isFeatured: true }, { where: { id: featuredIds } });
+      await Category.sequelize.query(`UPDATE Categories SET isFeatured = true WHERE id IN (${featuredIds.join(",")})`);
     }
 
+    console.log("PUT /featured COMPLETED. Sending response.");
     return res.json({ success: true, message: "Featured categories updated" });
   } catch (error) {
     console.error("Admin PUT /categories/featured error:", error);

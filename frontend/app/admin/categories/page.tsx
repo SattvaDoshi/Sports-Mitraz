@@ -13,6 +13,7 @@ interface Category {
   image: string | null;
   parentId: number | null;
   isLeaf: boolean;
+  isFeatured?: boolean;
   sortOrder: number;
   isActive: boolean;
   subcategories?: Category[];
