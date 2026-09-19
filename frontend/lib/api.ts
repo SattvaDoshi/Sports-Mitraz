@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://200.141.1.164:5000/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const getAdminKey = () => {
   if (typeof window !== "undefined") {

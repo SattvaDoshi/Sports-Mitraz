@@ -203,6 +203,19 @@ export default function AdminCategories() {
                     Product Leaf
                   </span>
                 )}
+                {cat.isFeatured && (
+                  <span
+                    style={{
+                      color: "#f59e0b",
+                      fontSize: "0.8rem",
+                      background: "#fef3c7",
+                      padding: "2px 6px",
+                      borderRadius: "4px",
+                    }}
+                  >
+                    Featured
+                  </span>
+                )}
               </div>
               <div style={{ fontSize: "0.8rem", color: "#62686f" }}>/{cat.slug}</div>
             </div>

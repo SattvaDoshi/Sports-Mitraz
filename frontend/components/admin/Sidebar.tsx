@@ -11,6 +11,7 @@ export const Sidebar = () => {
     { name: "Dashboard", href: "/admin", icon: "📊" },
     { name: "Orders", href: "/admin/orders", icon: "🛒" },
     { name: "Categories", href: "/admin/categories", icon: "📁" },
+    { name: "Featured Categories", href: "/admin/featured-categories", icon: "⭐" },
     { name: "Products", href: "/admin/products", icon: "👕" },
   ];
 

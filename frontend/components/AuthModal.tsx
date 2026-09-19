@@ -22,7 +22,7 @@ export const AuthModal: React.FC = () => {
 
   if (!showAuthModal) return null;
 
-  const API_BASE = "http://200.141.1.164:5000/api/auth"; // Hardcoded for demo, normally from process.env
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://200.141.1.164:5000/api"; // Hardcoded for demo, normally from process.env
 
   const close = () => {
     setShowAuthModal(false);
@@ -49,7 +49,7 @@ export const AuthModal: React.FC = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_BASE}/signup`, {
+      const res = await fetch(`${API_BASE}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, phone, password }),
@@ -71,7 +71,7 @@ export const AuthModal: React.FC = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_BASE}/login`, {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -101,7 +101,7 @@ export const AuthModal: React.FC = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_BASE}/verify-otp`, {
+      const res = await fetch(`${API_BASE}/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp }),
@@ -123,7 +123,7 @@ export const AuthModal: React.FC = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_BASE}/forgot-password`, {
+      const res = await fetch(`${API_BASE}/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -145,7 +145,7 @@ export const AuthModal: React.FC = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_BASE}/reset-password`, {
+      const res = await fetch(`${API_BASE}/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp, newPassword }),

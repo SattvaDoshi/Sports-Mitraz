@@ -48,6 +48,10 @@ const Category = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
+    isFeatured: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   },
   {
     tableName: "Categories",

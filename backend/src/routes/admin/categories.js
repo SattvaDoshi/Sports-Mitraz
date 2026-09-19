@@ -56,6 +56,36 @@ router.get("/flat", async (req, res) => {
 });
 
 // ─────────────────────────────────────────────
+// PUT /api/admin/categories/featured
+// Bulk update featured categories
+// Body: { featuredIds: [1, 2, 3] }
+// ─────────────────────────────────────────────
+router.put("/featured", async (req, res) => {
+  try {
+    const { featuredIds } = req.body;
+    if (!Array.isArray(featuredIds)) {
+      return res.status(400).json({ success: false, message: "featuredIds must be an array" });
+    }
+    if (featuredIds.length > 5) {
+      return res.status(400).json({ success: false, message: "Maximum 5 featured categories allowed" });
+    }
+
+    // Reset all to false
+    await Category.update({ isFeatured: false }, { where: { isFeatured: true } });
+
+    // Set selected to true
+    if (featuredIds.length > 0) {
+      await Category.update({ isFeatured: true }, { where: { id: featuredIds } });
+    }
+
+    return res.json({ success: true, message: "Featured categories updated" });
+  } catch (error) {
+    console.error("Admin PUT /categories/featured error:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// ─────────────────────────────────────────────
 // POST /api/admin/categories
 // Create a new category or subcategory
 // Body: { name, description?, parentId?, isLeaf?, sortOrder?, isActive? }
@@ -78,7 +108,7 @@ router.post(
     }
 
     try {
-      const { name, description, parentId, isLeaf, sortOrder, isActive } = req.body;
+      const { name, description, parentId, isLeaf, sortOrder, isActive, isFeatured } = req.body;
 
       // Generate unique slug
       let slug = slugify(name, { lower: true, strict: true });
@@ -101,6 +131,7 @@ router.post(
         isLeaf: isLeaf === "true" || isLeaf === true || false,
         sortOrder: sortOrder ? parseInt(sortOrder) : 0,
         isActive: isActive !== undefined ? isActive !== "false" : true,
+        isFeatured: isFeatured === "true" || isFeatured === true || false,
       });
 
       return res.status(201).json({ success: true, data: category });
@@ -126,7 +157,7 @@ router.put(
         return res.status(404).json({ success: false, message: "Category not found" });
       }
 
-      const { name, description, parentId, isLeaf, sortOrder, isActive } = req.body;
+      const { name, description, parentId, isLeaf, sortOrder, isActive, isFeatured } = req.body;
 
       let imageUrl = category.image;
       if (req.file) {
@@ -155,6 +186,7 @@ router.put(
         isLeaf: isLeaf !== undefined ? (isLeaf === "true" || isLeaf === true) : category.isLeaf,
         sortOrder: sortOrder !== undefined ? parseInt(sortOrder) : category.sortOrder,
         isActive: isActive !== undefined ? isActive !== "false" : category.isActive,
+        isFeatured: isFeatured !== undefined ? (isFeatured === "true" || isFeatured === true) : category.isFeatured,
       });
 
       return res.json({ success: true, data: category });

@@ -10,6 +10,8 @@ interface Category {
   slug: string;
   description: string;
   image: string | null;
+  isFeatured?: boolean;
+  subcategories?: Category[];
 }
 
 const CATEGORY_IMAGES: Record<string, string> = {
@@ -75,16 +77,24 @@ export const FeaturedProducts: React.FC = () => {
       .then((data) => {
         if (!data.success || !Array.isArray(data.data)) return;
 
-        const apiBySlug: Record<string, Category> = {};
-        data.data.forEach((cat: Category) => {
-          if (cat?.slug) apiBySlug[cat.slug] = cat;
-        });
+        const extractCategories = (cats: Category[]): Category[] => {
+          let all: Category[] = [];
+          for (const c of cats) {
+            all.push(c);
+            if (c.subcategories && Array.isArray(c.subcategories)) {
+              all = all.concat(extractCategories(c.subcategories));
+            }
+          }
+          return all;
+        };
 
-        const hasAll = DISPLAY_ORDER.every((slug) => apiBySlug[slug]);
+        const allCategories = extractCategories(data.data);
+        const featured = allCategories.filter((cat) => cat.isFeatured);
 
-        if (hasAll) {
-          const merged = DISPLAY_ORDER.map((slug) => apiBySlug[slug]);
-          setCategories(merged);
+        if (featured.length > 0) {
+          setCategories(featured.slice(0, 5));
+        } else {
+          setCategories(DEFAULT_CATEGORIES);
         }
       })
       .catch((err) => {
@@ -302,33 +312,44 @@ export const FeaturedProducts: React.FC = () => {
           margin: 0 auto;
         }
 
-        /* Grid */
+        /* Grid -> Flex to center dynamic amount of items */
         .fp-cards-grid {
-          display: grid;
-          grid-template-columns: repeat(5, 1fr);
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
           gap: 28px;
+        }
+
+        .fp-card-item {
+          width: calc(20% - 22.4px); /* (28px gap * 4) / 5 */
         }
 
         @media (max-width: 1200px) {
           .fp-cards-grid {
-            grid-template-columns: repeat(3, 1fr);
             gap: 26px;
+          }
+          .fp-card-item {
+            width: calc(33.333% - 17.33px);
           }
         }
 
         @media (max-width: 768px) {
           .fp-cards-grid {
-            grid-template-columns: repeat(2, 1fr);
             gap: 22px;
+          }
+          .fp-card-item {
+            width: calc(50% - 11px);
           }
         }
 
         @media (max-width: 520px) {
           .fp-cards-grid {
-            grid-template-columns: 1fr;
             gap: 22px;
             max-width: 340px;
             margin: 0 auto;
+          }
+          .fp-card-item {
+            width: 100%;
           }
         }
 

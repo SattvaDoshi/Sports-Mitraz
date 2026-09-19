@@ -99,9 +99,6 @@ export default function CheckoutPage() {
                     {item.customization ? (
                       <div style={{ marginTop: "10px", background: "#f9f9f9", padding: "10px", borderRadius: "4px" }}>
                         <strong>Custom Details:</strong>
-                        <p style={{ margin: "2px 0", fontSize: "0.9rem" }}><b>Name:</b> {item.customization?.name || "N/A"}</p>
-                        <p style={{ margin: "2px 0", fontSize: "0.9rem" }}><b>Mobile:</b> {item.customization?.mobile || "N/A"}</p>
-                        <p style={{ margin: "2px 0", fontSize: "0.9rem" }}><b>Email:</b> {item.customization?.email || "N/A"}</p>
                         <p style={{ margin: "2px 0", fontSize: "0.9rem" }}><b>Message:</b> {item.customization?.message || "N/A"}</p>
                       </div>
                     ) : (
