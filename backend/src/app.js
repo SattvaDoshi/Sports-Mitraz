@@ -26,6 +26,8 @@ app.use(
     origin: [
       process.env.FRONTEND_URL || "http://200.141.1.164:3000",
       "http://200.141.1.164:3001",
+      "https://sportzmitrastore.com",
+      "https://www.sportzmitrastore.com"
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Admin-Key"],
