@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Header } from "../../components/Header";
 import { CtaBand } from "../../components/CtaBand";
 import { Footer } from "../../components/Footer";
+import { getDirectImageUrl } from "@/lib/driveImage";
 
 interface Category {
   id: number;
@@ -129,7 +130,7 @@ export default function ProductsPage() {
                     <article className="pcard category-card" key={cat.id}>
                       <div className="thumb">
                         <img
-                          src={cat.image || CATEGORY_IMAGES[cat.slug] || "/hero-slide-1.jpg"}
+                          src={getDirectImageUrl(cat.image || CATEGORY_IMAGES[cat.slug] || "/hero-slide-1.jpg")}
                           alt={cat.name}
                         />
                       </div>
