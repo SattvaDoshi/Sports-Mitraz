@@ -105,9 +105,15 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log("✅ MySQL connected");
 
-    // alter: true updates table schema without dropping data (safe for dev)
-    await sequelize.sync({ alter: true });
-    console.log("✅ Database synced");
+    // Do NOT run { alter: true } automatically on every nodemon restart:
+    // MySQL creates a new unique index on each restart until hitting the 64-key limit (ER_TOO_MANY_KEYS).
+    if (process.env.DB_ALTER === "true") {
+      await sequelize.sync({ alter: true });
+      console.log("✅ Database schema altered");
+    } else {
+      await sequelize.sync();
+      console.log("✅ Database synced");
+    }
 
     app.listen(PORT, () => {
       console.log(`🚀 SportzMitra API running at http://localhost:${PORT}`);

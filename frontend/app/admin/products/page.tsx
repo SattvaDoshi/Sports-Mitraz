@@ -11,6 +11,16 @@ interface Category {
   slug: string;
 }
 
+interface SizeEntry {
+  size: string;
+  price: string;
+}
+
+interface ProductSizeItem {
+  size: string;
+  price?: number | null;
+}
+
 interface Product {
   id: number;
   name: string;
@@ -22,10 +32,57 @@ interface Product {
   images: string[];
   catalogPdfUrl: string | null;
   tags: string[];
-  sizes: string[];
+  sizes: (string | ProductSizeItem)[];
   isActive: boolean;
   sortOrder: number;
   priceType: "starting" | "fixed";
+}
+
+function parseSizesToEntries(raw: unknown): SizeEntry[] {
+  if (!raw) return [];
+  let list = raw;
+  if (typeof raw === "string") {
+    const trimmed = raw.trim();
+    if (!trimmed) return [];
+    if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
+      try {
+        list = JSON.parse(trimmed);
+      } catch {
+        // fallback to comma
+      }
+    }
+    if (typeof list === "string") {
+      list = list.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+  }
+
+  if (Array.isArray(list)) {
+    return list
+      .map((item) => {
+        if (!item) return null;
+        if (typeof item === "string") {
+          const trimmed = item.trim();
+          if (trimmed.includes(":")) {
+            const [sz, pr] = trimmed.split(":");
+            return { size: sz.trim(), price: pr.trim() };
+          }
+          return { size: trimmed, price: "" };
+        }
+        if (typeof item === "object") {
+          const anyItem = item as any;
+          return {
+            size: String(anyItem.size || anyItem.name || "").trim(),
+            price:
+              anyItem.price !== null && anyItem.price !== undefined
+                ? String(anyItem.price)
+                : "",
+          };
+        }
+        return null;
+      })
+      .filter((e): e is SizeEntry => Boolean(e && e.size));
+  }
+  return [];
 }
 
 export default function AdminProducts() {
@@ -36,6 +93,9 @@ export default function AdminProducts() {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProd, setEditingProd] = useState<Product | null>(null);
+
+  // Size-wise pricing entries state
+  const [sizeEntries, setSizeEntries] = useState<SizeEntry[]>([]);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -79,6 +139,8 @@ export default function AdminProducts() {
   const openModal = (prod?: Product) => {
     if (prod) {
       setEditingProd(prod);
+      const parsedEntries = parseSizesToEntries(prod.sizes);
+      setSizeEntries(parsedEntries);
       setFormData({
         name: prod.name,
         description: prod.description || "",
@@ -86,12 +148,13 @@ export default function AdminProducts() {
         priceType: prod.priceType || "starting",
         categoryId: prod.categoryId.toString(),
         tags: prod.tags ? prod.tags.join(", ") : "",
-        sizes: prod.sizes ? prod.sizes.join(", ") : "",
+        sizes: "",
         isActive: prod.isActive,
         sortOrder: prod.sortOrder,
       });
     } else {
       setEditingProd(null);
+      setSizeEntries([]);
       setFormData({
         name: "",
         description: "",
@@ -114,6 +177,7 @@ export default function AdminProducts() {
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingProd(null);
+    setSizeEntries([]);
     setImageFiles(null);
     setImagePreviews([]);
     setPdfFile(null);
@@ -128,11 +192,30 @@ export default function AdminProducts() {
       const fd = new FormData();
       fd.append("name", formData.name);
       if (formData.description) fd.append("description", formData.description);
-      if (formData.startingPrice) fd.append("startingPrice", formData.startingPrice);
+
+      // Clean size entries and calculate starting price if omitted
+      const cleanedSizes = sizeEntries
+        .filter((e) => e.size.trim() !== "")
+        .map((e) => ({
+          size: e.size.trim(),
+          price: e.price.trim() !== "" && !isNaN(Number(e.price)) ? Number(e.price) : null,
+        }));
+
+      let effectiveStartingPrice = formData.startingPrice;
+      if (!effectiveStartingPrice && cleanedSizes.length > 0) {
+        const numericPrices = cleanedSizes
+          .map((s) => s.price)
+          .filter((p): p is number => p !== null && !isNaN(p));
+        if (numericPrices.length > 0) {
+          effectiveStartingPrice = String(Math.min(...numericPrices));
+        }
+      }
+
+      if (effectiveStartingPrice) fd.append("startingPrice", effectiveStartingPrice);
       fd.append("priceType", formData.priceType);
       fd.append("categoryId", formData.categoryId);
       fd.append("tags", formData.tags);
-      fd.append("sizes", formData.sizes);
+      fd.append("sizes", JSON.stringify(cleanedSizes));
       fd.append("isActive", String(formData.isActive));
       fd.append("sortOrder", String(formData.sortOrder));
 
@@ -271,6 +354,25 @@ export default function AdminProducts() {
                           <div>
                             <div style={{ fontWeight: "bold" }}>{prod.name}</div>
                             <div style={{ fontSize: "0.85rem", color: "#62686f" }}>{prod.tags?.join(", ")}</div>
+                            {prod.sizes && parseSizesToEntries(prod.sizes).length > 0 && (
+                              <div style={{ marginTop: "4px", display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                                {parseSizesToEntries(prod.sizes).map((s, idx) => (
+                                  <span
+                                    key={idx}
+                                    style={{
+                                      fontSize: "0.72rem",
+                                      background: "#f1f5f9",
+                                      border: "1px solid #e2e8f0",
+                                      borderRadius: "4px",
+                                      padding: "1px 6px",
+                                      color: "#334155",
+                                    }}
+                                  >
+                                    {s.size}{s.price ? `: ₹${s.price}` : ""}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </td>
@@ -385,7 +487,7 @@ export default function AdminProducts() {
               </div>
 
               {/* Responsive Grid Row */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "16px" }}>
                 <div>
                   <label style={{ display: "block", marginBottom: "4px", fontWeight: "bold" }}>Price Type</label>
                   <select
@@ -399,13 +501,14 @@ export default function AdminProducts() {
                 </div>
                 <div>
                   <label style={{ display: "block", marginBottom: "4px", fontWeight: "bold" }}>
-                    {formData.priceType === "starting" ? "Starting Price (₹)" : "Price (₹)"}
+                    {formData.priceType === "starting" ? "Base / Starting Price (₹)" : "Price (₹)"}
                   </label>
                   <input
                     type="number"
                     step="0.01"
                     value={formData.startingPrice}
                     onChange={(e) => setFormData({ ...formData, startingPrice: e.target.value })}
+                    placeholder="e.g. 299"
                     style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #e6e9e5", boxSizing: "border-box" }}
                   />
                 </div>
@@ -419,15 +522,171 @@ export default function AdminProducts() {
                     style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #e6e9e5", boxSizing: "border-box" }}
                   />
                 </div>
-                <div>
-                  <label style={{ display: "block", marginBottom: "4px", fontWeight: "bold" }}>Sizes (comma separated)</label>
-                  <input
-                    type="text"
-                    value={formData.sizes}
-                    onChange={(e) => setFormData({ ...formData, sizes: e.target.value })}
-                    placeholder="e.g. S, M, L, XL"
-                    style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #e6e9e5", boxSizing: "border-box" }}
-                  />
+              </div>
+
+              {/* Sizes and Size-Wise Pricing Builder */}
+              <div
+                style={{
+                  background: "#f8fafc",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "8px",
+                  padding: "16px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "12px",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
+                  <div>
+                    <label style={{ display: "block", fontWeight: "bold", fontSize: "0.95rem", color: "#1e293b" }}>
+                      Sizes & Size-Wise Pricing (Optional)
+                    </label>
+                  </div>
+                  {sizeEntries.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setSizeEntries([])}
+                      style={{
+                        fontSize: "0.8rem",
+                        padding: "4px 8px",
+                        background: "transparent",
+                        border: "1px solid #cbd5e1",
+                        borderRadius: "4px",
+                        color: "#64748b",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Clear All
+                    </button>
+                  )}
+                </div>
+
+                {/* Size Rows */}
+                {sizeEntries.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "14px", background: "#fff", border: "1px dashed #cbd5e1", borderRadius: "6px", color: "#94a3b8", fontSize: "0.85rem" }}>
+                    No sizes added yet. Click &quot;+ Add Size&quot; or choose a quick preset above.
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "240px", overflowY: "auto", paddingRight: "4px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 40px", gap: "8px", fontSize: "0.75rem", fontWeight: "bold", color: "#64748b", padding: "0 4px" }}>
+                      <span>SIZE / VARIANT NAME</span>
+                      <span>PRICE (₹) (OPTIONAL)</span>
+                      <span></span>
+                    </div>
+                    {sizeEntries.map((entry, idx) => (
+                      <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 40px", gap: "8px", alignItems: "center" }}>
+                        <input
+                          type="text"
+                          placeholder="e.g. S, 10 inch, 42"
+                          value={entry.size}
+                          onChange={(e) => {
+                            const updated = [...sizeEntries];
+                            updated[idx].size = e.target.value;
+                            setSizeEntries(updated);
+                          }}
+                          style={{
+                            padding: "8px 10px",
+                            borderRadius: "6px",
+                            border: "1px solid #cbd5e1",
+                            background: "#fff",
+                            fontSize: "0.88rem",
+                            boxSizing: "border-box",
+                            width: "100%",
+                          }}
+                        />
+                        <input
+                          type="number"
+                          step="0.01"
+                          placeholder="e.g. 299 (optional)"
+                          value={entry.price}
+                          onChange={(e) => {
+                            const updated = [...sizeEntries];
+                            updated[idx].price = e.target.value;
+                            setSizeEntries(updated);
+                          }}
+                          style={{
+                            padding: "8px 10px",
+                            borderRadius: "6px",
+                            border: "1px solid #cbd5e1",
+                            background: "#fff",
+                            fontSize: "0.88rem",
+                            boxSizing: "border-box",
+                            width: "100%",
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSizeEntries(sizeEntries.filter((_, i) => i !== idx));
+                          }}
+                          title="Remove size"
+                          style={{
+                            height: "36px",
+                            border: "1px solid #fecaca",
+                            background: "#fef2f2",
+                            color: "#ef4444",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontWeight: "bold",
+                            fontSize: "1rem",
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "4px", flexWrap: "wrap", gap: "8px" }}>
+                  <button
+                    type="button"
+                    onClick={() => setSizeEntries([...sizeEntries, { size: "", price: "" }])}
+                    style={{
+                      padding: "8px 14px",
+                      background: "#fff",
+                      border: "1px dashed #64748b",
+                      borderRadius: "6px",
+                      color: "#334155",
+                      cursor: "pointer",
+                      fontSize: "0.85rem",
+                      fontWeight: "600",
+                    }}
+                  >
+                    + Add Size
+                  </button>
+
+                  {/* Suggest min price button if sizes have prices */}
+                  {(() => {
+                    const prices = sizeEntries
+                      .map((e) => (e.price.trim() !== "" ? parseFloat(e.price) : null))
+                      .filter((p): p is number => p !== null && !isNaN(p));
+                    if (prices.length > 0) {
+                      const minPrice = Math.min(...prices);
+                      return (
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, startingPrice: String(minPrice) })}
+                          style={{
+                            fontSize: "0.78rem",
+                            padding: "6px 10px",
+                            background: "#eff6ff",
+                            border: "1px solid #bfdbfe",
+                            borderRadius: "4px",
+                            color: "#2563eb",
+                            cursor: "pointer",
+                            fontWeight: "500",
+                          }}
+                        >
+                          Set Base Price to lowest size (₹{minPrice})
+                        </button>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
               </div>
 

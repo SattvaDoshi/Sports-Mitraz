@@ -12,8 +12,8 @@ interface ApiProduct {
   slug: string;
   description: string;
   startingPrice: number | null;
-  priceType?: string; // NEW
-  sizes?: string[] | string | null; // NEW
+  priceType?: string;
+  sizes?: any;
   images: string[];
   catalogPdfUrl: string | null;
   tags: string[];
@@ -125,7 +125,7 @@ function ProductDetailsContent() {
         description: product.description,
         startingPrice: product.startingPrice || 1200,
         priceType: product.priceType === "fixed" ? "fixed" : "starting", // NEW
-        sizes: normalizeSizes(product.sizes), // CHANGED: this was missing, so sizes never reached ProductDetail
+        sizes: product.sizes,
         catalogPdfUrl: product.catalogPdfUrl || undefined,
         averageRating: product.averageRating,
         totalRatings: product.totalRatings,
@@ -146,7 +146,6 @@ export default function ProductDetailsPage() {
             </div>
           }
         >
-          console.log("API sizes:", product.sizes, "normalized:", normalizeSizes(product.sizes));
           <ProductDetailsContent />
         </Suspense>
       </main>

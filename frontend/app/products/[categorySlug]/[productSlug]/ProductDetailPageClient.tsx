@@ -12,14 +12,14 @@ interface ApiProduct {
   slug: string;
   description: string;
   startingPrice: number | null;
-  priceType?: string; // NEW
-  sizes?: string[] | string | null; // NEW
+  priceType?: string;
+  sizes?: any;
   images: string[];
   catalogPdfUrl: string | null;
   tags: string[];
   category?: { name: string; slug: string };
-  averageRating?: number | string; // NEW
-  totalRatings?: number; // NEW
+  averageRating?: number | string;
+  totalRatings?: number;
 }
 
 const FALLBACK_IMAGES = [
@@ -148,7 +148,7 @@ export function ProductDetailPageClient({ categorySlug, productSlug }: ClientPag
             description: product.description,
             startingPrice: Number(product.startingPrice) || 1200, // CHANGED: API returns "100.00" as a string
             priceType: product.priceType === "fixed" ? "fixed" : "starting", // NEW
-            sizes: normalizeSizes(product.sizes), // NEW: this was the missing piece
+            sizes: product.sizes,
             catalogPdfUrl: product.catalogPdfUrl || undefined,
             averageRating: Number(product.averageRating) || undefined, // NEW
             totalRatings: product.totalRatings, // NEW

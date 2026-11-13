@@ -6,6 +6,57 @@ const { upload, uploadToDrive, uploadManyToDrive } = require("../../middleware/u
 
 const router = express.Router();
 
+// Helper to parse sizes into structured array: [{ size: "M", price: 250 }, ...]
+function parseSizesInput(input) {
+  if (!input) return [];
+  let raw = input;
+  if (typeof input === "string") {
+    const trimmed = input.trim();
+    if (!trimmed) return [];
+    if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
+      try {
+        raw = JSON.parse(trimmed);
+      } catch {
+        // fallback to comma split
+      }
+    }
+    if (typeof raw === "string") {
+      raw = raw.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+  }
+
+  if (Array.isArray(raw)) {
+    return raw
+      .map((item) => {
+        if (!item) return null;
+        if (typeof item === "string") {
+          const trimmed = item.trim();
+          if (trimmed.includes(":")) {
+            const [sz, pr] = trimmed.split(":");
+            const parsedPrice = parseFloat(pr.trim());
+            return {
+              size: sz.trim(),
+              price: !isNaN(parsedPrice) ? parsedPrice : null,
+            };
+          }
+          return { size: trimmed, price: null };
+        }
+        if (typeof item === "object") {
+          const sz = String(item.size || item.name || "").trim();
+          const pr =
+            item.price !== undefined && item.price !== null && item.price !== ""
+              ? parseFloat(item.price)
+              : null;
+          return sz ? { size: sz, price: !isNaN(pr) ? pr : null } : null;
+        }
+        return null;
+      })
+      .filter((s) => s && s.size);
+  }
+
+  return [];
+}
+
 // ─────────────────────────────────────────────
 // GET /api/admin/products
 // List all products (optionally filter by ?categoryId=)
@@ -113,13 +164,18 @@ router.post(
         }
       }
 
-      // Parse sizes (can be comma-separated string or JSON array)
+      // Parse sizes (can be JSON array of objects/strings or comma-separated string)
       let parsedSizes = [];
       if (sizes) {
-        try {
-          parsedSizes = JSON.parse(sizes);
-        } catch {
-          parsedSizes = sizes.split(",").map((s) => s.trim()).filter(Boolean);
+        parsedSizes = parseSizesInput(sizes);
+      }
+
+      // If startingPrice is not provided, calculate minimum price from sizes if available
+      let finalStartingPrice = startingPrice !== undefined && startingPrice !== "" ? parseFloat(startingPrice) : null;
+      if ((finalStartingPrice === null || isNaN(finalStartingPrice)) && parsedSizes.length > 0) {
+        const prices = parsedSizes.map((s) => s.price).filter((p) => p !== null && !isNaN(p));
+        if (prices.length > 0) {
+          finalStartingPrice = Math.min(...prices);
         }
       }
 
@@ -127,7 +183,7 @@ router.post(
         name,
         slug,
         description: description || null,
-        startingPrice: startingPrice ? parseFloat(startingPrice) : null,
+        startingPrice: finalStartingPrice,
         priceType: priceType || "starting",
         sizes: parsedSizes,
         categoryId: parseInt(categoryId),
@@ -224,10 +280,17 @@ router.put("/:id", productUpload, async (req, res) => {
     // Parse sizes
     let parsedSizes = product.sizes;
     if (sizes !== undefined) {
-      try {
-        parsedSizes = JSON.parse(sizes);
-      } catch {
-        parsedSizes = sizes.split(",").map((s) => s.trim()).filter(Boolean);
+      parsedSizes = parseSizesInput(sizes);
+    }
+
+    let finalStartingPrice =
+      startingPrice !== undefined && startingPrice !== ""
+        ? parseFloat(startingPrice)
+        : product.startingPrice;
+    if ((finalStartingPrice === null || isNaN(finalStartingPrice)) && parsedSizes && parsedSizes.length > 0) {
+      const prices = parsedSizes.map((s) => s.price).filter((p) => p !== null && !isNaN(p));
+      if (prices.length > 0) {
+        finalStartingPrice = Math.min(...prices);
       }
     }
 
@@ -235,7 +298,7 @@ router.put("/:id", productUpload, async (req, res) => {
       name: name || product.name,
       slug,
       description: description !== undefined ? description : product.description,
-      startingPrice: startingPrice !== undefined ? parseFloat(startingPrice) : product.startingPrice,
+      startingPrice: finalStartingPrice,
       priceType: priceType !== undefined ? priceType : product.priceType,
       sizes: parsedSizes,
       categoryId: categoryId ? parseInt(categoryId) : product.categoryId,

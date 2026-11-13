@@ -10,6 +10,11 @@ export interface Category {
   discount: string;
 }
 
+export interface SizeOption {
+  size: string;
+  price?: number | null;
+}
+
 export interface Product {
   id: string;
   categorySlug: string;
@@ -19,7 +24,7 @@ export interface Product {
   description: string;
 
   colors?: string[];
-  sizes?: string[];
+  sizes?: (string | SizeOption)[];
 
   badge?: string;
   emiFrom: number;

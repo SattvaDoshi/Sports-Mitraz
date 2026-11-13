@@ -87,6 +87,24 @@ export const CartDrawer: React.FC = () => {
                   <div className="cd-item-top">
                     <div>
                       <h4 className="cd-item-title">{item.title}</h4>
+                      {item.size && (
+                        <span
+                          style={{
+                            fontSize: "0.75rem",
+                            background: "#f1f5f9",
+                            border: "1px solid #e2e8f0",
+                            borderRadius: "4px",
+                            padding: "2px 6px",
+                            color: "#475569",
+                            display: "inline-block",
+                            marginTop: "2px",
+                            marginBottom: "4px",
+                            fontWeight: "500",
+                          }}
+                        >
+                          Size: {item.size}
+                        </span>
+                      )}
                       <p className="cd-item-price">₹{(Number(item.price) || 0).toFixed(2)}</p>
                     </div>
                     <button

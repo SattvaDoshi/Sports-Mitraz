@@ -23,7 +23,7 @@ export default function CheckoutPage() {
       const customerEmail = firstCustomization?.email || user?.email || "";
 
       // Combine products
-      const productSummary = cart.map(item => `${item.title} (x${item.quantity})`).join(", ");
+      const productSummary = cart.map(item => `${item.title}${item.size ? ` [Size: ${item.size}]` : ""} (x${item.quantity}) - ₹${item.price * item.quantity}`).join(", ");
       
       // Combine messages (excluding redundant user details)
       const messageSummary = cart.map(item => {
@@ -94,7 +94,14 @@ export default function CheckoutPage() {
                   />
                   <div style={{ flex: 1 }}>
                     <h3>{item.title}</h3>
-                    <p style={{ fontWeight: "bold", color: "#e91e63" }}>Starting from ₹{item.price}</p>
+                    {item.size && (
+                      <p style={{ margin: "2px 0 6px", fontSize: "0.85rem", color: "#475569" }}>
+                        <b>Size:</b> {item.size}
+                      </p>
+                    )}
+                    <p style={{ fontWeight: "bold", color: "#e91e63" }}>
+                      ₹{item.price} {item.quantity > 1 ? `(Total: ₹${item.price * item.quantity})` : ""}
+                    </p>
 
                     {item.customization ? (
                       <div style={{ marginTop: "10px", background: "#f9f9f9", padding: "10px", borderRadius: "4px" }}>

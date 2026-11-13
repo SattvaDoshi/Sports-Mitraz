@@ -7,6 +7,11 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { getDirectImageUrl } from "@/lib/driveImage";
 
+export interface ProductSizeOption {
+  size: string;
+  price: number | null;
+}
+
 interface ProductDetailProps {
   product?: {
     id: string;
@@ -17,12 +22,72 @@ interface ProductDetailProps {
     description: string;
     startingPrice: number;
     priceType?: "starting" | "fixed";
-    sizes?: string[];
+    sizes?: (string | ProductSizeOption)[] | string | null;
     catalogPdfUrl?: string;
     averageRating?: number;
     totalRatings?: number;
     isBestseller?: boolean;
   };
+}
+
+function normalizeSizes(raw: unknown): ProductSizeOption[] {
+  if (!raw) return [];
+  let parsed = raw;
+  if (typeof raw === "string") {
+    const trimmed = raw.trim();
+    if (!trimmed) return [];
+    if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
+      try {
+        parsed = JSON.parse(trimmed);
+      } catch {
+        // fall through
+      }
+    }
+    if (typeof parsed === "string") {
+      return parsed
+        .split(",")
+        .map((part) => {
+          const item = part.trim();
+          if (!item) return null;
+          if (item.includes(":")) {
+            const [sz, pr] = item.split(":");
+            const num = parseFloat(pr.trim());
+            return { size: sz.trim(), price: !isNaN(num) ? num : null };
+          }
+          return { size: item, price: null };
+        })
+        .filter((s): s is ProductSizeOption => Boolean(s && s.size));
+    }
+  }
+
+  if (Array.isArray(parsed)) {
+    return parsed
+      .map((item) => {
+        if (!item) return null;
+        if (typeof item === "string") {
+          const trimmed = item.trim();
+          if (trimmed.includes(":")) {
+            const [sz, pr] = trimmed.split(":");
+            const num = parseFloat(pr.trim());
+            return { size: sz.trim(), price: !isNaN(num) ? num : null };
+          }
+          return { size: trimmed, price: null };
+        }
+        if (typeof item === "object") {
+          const anyItem = item as any;
+          const sz = String(anyItem.size || anyItem.name || "").trim();
+          const pr =
+            anyItem.price !== undefined && anyItem.price !== null && anyItem.price !== ""
+              ? parseFloat(String(anyItem.price))
+              : null;
+          return sz ? { size: sz, price: !isNaN(pr as number) ? pr : null } : null;
+        }
+        return null;
+      })
+      .filter((s): s is ProductSizeOption => Boolean(s && s.size));
+  }
+
+  return [];
 }
 
 export const ProductDetail: React.FC<ProductDetailProps> = ({
@@ -62,15 +127,15 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   const { isAuthenticated, setShowAuthModal, user } = useAuth();
   const [pendingBuyNow, setPendingBuyNow] = useState(false);
 
-  // NEW: normalise sizes (handles array, "S, M, L" string, or undefined from the API)
-  const availableSizes: string[] = Array.isArray(product.sizes)
-    ? product.sizes.map((s) => String(s).trim()).filter(Boolean)
-    : typeof product.sizes === "string"
-    ? (product.sizes as string).split(",").map((s) => s.trim()).filter(Boolean)
-    : [];
-console.log("PD sizes prop:", product.sizes, "available:", availableSizes);
-  // NEW: selected size state
+  // Normalised sizes (handles array of strings/objects, "S, M, L", or JSON string)
+  const availableSizes: ProductSizeOption[] = normalizeSizes(product.sizes);
   const [selectedSize, setSelectedSize] = useState<string>("");
+
+  const selectedSizeOption = availableSizes.find((s) => s.size === selectedSize);
+  const currentUnitPrice =
+    selectedSizeOption && selectedSizeOption.price != null
+      ? Number(selectedSizeOption.price)
+      : Number(product.startingPrice) || 0;
 
   // Rating State
   const [rating, setRating] = useState<number>(0);
@@ -163,13 +228,13 @@ console.log("PD sizes prop:", product.sizes, "available:", availableSizes);
     setIsQuoteSubmitted(true);
 
     addToCart({
-      id: `${product.id}-${Date.now()}`,
+      id: `${product.id}-${selectedSize || "default"}-${Date.now()}`,
       title: product.title,
-      price: product.startingPrice,
+      price: currentUnitPrice,
       img: activeImage,
       quantity: quantity,
       customization: formData,
-      size: selectedSize || formData.requirement, // CHANGED: use the selected size, fall back to old behaviour
+      size: selectedSize || formData.requirement,
     });
 
     if (formAction === "buy_now") {
@@ -290,29 +355,46 @@ console.log("PD sizes prop:", product.sizes, "available:", availableSizes);
             {/* Price */}
             <div className="pd-price-row">
               <span className="pd-price-text">
-                {product.priceType === "fixed" ? "Rs." : "Starting from Rs."}{" "}
-                <span className="pd-price-amount">
-                  {(Number(product?.startingPrice) || 0).toFixed(2)}
-                </span>
+                {selectedSizeOption && selectedSizeOption.price != null ? (
+                  <>
+                    Rs.{" "}
+                    <span className="pd-price-amount">
+                      {currentUnitPrice.toFixed(2)}
+                    </span>
+                    <span style={{ fontSize: "0.85rem", color: "#666", marginLeft: "8px", fontWeight: "normal" }}>
+                      ({selectedSize} size)
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    {product.priceType === "fixed" ? "Rs." : "Starting from Rs."}{" "}
+                    <span className="pd-price-amount">
+                      {currentUnitPrice.toFixed(2)}
+                    </span>
+                  </>
+                )}
               </span>
             </div>
 
-            {/* NEW: Size Selector */}
+            {/* Size Selector */}
             {availableSizes.length > 0 && (
               <div className="pd-size-section">
                 <div className="pd-size-label">
                   Size: <strong>{selectedSize || "Select a size"}</strong>
                 </div>
                 <div className="pd-size-options">
-                  {availableSizes.map((size) => (
+                  {availableSizes.map((opt) => (
                     <button
-                      key={size}
+                      key={opt.size}
                       type="button"
-                      className={`pd-size-btn ${selectedSize === size ? "active" : ""}`}
-                      onClick={() => setSelectedSize(size)}
-                      aria-pressed={selectedSize === size}
+                      className={`pd-size-btn ${selectedSize === opt.size ? "active" : ""}`}
+                      onClick={() => setSelectedSize(opt.size)}
+                      aria-pressed={selectedSize === opt.size}
                     >
-                      {size}
+                      <span className="pd-size-name">{opt.size}</span>
+                      {opt.price != null && (
+                        <span className="pd-size-price-tag">₹{opt.price}</span>
+                      )}
                     </button>
                   ))}
                 </div>
@@ -577,9 +659,9 @@ console.log("PD sizes prop:", product.sizes, "available:", availableSizes);
         }
 
         .pd-size-btn {
-          min-width: 44px;
-          height: 40px;
-          padding: 0 14px;
+          min-width: 50px;
+          min-height: 42px;
+          padding: 6px 14px;
           border: 1.5px solid #e0e0e0;
           border-radius: 8px;
           background: #fff;
@@ -587,7 +669,12 @@ console.log("PD sizes prop:", product.sizes, "available:", availableSizes);
           font-weight: 600;
           font-size: 0.9rem;
           cursor: pointer;
-          transition: border-color 0.2s, background 0.2s, color 0.2s;
+          transition: all 0.2s;
+          display: inline-flex;
+          flex-direction: column;
+          align-items: center;
+          justifyContent: center;
+          gap: 2px;
         }
 
         .pd-size-btn:hover {
@@ -599,6 +686,21 @@ console.log("PD sizes prop:", product.sizes, "available:", availableSizes);
           border-color: #ff007a;
           background-color: #ff007a;
           color: #fff;
+        }
+
+        .pd-size-name {
+          font-weight: 700;
+        }
+
+        .pd-size-price-tag {
+          font-size: 0.75rem;
+          font-weight: 600;
+          opacity: 0.85;
+        }
+
+        .pd-size-btn.active .pd-size-price-tag {
+          color: #fff;
+          opacity: 0.95;
         }
 
         /* Action Controls */
