@@ -12,10 +12,14 @@ interface ApiProduct {
   slug: string;
   description: string;
   startingPrice: number | null;
+  priceType?: string; // NEW
+  sizes?: string[] | string | null; // NEW
   images: string[];
   catalogPdfUrl: string | null;
   tags: string[];
   category?: { name: string; slug: string };
+  averageRating?: number | string; // NEW
+  totalRatings?: number; // NEW
 }
 
 const FALLBACK_IMAGES = [
@@ -24,6 +28,29 @@ const FALLBACK_IMAGES = [
   "/hero-slide-3.jpg",
   "/hero-slide-4.jpg",
 ];
+
+// NEW: handles an array, a "S, M, L" string, a JSON string like '["S","M"]', or null
+function normalizeSizes(raw: unknown): string[] {
+  if (Array.isArray(raw)) {
+    return raw.map((s) => String(s).trim()).filter(Boolean);
+  }
+  if (typeof raw === "string") {
+    const trimmed = raw.trim();
+    if (!trimmed) return [];
+    if (trimmed.startsWith("[")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) {
+          return parsed.map((s) => String(s).trim()).filter(Boolean);
+        }
+      } catch {
+        // fall through to comma split
+      }
+    }
+    return trimmed.split(",").map((s) => s.trim()).filter(Boolean);
+  }
+  return [];
+}
 
 interface ClientPageProps {
   categorySlug: string;
@@ -84,14 +111,7 @@ export function ProductDetailPageClient({ categorySlug, productSlug }: ClientPag
       <>
         <Header />
         <main>
-          <div className="container" style={{ padding: "20px 20px 0" }}>
-            {/* <div className="breadcrumb" style={{ fontSize: "14px", color: "#64748b", marginBottom: "20px" }}> */}
-              {/* <Link href="/" style={{ color: "#64748b", textDecoration: "none" }}>Home</Link> /{" "}
-              <Link href="/products" style={{ color: "#64748b", textDecoration: "none" }}>Products</Link> /{" "}
-              <Link href={`/products/${categorySlug}`} style={{ color: "#64748b", textDecoration: "none" }}>{formattedCategoryName}</Link> /{" "}
-              <span style={{ color: "#0f172a", fontWeight: "600" }}>{formattedTitle}</span>
-            </div> */}
-          </div>
+          <div className="container" style={{ padding: "20px 20px 0" }}></div>
           <ProductDetail
             product={{
               id: productSlug,
@@ -117,25 +137,21 @@ export function ProductDetailPageClient({ categorySlug, productSlug }: ClientPag
     <>
       <Header />
       <main>
-        <div className="container" style={{ padding: "20px 20px 0" }}>
-          {/* <div className="breadcrumb" style={{ fontSize: "14px", color: "#64748b", marginBottom: "10px" }}>
-            <Link href="/" style={{ color: "#64748b", textDecoration: "none" }}>Home</Link> /{" "}
-            <Link href="/products" style={{ color: "#64748b", textDecoration: "none" }}>Products</Link> /{" "}
-            <Link href={`/products/${categorySlug}`} style={{ color: "#64748b", textDecoration: "none" }}>
-              {product.category?.name || formattedCategoryName}
-            </Link>{" "}
-            / <span style={{ color: "#0f172a", fontWeight: "600" }}>{product.name}</span>
-          </div> */}
-        </div>
+        <div className="container" style={{ padding: "20px 20px 0" }}></div>
         <ProductDetail
           product={{
             id: String(product.id),
             title: product.name,
+            category: product.category?.name, // NEW
             mainImage: gallery[0],
             gallery,
             description: product.description,
-            startingPrice: product.startingPrice || 1200,
+            startingPrice: Number(product.startingPrice) || 1200, // CHANGED: API returns "100.00" as a string
+            priceType: product.priceType === "fixed" ? "fixed" : "starting", // NEW
+            sizes: normalizeSizes(product.sizes), // NEW: this was the missing piece
             catalogPdfUrl: product.catalogPdfUrl || undefined,
+            averageRating: Number(product.averageRating) || undefined, // NEW
+            totalRatings: product.totalRatings, // NEW
           }}
         />
       </main>

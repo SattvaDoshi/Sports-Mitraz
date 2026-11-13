@@ -12,6 +12,8 @@ interface ApiProduct {
   slug: string;
   description: string;
   startingPrice: number | null;
+  priceType?: string; // NEW
+  sizes?: string[] | string | null; // NEW
   images: string[];
   catalogPdfUrl: string | null;
   tags: string[];
@@ -26,6 +28,29 @@ const FALLBACK_IMAGES = [
   "/hero-slide-3.jpg",
   "/hero-slide-4.jpg",
 ];
+
+// NEW: handles an array, a "S, M, L" string, a JSON string like '["S","M"]', or null
+function normalizeSizes(raw: unknown): string[] {
+  if (Array.isArray(raw)) {
+    return raw.map((s) => String(s).trim()).filter(Boolean);
+  }
+  if (typeof raw === "string") {
+    const trimmed = raw.trim();
+    if (!trimmed) return [];
+    if (trimmed.startsWith("[")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) {
+          return parsed.map((s) => String(s).trim()).filter(Boolean);
+        }
+      } catch {
+        // fall through to comma split
+      }
+    }
+    return trimmed.split(",").map((s) => s.trim()).filter(Boolean);
+  }
+  return [];
+}
 
 function ProductDetailsContent() {
   const searchParams = useSearchParams();
@@ -94,10 +119,13 @@ function ProductDetailsContent() {
       product={{
         id: String(product.id),
         title: product.name,
+        category: product.category?.name, // NEW
         mainImage: gallery[0],
         gallery,
         description: product.description,
         startingPrice: product.startingPrice || 1200,
+        priceType: product.priceType === "fixed" ? "fixed" : "starting", // NEW
+        sizes: normalizeSizes(product.sizes), // CHANGED: this was missing, so sizes never reached ProductDetail
         catalogPdfUrl: product.catalogPdfUrl || undefined,
         averageRating: product.averageRating,
         totalRatings: product.totalRatings,
@@ -118,6 +146,7 @@ export default function ProductDetailsPage() {
             </div>
           }
         >
+          console.log("API sizes:", product.sizes, "normalized:", normalizeSizes(product.sizes));
           <ProductDetailsContent />
         </Suspense>
       </main>

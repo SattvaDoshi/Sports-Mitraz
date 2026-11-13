@@ -62,6 +62,16 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   const { isAuthenticated, setShowAuthModal, user } = useAuth();
   const [pendingBuyNow, setPendingBuyNow] = useState(false);
 
+  // NEW: normalise sizes (handles array, "S, M, L" string, or undefined from the API)
+  const availableSizes: string[] = Array.isArray(product.sizes)
+    ? product.sizes.map((s) => String(s).trim()).filter(Boolean)
+    : typeof product.sizes === "string"
+    ? (product.sizes as string).split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
+console.log("PD sizes prop:", product.sizes, "available:", availableSizes);
+  // NEW: selected size state
+  const [selectedSize, setSelectedSize] = useState<string>("");
+
   // Rating State
   const [rating, setRating] = useState<number>(0);
   const [hoverRating, setHoverRating] = useState<number>(0);
@@ -87,6 +97,11 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
       setActiveImage(product.mainImage);
     }
   }, [product?.mainImage]);
+
+  // NEW: reset selected size when the product (and its sizes) changes
+  useEffect(() => {
+    setSelectedSize("");
+  }, [product.id]);
 
   useEffect(() => {
     if (pendingBuyNow && isAuthenticated) {
@@ -154,7 +169,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
       img: activeImage,
       quantity: quantity,
       customization: formData,
-      size: formData.requirement,
+      size: selectedSize || formData.requirement, // CHANGED: use the selected size, fall back to old behaviour
     });
 
     if (formAction === "buy_now") {
@@ -165,12 +180,22 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
     }
   };
 
+  // NEW: shared guard so both buttons require a size when the product has sizes
+  const requireSizeIfNeeded = (): boolean => {
+    if (availableSizes.length > 0 && !selectedSize) {
+      toast.error("Please select a size");
+      return false;
+    }
+    return true;
+  };
+
   const handleAddToCart = () => {
     if (formAction === "add_to_cart") {
       // Toggle off if clicked again
       setFormAction(null);
       return;
     }
+    if (!requireSizeIfNeeded()) return; // NEW
     setFormAction("add_to_cart");
     if (isAuthenticated) {
       setFormData((prev) => ({
@@ -186,6 +211,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
       setFormAction(null);
       return;
     }
+    if (!requireSizeIfNeeded()) return; // NEW
 
     if (!isAuthenticated) {
       setPendingBuyNow(true);
@@ -204,12 +230,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
 
   return (
     <div className="pd-wrapper">
-      {/* Breadcrumbs */}
-      {/* <nav className="pd-breadcrumbs container">
-        <span>Home</span> / <span>Products</span> / <span>{product.category || "Trophies"}</span> /{" "}
-        <strong className="pd-breadcrumb-current">{product.title}</strong>
-      </nav> */}
-
       <div className="pd-container container">
         <div className="pd-grid">
           {/* Gallery Container */}
@@ -277,6 +297,28 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
               </span>
             </div>
 
+            {/* NEW: Size Selector */}
+            {availableSizes.length > 0 && (
+              <div className="pd-size-section">
+                <div className="pd-size-label">
+                  Size: <strong>{selectedSize || "Select a size"}</strong>
+                </div>
+                <div className="pd-size-options">
+                  {availableSizes.map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      className={`pd-size-btn ${selectedSize === size ? "active" : ""}`}
+                      onClick={() => setSelectedSize(size)}
+                      aria-pressed={selectedSize === size}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Quantity + Add to Cart */}
             <div className="pd-qty-cart-row">
               <div className="pd-qty-selector">
@@ -323,12 +365,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
         {/* Custom Order Form Accordion / Section */}
         {formAction !== null && (
           <section className="contact-wrap pd-quote-section" ref={formRef}>
-            {/* {formAction === "add_to_cart" && (
-              <div className="pd-redirect-note">
-                📌 <strong>Please fill out this form to save your product details and add it to your cart.</strong>
-              </div>
-            )} */}
-
             <div className="info-box">
               <h3>Custom Order Details</h3>
               <p>Fill out the details below to proceed with your customized item.</p>
@@ -342,36 +378,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             </div>
 
             <form className="contact-form pd-form" onSubmit={handleQuoteSubmit}>
-              {/* <div className="field"> */}
-                {/* <label>Name</label>
-                <input
-                  name="name"
-                  required
-                  placeholder="Your name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                /> */}
-              {/* </div> */}
-              {/* <div className="field">
-                <label>Mobile</label>
-                <input
-                  name="mobile"
-                  required
-                  placeholder="+91"
-                  value={formData.mobile}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="field">
-                <label>Email</label>
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                />
-              </div> */}
               <div className="field">
                 <label>Requirement / Design Code</label>
                 <input
@@ -405,16 +411,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           background-color: #fff;
           color: #333;
           font-family: inherit;
-        }
-
-        .pd-breadcrumbs {
-          padding: 16px 0;
-          font-size: 0.85rem;
-          color: #777;
-        }
-
-        .pd-breadcrumb-current {
-          color: #222;
         }
 
         .pd-container {
@@ -559,6 +555,52 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           font-size: 1.5rem;
         }
 
+        /* NEW: Size selector */
+        .pd-size-section {
+          margin-bottom: 20px;
+        }
+
+        .pd-size-label {
+          font-size: 0.9rem;
+          color: #555;
+          margin-bottom: 8px;
+        }
+
+        .pd-size-label strong {
+          color: #111;
+        }
+
+        .pd-size-options {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+
+        .pd-size-btn {
+          min-width: 44px;
+          height: 40px;
+          padding: 0 14px;
+          border: 1.5px solid #e0e0e0;
+          border-radius: 8px;
+          background: #fff;
+          color: #333;
+          font-weight: 600;
+          font-size: 0.9rem;
+          cursor: pointer;
+          transition: border-color 0.2s, background 0.2s, color 0.2s;
+        }
+
+        .pd-size-btn:hover {
+          border-color: #ff007a;
+          color: #ff007a;
+        }
+
+        .pd-size-btn.active {
+          border-color: #ff007a;
+          background-color: #ff007a;
+          color: #fff;
+        }
+
         /* Action Controls */
         .pd-qty-cart-row {
           display: flex;
@@ -667,16 +709,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           border-radius: 12px;
           border: 1px solid #eee;
           scroll-margin-top: 20px;
-        }
-
-        .pd-redirect-note {
-          background-color: #e7f5ff;
-          color: #0056b3;
-          border: 1px solid #b3d7ff;
-          padding: 12px 16px;
-          border-radius: 8px;
-          margin-bottom: 20px;
-          font-size: 0.9rem;
         }
 
         .pd-instructions {
